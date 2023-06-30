@@ -33,7 +33,6 @@ def right():
 
 def open_bag():
     # keyboard.press('x')
-
     pyautogui.keyDown('x')
     pyautogui.keyUp('x')
 
@@ -59,10 +58,6 @@ def activate_run():
 
 def deactivate_run():
     pyautogui.keyUp('space')
-
-
-def switch_tab():
-    pyautogui.hotkey("alt", "tab")
 
 
 def soft_reset():

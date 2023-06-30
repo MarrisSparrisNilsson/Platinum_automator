@@ -1,10 +1,9 @@
-import sys
-
-import pyautogui
+# import pyautogui
 import time
 import keyboard
 
-import controls
+
+# import controls
 
 
 def start_pokeradar_hunt():
@@ -49,23 +48,18 @@ def start_fishing_hunt():
         return None
 
 
+def start_soft_reset_hunt():
+    return None
+
+
 def watch_quit():
     keyboard.wait("esc")
     # if keyboard.is_pressed("esc"):
     print("Escape was pressed!")
-    # controls.switch_tab()
-    # sys.exit()
     return True
-
-    # quit()
-
-    # if keyboard.is_pressed("q"):
-    #     quit()
 
 
 def move(direction, steps=1):
-    # if last_dir != '':
-    #     keyboard.release(last_dir)
     keyboard.press(direction)
     # start = time.time()
     if steps == 0:
@@ -87,30 +81,11 @@ def lets_try_spinning(done):
     print("Character is spinning XO")
     move_dirs = ['a', 'w', 'd', 's']
 
-    # end = False
-    # last_dir = ''
     while not done[0]:
 
-        # if keyboard.is_pressed("q"):
-        #     end = True
-        #
-        # if keyboard.is_pressed("alt+tab"):
-        #     end = True
-
         for i in range(4):
-            # print(i)
-            # if keyboard.is_pressed("q"):
-            #     end = True
-            #
-            # if keyboard.is_pressed("alt+tab"):
-            #     end = True
-
-            # movement[i]
             if done[0]:
                 print(f"Break was fired at i={i}")
                 break
 
             move(move_dirs[i], steps=2)
-
-    # keyboard.release(last_dir)
-    # controls.switch_tab()
