@@ -1,11 +1,13 @@
 # External modules
 # import pyautogui
-import pygetwindow as pywindow
+import os
 import time
 import random
 import keyboard
 # import multiprocessing as mp
 import threading as thread
+
+import pyautogui
 
 # Local modules
 import controls
@@ -14,16 +16,19 @@ import detection
 
 
 def main():
-    print("--- Hello PyAutoGUI! ---")
-    steps = random.randint(1, 10)
-    print(f"Character is taking: {steps} steps")
+    # print("--- Hello PyAutoGUI! ---")
+    # steps = random.randint(1, 10)
+    # print(f"Character is taking: {steps} steps")
     done = [False]
 
-    t1 = thread.Thread(target=actions.lets_try_spinning, args=(done,), daemon=True)
+    # t1 = thread.Thread(target=actions.lets_try_spinning, args=(done,), daemon=True)
     # t2 = thread.Thread(target=actions.watch_quit, daemon=True)
 
     # print("\nSwitching tab")
-    set_window_focus()
+    habitat = get_habitat()
+    window = detection.set_window_focus()
+    detection.find_pause_and_resume()
+    t1 = thread.Thread(target=actions.regular_hunt, args=(window, habitat, done,), daemon=True)
 
     t1.start()
     done[0] = actions.watch_quit()
@@ -58,63 +63,87 @@ def display_menu():
           "\n1: Pokeradar hunt"
           "\n2: Fishing hunt"
           "\n3: Fossil hunt"
-          "\n4: Soft reset hunt"
-          "\n5: Regular encounters"
+          "\n4: Safari zone hunt"
+          "\n5: Soft reset hunt"
+          "\n6: Egg hunt"
+          "\n7: Regular encounters"
           "\n======================="
           "\n\nOther automations:"
           "\n======================="
-          "\n6: "
+          "\n8: "
           "\n======================="
           "\n0: Quit")
 
 
 def select_action():
-    option = input("Enter your option (0-6: ")
+    option = input("Enter your option (0-8: ")
     match option:
         case 0:
-            print("Quitting")
+            print("Program exited.")
         case 1:
-            print("Running Pokeradar hunt")
+            print("Begin Pokeradar hunt!")
         case 2:
-            print("Running Fishing hunt")
+            print("Begin Fishing hunt!")
         case 3:
-            print("Running Fossil hunt")
+            print("Begin Fossil hunt!")
         case 4:
-            print("Running Soft reset hunt")
+            print("Begin Safari zone hunt!")
         case 5:
-            print("Running Regular hunt")
+            print("Begin Soft reset hunt!")
         case 6:
-            print("Running ... hunt")
-
+            print("Begin Egg hunt!")
+        case 7:
+            print("Begin Regular hunt!")
         case _:
             print("This option is not available, try again")
 
 
-def set_window_focus():
-    version_num = "0.9.11"
-    window_name1 = f"DeSmuME {version_num} x64"
-    window_name2 = "Paused"
-    time.sleep(1)
+def test_function():
+    screenshot = pyautogui.screenshot(region=(850, 100, 850, 1000))
+    screenshot.save("../images/shiny_area.png")
 
-    try:
-        window = pywindow.getWindowsWithTitle(window_name1)[0]
-        window.activate()
-        time.sleep(1)
-        print(window)
-    except IndexError:
+
+def get_habitat():
+    while True:
+        print("\nPlease select one of the following habitats:")
+        counter = 0
+        folder_dir = f"../images/sparkles"
+        habitat_types = []
+        for habitat_type in os.listdir(folder_dir):
+            print(f"{counter + 1}: {habitat_type.capitalize()}")
+            habitat_types.append(habitat_type)
+            counter += 1
+        time.sleep(0.2)
+        controls.console_focus()
+        selected_habitat = input(f"Please select your current hunting habitat (1-{counter}): ")
         try:
-            window = pywindow.getWindowsWithTitle(window_name2)[0]
-            window.activate()
-            time.sleep(1)
-            print(window)
+            valid_habitat_name = habitat_types[int(selected_habitat) - 1]
+            if valid_habitat_name:
+                print(f"{valid_habitat_name.capitalize()} was selected")
+                return valid_habitat_name
+            else:
+                print("No such habitat is listed. Try again")
+
+        except ValueError:
+            print("Enter a valid number dumbass...")
         except IndexError:
-            print(f'\nWindow named: "{window_name1}" or "{window_name2}" could not be found.')
+            print("Not a list option.")
 
 
 if __name__ == '__main__':
-    # keyboard.on_press_key("esc", on_key_press)
+    try:
 
-    set_window_focus()
-    detection.find_pause_and_resume()
-    # main()
-    # display_menu()
+        main()
+
+        # window = detection.set_window_focus()
+        # print(window)
+        # detection.find_pause_and_resume()
+        # time.sleep(1)
+
+        # test_function()
+
+        # detection.encounter_detection(window.width, window.height, habitat)
+
+        # display_menu()
+    except KeyboardInterrupt:
+        print("\nSession ended.")
