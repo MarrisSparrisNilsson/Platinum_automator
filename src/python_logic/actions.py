@@ -1,12 +1,16 @@
 # import pyautogui
 import time
 import keyboard
+import random
+# import contextvars
+
+import detection
 
 
 # import controls
 
 
-def start_pokeradar_hunt():
+def pokeradar_hunt():
     # while not keyboard.is_pressed("q"):
     while True:
         # while - begin
@@ -30,15 +34,14 @@ def start_pokeradar_hunt():
         return None
 
 
-def start_fishing_hunt():
+def fishing_hunt():
     while True:
-        # keyboard._listener()
         # while - begin
         # Press b
         # Look for:
         # if fish_on
-        # -> spam press_a 3 times with 0.25 seconds between each and then wait for 10 seconds
-        # -> Check if a shiny appeared
+        # -> spam press_a 2 or 3 times with 0.25 seconds between each and then wait for 5 seconds
+        # -> Check if a shiny appeared with rate of 0.1 seconds
         #       -> quit()
         # -> else look for run button and then click
         # else no_fish
@@ -48,7 +51,12 @@ def start_fishing_hunt():
         return None
 
 
-def start_soft_reset_hunt():
+def soft_reset_hunt():
+    return None
+
+
+def regular_hunt(window, habitat, done):
+    detection.encounter_detection(window.width, window.height, habitat, walk_random, done)
     return None
 
 
@@ -57,6 +65,14 @@ def watch_quit():
     # if keyboard.is_pressed("esc"):
     print("Escape was pressed!")
     return True
+
+
+def walk_random(done):
+    move_dirs = ['a', 'w', 'd', 's']
+    while not done[0]:
+        random_dir = random.randint(0, 4)
+        random_steps = random.randint(1, 4)
+        move(move_dirs[random_dir], random_steps)
 
 
 def move(direction, steps=1):
@@ -74,11 +90,11 @@ def move(direction, steps=1):
         time.sleep(0.2)
     # end = time.time()
     # print(f"Step active for: {end - start}s")
-    return direction
+    # return direction
 
 
 def lets_try_spinning(done):
-    print("Character is spinning XO")
+    print("Character is spinning")
     move_dirs = ['a', 'w', 'd', 's']
 
     while not done[0]:
