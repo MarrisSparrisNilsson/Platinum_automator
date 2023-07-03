@@ -4,9 +4,6 @@ import keyboard
 import pyautogui
 
 
-# import time
-
-
 def down():
     keyboard.press('s')
     # pyautogui.keyDown('s')
@@ -58,6 +55,36 @@ def activate_run():
 
 def deactivate_run():
     pyautogui.keyUp('space')
+
+
+def console_focus():
+    pyautogui.hotkey("alt", "4")
+
+
+def in_game_click():
+    pyautogui.mouseDown()
+    time.sleep(0.1)
+    pyautogui.mouseUp()
+
+
+def switch_tab():
+    pyautogui.hotkey("alt", "tab")
+
+
+def run_btn_coords(window_width, window_height):
+    x, y = (int(window_width * 0.75), int(window_height * 0.88))
+    return x, y
+
+
+def click_coord(x, y):
+    # Run button: region = (2300, 1100, 550, 300)
+    # x, y = (int(window_width * 0.75), int(window_height * 0.88))
+
+    # pyautogui.moveTo(x, y, duration=0.3)
+    pyautogui.moveTo(x, y)
+    time.sleep(0.1)
+    in_game_click()
+    # return coord
 
 
 def soft_reset():
