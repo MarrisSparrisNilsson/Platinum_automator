@@ -7,8 +7,7 @@ import os
 import threading as thread
 
 import controls
-# from actions import walk_random
-from state_manager import ExitStateManager, PauseStateManager
+from state_manager import ShutdownStateManager, PauseStateManager
 
 
 def find_pause_and_resume():
@@ -40,7 +39,6 @@ def find_sparkles(habitat):
         counter = 1
         for image in os.listdir(folder_dir):
 
-            # for i in range(len(sparkles_list)):
             sparkles = None
             print(f"Looking for shiny {counter}")
             counter += 1
@@ -58,7 +56,6 @@ def find_sparkles(habitat):
 
         print(f"Sparkles was not found in {habitat}.")
         return False
-        # return True
     except OSError:
         print("Incorrect image source.")
         quit()
@@ -104,19 +101,13 @@ def encounter_started(pixel_coord_one, pixel_coord_two):
     pixel_one = pyautogui.pixel(x1, y1)
     pixel_two = pyautogui.pixel(x2, y2)
 
+    time.sleep(0.3)
     # print(f"Left_P_rgb: {pixel_one}\nRight_P_rgb: {pixel_two}")
 
     if pixel_one == (0, 0, 0) and pixel_two == (0, 0, 0):
-        # pause_state = PauseStateManager.get_instance()
-        # pause_state.set_state(True)
         print("Encounter started!")
         start_time = time.time()
 
-        # time.sleep(0.1)
-
-        # time.sleep(1)
-
-        # keyboard.unhook_all()
         return start_time, True
     else:
         return 0, False
@@ -126,59 +117,36 @@ def encounter_detection(window_width, window_height, habitat, search_encounter_f
     p1, p2 = get_encounter_pixels(window_width, window_height)
 
     pause_state = PauseStateManager.get_instance()
-    shutdown_state = ExitStateManager.get_instance()
-    # is_paused = pause_state.get_state()
-    is_exiting = shutdown_state.get_state()
-
     pause_event = thread.Event()
-    # shutdown_event = thread.Event()
-
-    # shutdown_state.set_state(shutdown_event)
-
-    # shutdown_event.set()
 
     search_encounter_thread = thread.Thread(target=search_encounter_func, daemon=True)
-
-    time.sleep(1)
-    startup_time = 11.5
     search_encounter_thread.start()
+
+    startup_time = 11.5
     shiny_is_found = False
 
-    while not shiny_is_found and not is_exiting:
-        # while not shiny_is_found:
-        #
-        #     with shutdown_event:
-        #         if shutdown_event.is_set():
-        #             break
+    while not shiny_is_found:
+
+        shutdown_event = ShutdownStateManager.get_instance().get_state()
+        if shutdown_event is not None:
+            break
 
         duration = 0
-        time.sleep(0.3)
-
-        # print(f"T1: {id(pause_state._state)}")
-
-        # print(f"Pause state t1: {pause_state}")
 
         start_time, is_encounter = encounter_started(p1, p2)
         if is_encounter:
-            # print(f"Get state: {pause_state.get_state()}")
-            # print(f"T1: {id(pause_state._state)}")
-
             pause_event.clear()
             pause_state.set_state(pause_event)
+
             controls.clear_movement()
             controls.switch_tab()
             time.sleep(3)
 
-            # print(f"Get state: {pause_state.get_state()}")
-            # print(f"T1: {pause_state._state}")
-            # search_encounter_thread.join()ds
+        while is_encounter and not shiny_is_found and duration < startup_time:
 
-        while is_encounter and not shiny_is_found and duration < startup_time and not is_exiting:
-            #     while is_encounter and not shiny_is_found and duration < startup_time :
-
-            # with shutdown_event:
-            #     if shutdown_event.is_set():
-            #         break
+            shutdown_event = ShutdownStateManager.get_instance().get_state()
+            if shutdown_event is not None:
+                break
 
             if duration < 5:
                 shiny_is_found = find_sparkles(habitat)
@@ -195,18 +163,22 @@ def encounter_detection(window_width, window_height, habitat, search_encounter_f
             # time.sleep(3)
             # controls.switch_tab()
     if shiny_is_found:
-        # pause_state.set_state(True)
-        # search_encounter_thread.join()
         # controls.switch_tab()
         print("Congratulations! You found a shiny!")
         time.sleep(1)
         # controls.switch_tab()
+
+    search_encounter_thread.join()
 
 
 def flee_encounter(window_width, window_height):
     x, y = controls.run_btn_coords(window_width, window_height)
 
     while True:
+        shutdown_event = ShutdownStateManager.get_instance().get_state()
+        if shutdown_event is not None:
+            break
+
         time.sleep(0.1)
         if pyautogui.pixelMatchesColor(x, y, (41, 148, 206)):
             controls.click_coord(x, y)

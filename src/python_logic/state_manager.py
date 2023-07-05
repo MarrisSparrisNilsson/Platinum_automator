@@ -1,25 +1,25 @@
 import threading
 
 
-class ExitStateManager:
+class ShutdownStateManager:
     _instance = None
     _state = None
     _lock = threading.Lock()
 
     @staticmethod
     def get_instance():
-        if ExitStateManager._instance is None:
-            with ExitStateManager._lock:
-                if ExitStateManager._instance is None:
-                    ExitStateManager._instance = ExitStateManager()
-        return ExitStateManager._instance
+        if ShutdownStateManager._instance is None:
+            with ShutdownStateManager._lock:
+                if ShutdownStateManager._instance is None:
+                    ShutdownStateManager._instance = ShutdownStateManager()
+        return ShutdownStateManager._instance
 
     def set_state(self, value):
-        with ExitStateManager._lock:
+        with ShutdownStateManager._lock:
             self._state = value
 
     def get_state(self):
-        with ExitStateManager._lock:
+        with ShutdownStateManager._lock:
             return self._state
 
 

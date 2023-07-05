@@ -3,10 +3,9 @@ import threading
 import time
 import keyboard
 import random
-# import contextvars
 
 import detection
-from state_manager import ExitStateManager, PauseStateManager
+from state_manager import ShutdownStateManager, PauseStateManager
 
 
 # import controls
@@ -62,42 +61,25 @@ def regular_hunt(window, habitat):
 
 
 def watch_exit():
-    shutdown_state = ExitStateManager.get_instance()
+    shutdown_state = ShutdownStateManager.get_instance()
     shutdown_event = threading.Event()
     keyboard.wait("esc")
-    # if keyboard.is_pressed("esc"):
     print("Escape was pressed!")
     shutdown_event.clear()
     shutdown_state.set_state(shutdown_event)
-    # shutdown_state.set_state(True)
-    # return True
 
 
 def walk_random():
-    # pause_state = PauseStateManager.get_instance()
-    # shutdown_state = ExitStateManager.get_instance()
-    # print(pause_state)
-    # print(shutdown_state)
-
-    shutdown_event = ExitStateManager.get_instance().get_state()
-    # print(shutdown_event)
-
     last_dir = 10  # Starts as a value with no direction representation
-    # while not exit_state.get_state() and not pause_state.get_state():
-    while True:
-        pause_event = PauseStateManager.get_instance().get_state()
-        # print(f"Pause event: {pause_event}")
-        # print(f"Pause state t2: {pause_state}")
-        # print(f"T2: {pause_state._state}")
 
-        # if not pause_event.is_set():
+    while True:
+        shutdown_event = ShutdownStateManager.get_instance().get_state()
+        pause_event = PauseStateManager.get_instance().get_state()
+
         if pause_event is not None:
-            # with pause_event:
             pause_event.wait()
 
         if shutdown_event is not None:
-            #     #     with shutdown_event:
-            #     if shutdown_event.is_set():
             break
 
         random_dir = random.randint(0, 3)
@@ -108,7 +90,7 @@ def walk_random():
 
         random_steps = random.randint(1, 4)
         move(direction_int=random_dir, steps=random_steps)
-    keyboard.unhook_all()
+    # keyboard.unhook_all()
 
 
 def move(direction_int, steps=1):
@@ -129,19 +111,20 @@ def move(direction_int, steps=1):
         time.sleep(0.2)
     # end = time.time()
     # print(f"Step active for: {end - start}s")
-    # return direction
 
 
 def lets_try_spinning():
     print("Character is spinning")
-    # move_dirs = ['a', 'w', 'd', 's']
-    exit_state = PauseStateManager.get_instance()
-    is_exiting = exit_state.get_state()
 
-    while not is_exiting:
+    while True:
+
+        shutdown_event = ShutdownStateManager.get_instance().get_state()
+        if shutdown_event is not None:
+            break
 
         for dirs in range(4):
-            if is_exiting:
+            shutdown_event = ShutdownStateManager.get_instance().get_state()
+            if shutdown_event is not None:
                 print(f"Break was fired at i={dirs}")
                 break
 
