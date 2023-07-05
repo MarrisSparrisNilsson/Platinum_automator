@@ -67,26 +67,38 @@ def watch_exit():
     keyboard.wait("esc")
     # if keyboard.is_pressed("esc"):
     print("Escape was pressed!")
-    shutdown_event.set()
+    shutdown_event.clear()
     shutdown_state.set_state(shutdown_event)
     # shutdown_state.set_state(True)
     # return True
 
 
 def walk_random():
-    shutdown_event = ExitStateManager.get_instance().get_state()
-    pause_event = PauseStateManager.get_instance().get_state()
+    # pause_state = PauseStateManager.get_instance()
+    # shutdown_state = ExitStateManager.get_instance()
+    # print(pause_state)
+    # print(shutdown_state)
 
-    last_dir = 0
+    shutdown_event = ExitStateManager.get_instance().get_state()
+    # print(shutdown_event)
+
+    last_dir = 10  # Starts as a value with no direction representation
     # while not exit_state.get_state() and not pause_state.get_state():
     while True:
+        pause_event = PauseStateManager.get_instance().get_state()
+        # print(f"Pause event: {pause_event}")
+        # print(f"Pause state t2: {pause_state}")
+        # print(f"T2: {pause_state._state}")
 
-        with pause_event:
+        # if not pause_event.is_set():
+        if pause_event is not None:
+            # with pause_event:
             pause_event.wait()
 
-        with shutdown_event:
-            if shutdown_event.is_set():
-                break
+        if shutdown_event is not None:
+            #     #     with shutdown_event:
+            #     if shutdown_event.is_set():
+            break
 
         random_dir = random.randint(0, 3)
         if last_dir == random_dir:

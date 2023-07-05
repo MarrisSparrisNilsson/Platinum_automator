@@ -1,4 +1,4 @@
-import keyboard
+# import keyboard
 import pygetwindow as pywindow
 import pyautogui
 import time
@@ -49,7 +49,7 @@ def find_sparkles(habitat):
                 sparkles = pyautogui.locateOnScreen(f"{folder_dir}/{image}",
                                                     region=(800, 100, 950, 1000),
                                                     # region=(850, 700, 850, 400),
-                                                    confidence=0.6)
+                                                    confidence=0.7)
             if sparkles:
                 pyautogui.moveTo(pyautogui.center(sparkles))
                 pyautogui.screenshot(region=(800, 100, 920, 960)).save("../images/test/detected_sparkle.png")
@@ -111,11 +111,11 @@ def encounter_started(pixel_coord_one, pixel_coord_two):
         # pause_state.set_state(True)
         print("Encounter started!")
         start_time = time.time()
-        controls.clear_movement()
-        time.sleep(0.1)
-        controls.switch_tab()
+
+        # time.sleep(0.1)
+
         # time.sleep(1)
-        time.sleep(3)
+
         # keyboard.unhook_all()
         return start_time, True
     else:
@@ -128,13 +128,14 @@ def encounter_detection(window_width, window_height, habitat, search_encounter_f
     pause_state = PauseStateManager.get_instance()
     shutdown_state = ExitStateManager.get_instance()
     # is_paused = pause_state.get_state()
+    is_exiting = shutdown_state.get_state()
 
     pause_event = thread.Event()
-    shutdown_event = thread.Event()
+    # shutdown_event = thread.Event()
 
-    shutdown_state.set_state(shutdown_event)
+    # shutdown_state.set_state(shutdown_event)
 
-    shutdown_event.set()
+    # shutdown_event.set()
 
     search_encounter_thread = thread.Thread(target=search_encounter_func, daemon=True)
 
@@ -143,32 +144,45 @@ def encounter_detection(window_width, window_height, habitat, search_encounter_f
     search_encounter_thread.start()
     shiny_is_found = False
 
-    # while not shiny_is_found and not is_exiting:
-    while not shiny_is_found:
-
-        with shutdown_event:
-            if shutdown_event.is_set():
-                break
+    while not shiny_is_found and not is_exiting:
+        # while not shiny_is_found:
+        #
+        #     with shutdown_event:
+        #         if shutdown_event.is_set():
+        #             break
 
         duration = 0
         time.sleep(0.3)
 
+        # print(f"T1: {id(pause_state._state)}")
+
+        # print(f"Pause state t1: {pause_state}")
+
         start_time, is_encounter = encounter_started(p1, p2)
         if is_encounter:
-            pause_event.set()
+            # print(f"Get state: {pause_state.get_state()}")
+            # print(f"T1: {id(pause_state._state)}")
+
+            pause_event.clear()
             pause_state.set_state(pause_event)
-            # search_encounter_thread.join()
+            controls.clear_movement()
+            controls.switch_tab()
+            time.sleep(3)
 
-        while is_encounter and not shiny_is_found and duration < startup_time:
+            # print(f"Get state: {pause_state.get_state()}")
+            # print(f"T1: {pause_state._state}")
+            # search_encounter_thread.join()ds
 
-            with shutdown_event:
-                if shutdown_event.is_set():
-                    break
+        while is_encounter and not shiny_is_found and duration < startup_time and not is_exiting:
+            #     while is_encounter and not shiny_is_found and duration < startup_time :
 
-            # if duration > startup_time - 2:
-            #     print("No shiny this time.")
-            # else:
-            shiny_is_found = find_sparkles(habitat)
+            # with shutdown_event:
+            #     if shutdown_event.is_set():
+            #         break
+
+            if duration < 5:
+                shiny_is_found = find_sparkles(habitat)
+
             end_time = time.time()
             duration = end_time - start_time
 
@@ -176,19 +190,17 @@ def encounter_detection(window_width, window_height, habitat, search_encounter_f
             controls.switch_tab()
             time.sleep(0.1)
             flee_encounter(window_width, window_height)
-            pause_event.clear()  # Resumes search_encounter_func
+            pause_event.set()  # Resumes search_encounter_func
             pause_state.set_state(pause_event)
             # time.sleep(3)
             # controls.switch_tab()
     if shiny_is_found:
         # pause_state.set_state(True)
-        # t1_2.join()
+        # search_encounter_thread.join()
         # controls.switch_tab()
         print("Congratulations! You found a shiny!")
         time.sleep(1)
         # controls.switch_tab()
-        # keyboard.remove_all_hotkeys()
-        # exit()
 
 
 def flee_encounter(window_width, window_height):
@@ -198,8 +210,8 @@ def flee_encounter(window_width, window_height):
         time.sleep(0.1)
         if pyautogui.pixelMatchesColor(x, y, (41, 148, 206)):
             controls.click_coord(x, y)
-            print("Encounter ended. Search continues...")
-            time.sleep(6)
+            print("Encounter ended. Search continues...\n")
+            time.sleep(5)
             break
 
 
@@ -214,9 +226,7 @@ def set_window_focus():
         window = pywindow.getWindowsWithTitle(window_name1)[0]
         time.sleep(0.1)
         print(window)
-        # window.restore()
         window.activate()
-        # window.minimize()
         time.sleep(1)
         return window
     except IndexError:
