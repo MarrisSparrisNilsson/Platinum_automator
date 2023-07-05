@@ -1,12 +1,9 @@
 # External modules
-# import pyautogui
 import os
 import time
-import random
+# import random
 import keyboard
-# import multiprocessing as mp
 import threading as thread
-
 import pyautogui
 
 # Local modules
@@ -15,42 +12,25 @@ import actions
 import detection
 
 
-# from state_manager import ExitStateManager
-
-
 def main():
+    print_welcome_message()
+
+    action_thread = select_action()
     # print("--- Hello PyAutoGUI! ---")
     # steps = random.randint(1, 10)
     # print(f"Character is taking: {steps} steps")
-    # done = [False]
-    # shutdown_state = ExitStateManager.get_instance()
-    # shutdown_state.set_state(False)
 
-    # t1 = thread.Thread(target=actions.lets_try_spinning, args=(done,), daemon=True)
-    # t2 = thread.Thread(target=actions.watch_quit, daemon=True)
-
-    # print("\nSwitching tab")
-    habitat = get_habitat()
-    window = detection.set_window_focus()
+    detection.set_window_focus()
     detection.find_pause_and_resume()
-    # t1 = thread.Thread(target=actions.regular_hunt, args=(window, habitat,), daemon=True)
-    t1 = thread.Thread(target=actions.watch_exit, daemon=True)
 
-    t1.start()
-    # actions.watch_exit()
-    actions.regular_hunt(window, habitat)
+    shutdown_thread = thread.Thread(target=actions.watch_exit, daemon=True)
+    shutdown_thread.start()
 
-    # t2.start()
-
-    # t1.join()
-
-    # watch_quit_process.start()
-    # spinning_process.start()
-
-    # controls.activate_run()
-    # print(f"{i + 1}: {end - start}")
-
-    # quit()
+    try:
+        action_thread.start()
+        action_thread.join()
+    except AttributeError:
+        print("No action was provided")
 
 
 def walk_straight_down(steps=1):
@@ -62,47 +42,89 @@ def walk_straight_down(steps=1):
     print(end - start)
 
 
-def display_menu():
-    print("\n### Welcome to the Platinum automator ###"
-          "\nPlease select one of the following automation options:"
-          "\n\nShiny hunting method:"
-          "\n======================="
-          "\n1: Pokeradar hunt"
-          "\n2: Fishing hunt"
-          "\n3: Fossil hunt"
-          "\n4: Safari zone hunt"
-          "\n5: Soft reset hunt"
-          "\n6: Egg hunt"
-          "\n7: Regular encounters"
-          "\n======================="
-          "\n\nOther automations:"
-          "\n======================="
-          "\n8: "
-          "\n======================="
+def print_welcome_message():
+    print(
+        "\n### Welcome to the Platinum automator ###"
+        "\nPlease select one of the following automation options:"
+    )
+
+
+def display_actions_menu():
+    action_list = [
+        "Pokeradar hunt",
+        "Fishing hunt",
+        "Fossil hunt",
+        "Safari zone hunt",
+        "Soft reset hunt",
+        "Egg hunt",
+        "Regular hunt"
+    ]
+
+    print(
+        "\nShiny hunting method:"
+        "\n======================="
+    )
+    # i = int
+    for i in range(len(action_list)):
+        print(f"{i + 1}: {action_list[i]}")
+
+    # "\n======================="
+    # "\n\nOther automations:"
+    # "\n======================="
+    # "\n8: "
+    print("======================="
           "\n0: Quit")
 
 
 def select_action():
-    option = input("Enter your option (0-8: ")
-    match option:
-        case 0:
-            print("Program exited.")
-        case 1:
-            print("Begin Pokeradar hunt!")
-        case 2:
-            print("Begin Fishing hunt!")
-        case 3:
-            print("Begin Fossil hunt!")
-        case 4:
-            print("Begin Safari zone hunt!")
-        case 5:
-            print("Begin Soft reset hunt!")
-        case 6:
-            print("Begin Egg hunt!")
-        case 7:
-            print("Begin Regular hunt!")
-        case _:
-            print("This option is not available, try again")
+    window = detection.get_window()
+    is_valid = False
+
+    while not is_valid:
+        display_actions_menu()
+
+        controls.console_focus()
+        option = int(input("Enter your option (0-8): "))
+        # print("")
+        is_valid = True
+
+        match option:
+            case 0:
+                print("Program exited.")
+                exit()
+            case 1:
+                # print("Begin Pokeradar hunt!")
+                print("Pokeradar hunt coming soon.")
+                return None
+            case 2:
+                # print("Begin Fishing hunt!")
+                print("Fishing hunt coming soon.")
+                return None
+            case 3:
+                # print("Begin Fossil hunt!")
+                print("Fossil hunt coming soon.")
+                return None
+            case 4:
+                # print("Begin Safari zone hunt!")
+                print("Safari zone hunt coming soon.")
+                return None
+            case 5:
+                # print("Begin Soft reset hunt!")
+                print("Soft reset hunt coming soon.")
+                return None
+            case 6:
+                # print("Begin Egg hunt!")
+                print("Egg hunt coming soon.")
+                return None
+            case 7:
+                print("Begin Regular hunt!")
+                habitat = get_habitat()
+                return thread.Thread(target=actions.regular_hunt, args=(window, habitat))
+
+            case _:
+                if is_valid:
+                    is_valid = False
+                print("This option is not available, try again")
 
 
 def test_function():
@@ -127,7 +149,7 @@ def get_habitat():
             habitat_types.append(habitat_type)
             counter += 1
         time.sleep(0.2)
-        controls.console_focus()
+
         selected_habitat = input(f"Please select your current hunting habitat (1-{counter}): ")
         try:
             valid_habitat_name = habitat_types[int(selected_habitat) - 1]
@@ -138,24 +160,18 @@ def get_habitat():
                 print("No such habitat is listed. Try again")
 
         except ValueError:
-            print("Enter a valid number dumbass...")
+            print("Please enter a valid number...")
         except IndexError:
             print("Not a list option.")
 
 
 if __name__ == '__main__':
     try:
-
+        # print_welcome_message()
+        # display_actions_menu()
         main()
+        # select_action()
         # test_function()
 
-        # window = detection.set_window_focus()
-        # print(window)
-        # detection.find_pause_and_resume()
-        # time.sleep(1)
-
-        # detection.encounter_detection(window.width, window.height, habitat)
-
-        # display_menu()
     except KeyboardInterrupt:
         print("\nSession ended.")
