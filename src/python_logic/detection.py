@@ -21,7 +21,7 @@ def find_pause_and_resume():
             print("Pause button was not found.")
         else:
             pyautogui.click(res)
-            print(res)
+            # print(res)
     except OSError:
         print("Incorrect image source.")
 
@@ -61,7 +61,7 @@ def find_sparkles(habitat):
         quit()
 
 
-def get_mouse_coords():
+def get_mouse_coordinates():
     mouse = pyautogui.position()
     print(mouse)
 
@@ -135,7 +135,7 @@ def encounter_detection(window_width, window_height, habitat, search_encounter_f
 
         start_time, is_encounter = encounter_started(p1, p2)
         if is_encounter:
-            pause_event.clear()
+            pause_event.clear()  # Pauses search_encounter_func
             pause_state.set_state(pause_event)
 
             controls.clear_movement()
@@ -148,7 +148,7 @@ def encounter_detection(window_width, window_height, habitat, search_encounter_f
             if shutdown_event is not None:
                 break
 
-            if duration < 5:
+            if duration < 6:
                 shiny_is_found = find_sparkles(habitat)
 
             end_time = time.time()
@@ -167,8 +167,8 @@ def encounter_detection(window_width, window_height, habitat, search_encounter_f
         print("Congratulations! You found a shiny!")
         time.sleep(1)
         # controls.switch_tab()
-
-    search_encounter_thread.join()
+    else:
+        search_encounter_thread.join()
 
 
 def flee_encounter(window_width, window_height):
@@ -187,31 +187,31 @@ def flee_encounter(window_width, window_height):
             break
 
 
-def set_window_focus():
+def get_window():
     version_num = "0.9.11"
     window_name1 = f"DeSmuME {version_num} x64"
     window_name2 = "Paused"
-    time.sleep(1)
 
-    window = None
     try:
         window = pywindow.getWindowsWithTitle(window_name1)[0]
-        time.sleep(0.1)
-        print(window)
-        window.activate()
-        time.sleep(1)
         return window
     except IndexError:
         try:
             window = pywindow.getWindowsWithTitle(window_name2)[0]
-            print(window)
-            window.activate()
-            time.sleep(1)
             return window
         except IndexError:
             print(f'\nWindow named: "{window_name1}" or "{window_name2}" could not be found.')
+            exit()
+
+
+def set_window_focus():
+    window = get_window()
+    try:
+        window.activate()
     except pywindow.PyGetWindowException:
+        print("Something went wrong when trying to activate the window")
         window.minimize()
         window.maximize()
         window.restore()
-        return window
+
+    time.sleep(1)
