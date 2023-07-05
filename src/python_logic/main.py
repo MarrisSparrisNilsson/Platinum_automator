@@ -15,11 +15,16 @@ import actions
 import detection
 
 
+# from state_manager import ExitStateManager
+
+
 def main():
     # print("--- Hello PyAutoGUI! ---")
     # steps = random.randint(1, 10)
     # print(f"Character is taking: {steps} steps")
-    done = [False]
+    # done = [False]
+    # shutdown_state = ExitStateManager.get_instance()
+    # shutdown_state.set_state(False)
 
     # t1 = thread.Thread(target=actions.lets_try_spinning, args=(done,), daemon=True)
     # t2 = thread.Thread(target=actions.watch_quit, daemon=True)
@@ -28,14 +33,16 @@ def main():
     habitat = get_habitat()
     window = detection.set_window_focus()
     detection.find_pause_and_resume()
-    t1 = thread.Thread(target=actions.regular_hunt, args=(window, habitat, done,), daemon=True)
+    # t1 = thread.Thread(target=actions.regular_hunt, args=(window, habitat,), daemon=True)
+    t1 = thread.Thread(target=actions.watch_exit, daemon=True)
 
     t1.start()
-    done[0] = actions.watch_quit()
+    # actions.watch_exit()
+    actions.regular_hunt(window, habitat)
 
     # t2.start()
 
-    t1.join()
+    # t1.join()
 
     # watch_quit_process.start()
     # spinning_process.start()
@@ -99,8 +106,14 @@ def select_action():
 
 
 def test_function():
-    screenshot = pyautogui.screenshot(region=(850, 100, 850, 1000))
-    screenshot.save("../images/shiny_area.png")
+    detection.set_window_focus()
+    keyboard.press('s')
+    time.sleep(2)
+    pyautogui.keyUp('s')
+    # pyautogui.keyDown('w')
+    # pyautogui.keyUp('w')
+    # keyboard.release('w')
+    # keyboard.start_recording()
 
 
 def get_habitat():
@@ -134,13 +147,12 @@ if __name__ == '__main__':
     try:
 
         main()
+        # test_function()
 
         # window = detection.set_window_focus()
         # print(window)
         # detection.find_pause_and_resume()
         # time.sleep(1)
-
-        # test_function()
 
         # detection.encounter_detection(window.width, window.height, habitat)
 

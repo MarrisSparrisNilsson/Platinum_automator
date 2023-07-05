@@ -1,11 +1,13 @@
-import keyboard
+# import keyboard
 import pygetwindow as pywindow
 import pyautogui
 import time
 import math
 import os
+import threading as thread
 
 import controls
+from state_manager import ShutdownStateManager, PauseStateManager
 
 
 def find_pause_and_resume():
@@ -37,7 +39,6 @@ def find_sparkles(habitat):
         counter = 1
         for image in os.listdir(folder_dir):
 
-            # for i in range(len(sparkles_list)):
             sparkles = None
             print(f"Looking for shiny {counter}")
             counter += 1
@@ -46,7 +47,7 @@ def find_sparkles(habitat):
                 sparkles = pyautogui.locateOnScreen(f"{folder_dir}/{image}",
                                                     region=(800, 100, 950, 1000),
                                                     # region=(850, 700, 850, 400),
-                                                    confidence=0.6)
+                                                    confidence=0.7)
             if sparkles:
                 pyautogui.moveTo(pyautogui.center(sparkles))
                 pyautogui.screenshot(region=(800, 100, 920, 960)).save("../images/test/detected_sparkle.png")
@@ -55,7 +56,6 @@ def find_sparkles(habitat):
 
         print(f"Sparkles was not found in {habitat}.")
         return False
-        # return True
     except OSError:
         print("Incorrect image source.")
         quit()
@@ -101,87 +101,90 @@ def encounter_started(pixel_coord_one, pixel_coord_two):
     pixel_one = pyautogui.pixel(x1, y1)
     pixel_two = pyautogui.pixel(x2, y2)
 
-    print(f"Left_P_rgb: {pixel_one}\nRight_P_rgb: {pixel_two}")
+    time.sleep(0.3)
+    # print(f"Left_P_rgb: {pixel_one}\nRight_P_rgb: {pixel_two}")
 
     if pixel_one == (0, 0, 0) and pixel_two == (0, 0, 0):
         print("Encounter started!")
         start_time = time.time()
-        keyboard.block_key('w')
-        keyboard.block_key('a')
-        keyboard.block_key('d')
-        keyboard.block_key('s')
-        keyboard.block_key('space')
-        time.sleep(0.1)
-        controls.switch_tab()
-        # time.sleep(1)
-        time.sleep(3)
-        keyboard.unhook_all()
+
         return start_time, True
     else:
         return 0, False
 
 
-def encounter_detection(window_width, window_height, habitat, search_encounter_func, done):
+def encounter_detection(window_width, window_height, habitat, search_encounter_func):
     p1, p2 = get_encounter_pixels(window_width, window_height)
 
-    # start_time = 0
-    shiny_is_found = False
-    time.sleep(1)
+    pause_state = PauseStateManager.get_instance()
+    pause_event = thread.Event()
+
+    search_encounter_thread = thread.Thread(target=search_encounter_func, daemon=True)
+    search_encounter_thread.start()
+
     startup_time = 11.5
-    while not shiny_is_found and not done[0]:
+    shiny_is_found = False
+
+    while not shiny_is_found:
+
+        shutdown_event = ShutdownStateManager.get_instance().get_state()
+        if shutdown_event is not None:
+            break
+
         duration = 0
 
-        time.sleep(0.3)
-        search_encounter_func(done)
         start_time, is_encounter = encounter_started(p1, p2)
-        # if is_encounter:
-        #     start_time = time.time()
-        #     print("Encounter started!")
+        if is_encounter:
+            pause_event.clear()
+            pause_state.set_state(pause_event)
 
-        # end_time = float
+            controls.clear_movement()
+            controls.switch_tab()
+            time.sleep(3)
+
         while is_encounter and not shiny_is_found and duration < startup_time:
-            # if duration > startup_time - 2:
-            #     print("No shiny this time.")
-            # else:
-            shiny_is_found = find_sparkles(habitat)
+
+            shutdown_event = ShutdownStateManager.get_instance().get_state()
+            if shutdown_event is not None:
+                break
+
+            if duration < 5:
+                shiny_is_found = find_sparkles(habitat)
+
             end_time = time.time()
             duration = end_time - start_time
 
         if duration > startup_time:
             controls.switch_tab()
             time.sleep(0.1)
-
-            x, y = controls.run_btn_coords(window_width, window_height)
-
-            while True:
-                time.sleep(0.1)
-                if pyautogui.pixelMatchesColor(x, y, (41, 148, 206)):
-                    controls.click_coord(x, y)
-                    print("Encounter ended. Search continues...")
-                    time.sleep(6)
-                    break
-
-            # controls.switch_tab()
-            #
-            # x1, y1 = p1
-            # x2, y2 = p2
-            #
-            # black_pixel_1 = pyautogui.pixelMatchesColor(x1, y1, (0, 0, 0))
-            # black_pixel_2 = pyautogui.pixelMatchesColor(x2, y2, (0, 0, 0))
-            #
-            # if not black_pixel_1 and not black_pixel_2:
-            #     time.sleep(3)
-            #     pixel_coords = controls.click_run(window_width, window_height)
-            #     time.sleep(6)
-
-            # else:
-            #     time.sleep(3)
+            flee_encounter(window_width, window_height)
+            pause_event.set()  # Resumes search_encounter_func
+            pause_state.set_state(pause_event)
+            # time.sleep(3)
             # controls.switch_tab()
     if shiny_is_found:
         # controls.switch_tab()
         print("Congratulations! You found a shiny!")
-        time.sleep(3)
-        controls.switch_tab()
+        time.sleep(1)
+        # controls.switch_tab()
+
+    search_encounter_thread.join()
+
+
+def flee_encounter(window_width, window_height):
+    x, y = controls.run_btn_coords(window_width, window_height)
+
+    while True:
+        shutdown_event = ShutdownStateManager.get_instance().get_state()
+        if shutdown_event is not None:
+            break
+
+        time.sleep(0.1)
+        if pyautogui.pixelMatchesColor(x, y, (41, 148, 206)):
+            controls.click_coord(x, y)
+            print("Encounter ended. Search continues...\n")
+            time.sleep(5)
+            break
 
 
 def set_window_focus():
@@ -195,9 +198,7 @@ def set_window_focus():
         window = pywindow.getWindowsWithTitle(window_name1)[0]
         time.sleep(0.1)
         print(window)
-        # window.restore()
         window.activate()
-        # window.minimize()
         time.sleep(1)
         return window
     except IndexError:

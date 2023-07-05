@@ -4,6 +4,22 @@ import keyboard
 import pyautogui
 
 
+def clear_movement():
+    # pyautogui.keyUp('w')
+    # pyautogui.keyUp('a')
+    #
+    # pyautogui.keyUp('d')
+    # pyautogui.keyUp('s')
+    # pyautogui.keyUp('space')
+
+    keyboard.block_key('w')
+    keyboard.block_key('a')
+
+    keyboard.block_key('d')
+    keyboard.block_key('s')
+    keyboard.block_key('space')
+
+
 def down():
     keyboard.press('s')
     # pyautogui.keyDown('s')
