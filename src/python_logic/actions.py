@@ -6,6 +6,8 @@ import random
 
 import detection
 from state_manager import ShutdownStateManager, PauseStateManager
+import helpers
+import controls
 
 
 # import controls
@@ -35,21 +37,28 @@ def pokeradar_hunt():
         return None
 
 
-def fishing_hunt():
-    while True:
-        # while - begin
-        # Press b
-        # Look for:
-        # if fish_on
-        # -> spam press_a 2 or 3 times with 0.25 seconds between each and then wait for 5 seconds
-        # -> Check if a shiny appeared with rate of 0.1 seconds
-        #       -> quit()
-        # -> else look for run button and then click
-        # else no_fish
-        # -> press_a
-        # while - end
+def fishing_hunt(window, habitat):
+    # habitat = helpers.get_habitat()
+    detection.encounter_detection(window.width, window.height, habitat, search_encounter_func=fishing)
 
-        return None
+
+def fishing():
+    while True:
+        shutdown_event = ShutdownStateManager.get_instance().get_state()
+        pause_event = PauseStateManager.get_instance().get_state()
+
+        # time.sleep(0.4)
+        if pause_event is not None:
+            if not pause_event.is_set():
+                print("Fishing is paused")
+                pause_event.wait()
+                print("Fishing now continues")
+
+        if shutdown_event is not None:
+            break
+
+        controls.use_selected_item()
+        detection.find_exclamation_mark()
 
 
 def soft_reset_hunt():
@@ -57,6 +66,7 @@ def soft_reset_hunt():
 
 
 def regular_hunt(window, habitat):
+    # habitat = helpers.get_habitat()
     detection.encounter_detection(window.width, window.height, habitat, search_encounter_func=walk_random)
 
 
@@ -129,3 +139,12 @@ def lets_try_spinning():
                 break
 
             move(direction_int=dirs, steps=2)
+
+
+def walk_straight_down(steps=1):
+    start = time.time()
+    keyboard.press('s')
+    time.sleep(0.25 * steps)
+    keyboard.release('s')
+    end = time.time()
+    print(end - start)
