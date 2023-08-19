@@ -37,9 +37,9 @@ def pokeradar_hunt():
         return None
 
 
-def fishing_hunt(window, habitat):
+def fishing_hunt():
     # habitat = helpers.get_habitat()
-    detection.encounter_detection(window.width, window.height, habitat, search_encounter_func=fishing)
+    detection.encounter_detection(search_encounter_func=fishing)
 
 
 def fishing():
@@ -65,16 +65,16 @@ def soft_reset_hunt():
     return None
 
 
-def regular_hunt(window, habitat):
+def regular_hunt():
     # habitat = helpers.get_habitat()
-    detection.encounter_detection(window.width, window.height, habitat, search_encounter_func=walk_random)
+    detection.encounter_detection(search_encounter_func=walk_random)
 
 
 def watch_exit():
     shutdown_state = ShutdownStateManager.get_instance()
     shutdown_event = threading.Event()
     keyboard.wait("esc")
-    print("Escape was pressed!")
+    print("\nEscape was pressed!")
     shutdown_event.clear()
     shutdown_state.set_state(shutdown_event)
 
@@ -87,10 +87,13 @@ def walk_random():
         pause_event = PauseStateManager.get_instance().get_state()
 
         if pause_event is not None:
-            pause_event.wait()
+            if not pause_event.is_set():
+                print("Walking is paused.")
+                pause_event.wait()
+                print("Walking now continues:")
 
         if shutdown_event is not None:
-            break
+            return
 
         random_dir = random.randint(0, 3)
         if last_dir == random_dir:
@@ -104,6 +107,10 @@ def walk_random():
 
 
 def move(direction_int, steps=1):
+    shutdown_event = ShutdownStateManager.get_instance().get_state()
+    if shutdown_event is not None:
+        return
+
     move_dirs = ['a', 'w', 'd', 's']
     print(f"{steps} step(s): {move_dirs[direction_int]} ({direction_int})")
     keyboard.press(move_dirs[direction_int])

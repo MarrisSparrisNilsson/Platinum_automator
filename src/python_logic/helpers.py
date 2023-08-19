@@ -4,6 +4,7 @@ import threading as thread
 import os
 import pyautogui
 
+from state_manager import WindowStateManager
 import actions
 import detection
 import controls
@@ -44,7 +45,6 @@ def display_actions_menu():
 
 
 def select_action():
-    window = detection.get_window()
     is_valid = False
 
     while not is_valid:
@@ -66,8 +66,8 @@ def select_action():
             case 2:
                 print("Begin Fishing hunt!")
                 # print("Fishing hunt coming soon.")
-                habitat = get_habitat()
-                return thread.Thread(target=actions.fishing_hunt, args=(window, habitat))
+                # habitat = get_habitat()
+                return thread.Thread(target=actions.fishing_hunt, daemon=True)
             case 3:
                 # print("Begin Fossil hunt!")
                 print("Fossil hunt coming soon.")
@@ -86,8 +86,8 @@ def select_action():
                 return None
             case 7:
                 print("Begin Regular hunt!")
-                habitat = get_habitat()
-                return thread.Thread(target=actions.regular_hunt, args=(window, habitat))
+                # habitat = get_habitat()
+                return thread.Thread(target=actions.regular_hunt, daemon=True)
 
             case _:
                 if is_valid:
@@ -97,34 +97,40 @@ def select_action():
 
 def test_function():
     detection.set_window_focus()
+
+    width, height = WindowStateManager.get_instance().get_window_size()
+
+    print(f"W: {width}, H: {height}")
+
+    # WORKS GREAT :)
+
     # detection.find_exclamation_mark()
-    time.sleep(2)
-    window = detection.get_window()
-    # detection.get_mouse_coordinates()
-
-    x1 = int(window.width * 0.2630359212050985)
-    y1 = int(window.height * 0.27670250896057347)
-
-    x2 = int(window.width * 0.36993047508690613)
-    y2 = int(window.height * 0.6336917562724015)
-
-    x3 = int(window.width * 0.45712630359212053)
-    y3 = int(window.height * 0.2623655913978495)
-
-    x4 = int(window.width * 0.3579142526071842)
-    y4 = int(window.height * 0.1013620071684588)
-
-    x5 = int(window.width * 0.45654692931633833)
-    y5 = int(window.height * 0.5684587813620071)
-
-    # width = "3452", height = "1395"
-
-    list = [(x1, y1), (x2, y2), (x3, y3), (x4, y4), (x5, y5)]
-
-    for i in range(len(list)):
-        pyautogui.moveTo(list[i])
-        time.sleep(3)
-
+    # time.sleep(2)
+    # window = detection.get_window()
+    # # detection.get_mouse_coordinates()
+    #
+    # x1 = int(window.width * 0.2630359212050985)
+    # y1 = int(window.height * 0.27670250896057347)
+    #
+    # x2 = int(window.width * 0.36993047508690613)
+    # y2 = int(window.height * 0.6336917562724015)
+    #
+    # x3 = int(window.width * 0.45712630359212053)
+    # y3 = int(window.height * 0.2623655913978495)
+    #
+    # x4 = int(window.width * 0.3579142526071842)
+    # y4 = int(window.height * 0.1013620071684588)
+    #
+    # x5 = int(window.width * 0.45654692931633833)
+    # y5 = int(window.height * 0.5684587813620071)
+    #
+    # # width = "3452", height = "1395"
+    #
+    # list = [(x1, y1), (x2, y2), (x3, y3), (x4, y4), (x5, y5)]
+    #
+    # for i in range(len(list)):
+    #     pyautogui.moveTo(list[i])
+    #     time.sleep(3)
 
     # keyboard.press('s')
     # time.sleep(2)

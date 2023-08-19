@@ -3,21 +3,15 @@ import time
 import keyboard
 import pyautogui
 
+from state_manager import WindowStateManager
+
 
 def clear_movement():
-    # pyautogui.keyUp('w')
-    # pyautogui.keyUp('a')
-    #
-    # pyautogui.keyUp('d')
-    # pyautogui.keyUp('s')
-    # pyautogui.keyUp('space')
-
-    keyboard.block_key('w')
-    keyboard.block_key('a')
-
-    keyboard.block_key('d')
-    keyboard.block_key('s')
-    keyboard.block_key('space')
+    pyautogui.keyUp('w')
+    pyautogui.keyUp('a')
+    pyautogui.keyUp('d')
+    pyautogui.keyUp('s')
+    pyautogui.keyUp('space')
 
 
 def down():
@@ -87,7 +81,8 @@ def switch_tab():
     pyautogui.hotkey("alt", "tab")
 
 
-def run_btn_coords(window_width, window_height):
+def run_btn_coords():
+    window_width, window_height = WindowStateManager.get_instance().get_window_size()
     x, y = (int(window_width * 0.75), int(window_height * 0.88))
     return x, y
 
