@@ -6,6 +6,8 @@ import random
 
 import detection
 from state_manager import ShutdownStateManager, PauseStateManager
+import helpers
+import controls
 
 
 # import controls
@@ -36,35 +38,43 @@ def pokeradar_hunt():
 
 
 def fishing_hunt():
-    while True:
-        # while - begin
-        # Press b
-        # Look for:
-        # if fish_on
-        # -> spam press_a 2 or 3 times with 0.25 seconds between each and then wait for 5 seconds
-        # -> Check if a shiny appeared with rate of 0.1 seconds
-        #       -> quit()
-        # -> else look for run button and then click
-        # else no_fish
-        # -> press_a
-        # while - end
+    # habitat = helpers.get_habitat()
+    detection.encounter_detection(search_encounter_func=fishing)
 
-        return None
+
+def fishing():
+    while True:
+        shutdown_event = ShutdownStateManager.get_instance().get_state()
+        pause_event = PauseStateManager.get_instance().get_state()
+
+        # time.sleep(0.4)
+        if pause_event is not None:
+            if not pause_event.is_set():
+                print("Fishing is paused")
+                pause_event.wait()
+                print("Fishing now continues")
+
+        if shutdown_event is not None:
+            break
+
+        controls.use_selected_item()
+        detection.find_exclamation_mark()
 
 
 def soft_reset_hunt():
     return None
 
 
-def regular_hunt(window, habitat):
-    detection.encounter_detection(window.width, window.height, habitat, search_encounter_func=walk_random)
+def regular_hunt():
+    # habitat = helpers.get_habitat()
+    detection.encounter_detection(search_encounter_func=walk_random)
 
 
 def watch_exit():
     shutdown_state = ShutdownStateManager.get_instance()
     shutdown_event = threading.Event()
     keyboard.wait("esc")
-    print("Escape was pressed!")
+    print("\nEscape was pressed!")
     shutdown_event.clear()
     shutdown_state.set_state(shutdown_event)
 
@@ -77,10 +87,13 @@ def walk_random():
         pause_event = PauseStateManager.get_instance().get_state()
 
         if pause_event is not None:
-            pause_event.wait()
+            if not pause_event.is_set():
+                print("Walking is paused.")
+                pause_event.wait()
+                print("Walking now continues:")
 
         if shutdown_event is not None:
-            break
+            return
 
         random_dir = random.randint(0, 3)
         if last_dir == random_dir:
@@ -94,6 +107,10 @@ def walk_random():
 
 
 def move(direction_int, steps=1):
+    shutdown_event = ShutdownStateManager.get_instance().get_state()
+    if shutdown_event is not None:
+        return
+
     move_dirs = ['a', 'w', 'd', 's']
     print(f"{steps} step(s): {move_dirs[direction_int]} ({direction_int})")
     keyboard.press(move_dirs[direction_int])
@@ -129,3 +146,12 @@ def lets_try_spinning():
                 break
 
             move(direction_int=dirs, steps=2)
+
+
+def walk_straight_down(steps=1):
+    start = time.time()
+    keyboard.press('s')
+    time.sleep(0.25 * steps)
+    keyboard.release('s')
+    end = time.time()
+    print(end - start)
