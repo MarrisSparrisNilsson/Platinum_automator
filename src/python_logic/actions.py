@@ -1,4 +1,3 @@
-# import pyautogui
 import threading
 import time
 import keyboard
@@ -6,11 +5,7 @@ import random
 
 import detection
 from state_manager import ShutdownStateManager, PauseStateManager
-import helpers
 import controls
-
-
-# import controls
 
 
 def pokeradar_hunt():
@@ -38,22 +33,20 @@ def pokeradar_hunt():
 
 
 def fishing_hunt():
-    # habitat = helpers.get_habitat()
     detection.encounter_detection(search_encounter_func=fishing)
 
 
 def fishing():
     while True:
-        shutdown_event = ShutdownStateManager.get_instance().get_state()
         pause_event = PauseStateManager.get_instance().get_state()
 
-        # time.sleep(0.4)
         if pause_event is not None:
             if not pause_event.is_set():
-                print("Fishing is paused")
+                print("Fishing is paused▶️")
                 pause_event.wait()
-                print("Fishing now continues")
+                print("Fishing now continues🎣🪝")
 
+        shutdown_event = ShutdownStateManager.get_instance().get_state()
         if shutdown_event is not None:
             break
 
@@ -66,7 +59,6 @@ def soft_reset_hunt():
 
 
 def regular_hunt():
-    # habitat = helpers.get_habitat()
     detection.encounter_detection(search_encounter_func=walk_random)
 
 
@@ -74,9 +66,9 @@ def watch_exit():
     shutdown_state = ShutdownStateManager.get_instance()
     shutdown_event = threading.Event()
     keyboard.wait("esc")
-    print("\nEscape was pressed!")
-    shutdown_event.clear()
-    shutdown_state.set_state(shutdown_event)
+    print("\nEscape was pressed!🚨")
+    shutdown_event.clear()  # Reset the internal flag to false (Shutting down)
+    shutdown_state.set_state(shutdown_event)  # Updating state
 
 
 def walk_random():
@@ -98,12 +90,11 @@ def walk_random():
         random_dir = random.randint(0, 3)
         if last_dir == random_dir:
             print(f"Duplicate:   ({random_dir})")
-            random_dir -= 1
+            random_dir -= 1  # Prevents the same consecutive walking direction
         last_dir = random_dir
 
         random_steps = random.randint(1, 4)
         move(direction_int=random_dir, steps=random_steps)
-    # keyboard.unhook_all()
 
 
 def move(direction_int, steps=1):
@@ -134,6 +125,12 @@ def lets_try_spinning():
     print("Character is spinning")
 
     while True:
+        pause_event = PauseStateManager.get_instance().get_state()
+        if pause_event is not None:
+            if not pause_event.is_set():
+                print("Spinning is paused.")
+                pause_event.wait()
+                print("Spinning now continues:")
 
         shutdown_event = ShutdownStateManager.get_instance().get_state()
         if shutdown_event is not None:

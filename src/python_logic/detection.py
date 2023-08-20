@@ -10,24 +10,17 @@ import controls
 from state_manager import ShutdownStateManager, PauseStateManager, WindowStateManager
 
 
-# noinspection PyArgumentList
 def find_pause_and_resume():
-    # screenshot = pyautogui.screenshot(region=(0, 0, 210, 100))
-    # screenshot.save("../images/test.png")
-
-    # pyautogui.moveTo(res)
     try:
         res = pyautogui.locateCenterOnScreen("../images/paused.png", region=(0, 0, 210, 100), confidence=0.9)
         if res is None:
             print("The game is up and running!")
         else:
             pyautogui.click(res)
-            # print(res)
     except OSError:
         print("Incorrect image source.")
 
 
-# noinspection PyUnresolvedReferences
 def find_sparkles():
     window_width, window_height = WindowStateManager.get_instance().get_window_size()
 
@@ -54,7 +47,7 @@ def find_sparkles():
     shiny_p5 = pyautogui.pixel(x5, y5)
 
     duration = 0
-    print("Searching for sparkles...")
+    print("Searching for sparkles...🔎")
     start_time = time.time()
     while duration < 1.6:  # Sparkles duration
         shutdown_event = ShutdownStateManager.get_instance().get_state()
@@ -62,7 +55,6 @@ def find_sparkles():
         if shutdown_event is not None:
             return
 
-        # if not pyautogui.pixelMatchesColor(x1, y1, (shiny_p1[0], shiny_p1[1], shiny_p1[2])):
         if not pyautogui.pixelMatchesColor(x1, y1, shiny_p1):
             print(f"P1: {pyautogui.pixel(x1, y1)}, {shiny_p1}")
             pyautogui.moveTo(x1, y1)
@@ -86,90 +78,62 @@ def find_sparkles():
         end_time = time.time()
         duration = end_time - start_time
 
-    print("No shiny this time")
+    print("No shiny this time...☹️")
     return False
 
 
-# noinspection PyArgumentList
 def find_exclamation_mark():
-    # Exclamation_mark_area: 800, 450, 150, 300 (Full wide screen)
-    # Not even a nibble: 100, 1100, 800, 150 (Full wide screen)
-    while True:
-        try:
-            shutdown_event = ShutdownStateManager.get_instance().get_state()
-            pause_event = PauseStateManager.get_instance().get_state()
-
-            if pause_event is not None:
-                if not pause_event.is_set():
-                    # print("Fishing is paused")
-                    break
-            # print("Fishing now continues")
-
-            if shutdown_event is not None:
-                break
-
-            # screenshot = pyautogui.screenshot(region=(100, 1100, 900, 150))
-            # screenshot.save("../images/test/fish_got_away_area.png")
-            time.sleep(0.05)
-            exclamation_mark_found = pyautogui.locateCenterOnScreen(image="../images/fish_on.png",
-                                                                    region=(800, 450, 150, 300), confidence=0.7)
-            no_fish = pyautogui.locateCenterOnScreen(image="../images/no_fish.png", region=(100, 1100, 800, 150),
-                                                     confidence=0.5)
-            print(exclamation_mark_found)
-            print(no_fish)
-
-            # fish_got_away = pyautogui.locateCenterOnScreen("../images/fish_got_away_area.png",
-            #                                                region=(100, 1100, 900, 150), confidence=0.7)
-
-            # print(exclamation_mark_found)
-            if exclamation_mark_found:
-                print("Exclamation found!")
-                # controls.a_key()
-                # time.sleep(0.0001)
-                for i in range(5):
-                    controls.a_key()
-                    time.sleep(0.01)
-                    print("A button was pressed!")
-                controls.a_key()
-                break
-            elif no_fish:
-                print("No fish this time.")
-                for i in range(1):
-                    time.sleep(0.1)
-                    controls.a_key()
-                break
-            # elif fish_got_away:
-            #     print("Fish got away.")
-            #     # for i in range(2):
-            #     #     time.sleep(0.01)
-            #     controls.a_key()
-            #     break
-
-        except OSError:
-            print("Incorrect image source.")
-
-
-def get_mouse_coordinates():
-    mouse = pyautogui.position()
-    print(mouse)
     window_width, window_height = WindowStateManager.get_instance().get_window_size()
 
-    percent_w = mouse.x / window_width
-    print(percent_w)
-    percent_h = mouse.y / window_height
-    print(percent_h)
+    exc_p_left = (int(window_width * 0.23608247422680412), int(window_height * 0.4077102803738318))
+    exc_p_middle_down = (int(window_width * 0.24690721649484537), int(window_height * 0.42757009345794394))
+    exc_p_middle_up = (int(window_width * 0.24690721649484537), int(window_height * 0.4030373831775701))
+    exc_p_right = (int(window_width * 0.2572164948453608), int(window_height * 0.4053738317757009))
 
-    # x: 0.2630359212050985
-    # y: 0.27670250896057347
+    no_fish_p1 = (int(window_width * 0.032474226804123714), int(window_height * 0.802570093457944))
+    no_fish_p2 = (int(window_width * 0.4747422680412371), int(window_height * 0.9217289719626168))
 
-    # x: 0.36993047508690613
-    # y: 0.6336917562724015
+    start_p = pyautogui.pixel(no_fish_p2[0], no_fish_p2[1])
 
-    # x: 0.45712630359212053
-    # y: 0.2623655913978495
+    while True:
+        pause_event = PauseStateManager.get_instance().get_state()
 
-    # x: 0.3479142526071842
-    # y: 0.1813620071684588
+        if pause_event is not None:
+            if not pause_event.is_set():
+                break
+
+        shutdown_event = ShutdownStateManager.get_instance().get_state()
+        if shutdown_event is not None:
+            return
+
+        exclamation_mark_found = False
+        no_fish = False
+
+        # Pixels matching the red exclamation mark
+        if (pyautogui.pixelMatchesColor(exc_p_left[0], exc_p_left[1], (255, 66, 0)) or
+                pyautogui.pixelMatchesColor(exc_p_middle_down[0], exc_p_middle_down[1], (255, 66, 0)) or
+                pyautogui.pixelMatchesColor(exc_p_middle_up[0], exc_p_middle_up[1], (255, 66, 0)) or
+                pyautogui.pixelMatchesColor(exc_p_right[0], exc_p_right[1], (255, 66, 0))):
+            exclamation_mark_found = True
+        elif (pyautogui.pixelMatchesColor(
+                no_fish_p1[0], no_fish_p1[1], (255, 255, 255)) and not pyautogui.pixelMatchesColor(
+            no_fish_p2[0], no_fish_p2[1], start_p)):
+            no_fish = True
+
+        if exclamation_mark_found:
+            print("\nExclamation found❗")
+            for i in range(5):
+                pyautogui.keyDown('e')
+                time.sleep(0.05)
+                pyautogui.keyUp('e')
+                print(f"A button was pressed: {i + 1}")
+                time.sleep(0.0001)
+            return
+        elif no_fish:
+            time.sleep(0.3)
+            controls.b_key()
+            print("No fish this time.")
+            return
 
 
 def get_encounter_pixels():
@@ -201,19 +165,14 @@ def get_encounter_pixels():
     return pixel_one, pixel_two
 
 
-# noinspection PyUnresolvedReferences
 def encounter_started(pixel_coord_one, pixel_coord_two):
     # print(f"Left_P: {pixel_coord_one}\nRight_P: {pixel_coord_two}")
-    x1, y1 = pixel_coord_one
-    x2, y2 = pixel_coord_two
-
-    pixel_one_rbg = pyautogui.pixel(x1, y1)
-    pixel_two_rbg = pyautogui.pixel(x2, y2)
+    pixel_one_is_black = pyautogui.pixelMatchesColor(pixel_coord_one[0], pixel_coord_one[1], (0, 0, 0))
+    pixel_two_is_black = pyautogui.pixelMatchesColor(pixel_coord_two[0], pixel_coord_two[1], (0, 0, 0))
 
     time.sleep(0.1)
-
-    if pixel_one_rbg == (0, 0, 0) and pixel_two_rbg == (0, 0, 0):
-        print("\nEncounter started!")
+    if pixel_one_is_black and pixel_two_is_black:
+        print("\nEncounter started!👊💥")
         return True
     else:
         return False
@@ -228,7 +187,6 @@ def encounter_detection(search_encounter_func):
     search_encounter_thread = thread.Thread(target=search_encounter_func, daemon=True)
     search_encounter_thread.start()
 
-    # startup_time = 11.5
     shiny_is_found = False
 
     while not shiny_is_found:
@@ -240,7 +198,7 @@ def encounter_detection(search_encounter_func):
         is_encounter = encounter_started(p1, p2)
         if is_encounter:
             pause_event.clear()  # Pauses search_encounter_func (Set flag False)
-            pause_state.set_state(pause_event)
+            pause_state.set_state(pause_event)  # Update pause state
 
             controls.clear_movement()  # Stops movement / button presses
 
@@ -253,21 +211,21 @@ def encounter_detection(search_encounter_func):
             shiny_is_found = find_sparkles()
 
             if shiny_is_found:
-                print("Congratulations! You found a shiny!")
+                print("Congratulations! You found a shiny!✨")
                 time.sleep(1)
 
-                # Shiny test
-                # shiny_is_found = False
-                # flee_encounter()
-                # pause_event.set()  # Resumes search_encounter_func (Set flag True)
-                # pause_state.set_state(pause_event)
+                # --- Shiny test (Commented by default) ---
+                shiny_is_found = False
+                flee_encounter()
+                pause_event.set()  # Resumes search_encounter_func (Set flag True)
+                pause_state.set_state(pause_event)
+                # -----------------------------------------
             else:
                 flee_encounter()
                 pause_event.set()  # Resumes search_encounter_func (Set flag True)
                 pause_state.set_state(pause_event)
 
 
-# noinspection PyUnresolvedReferences
 def flee_encounter():
     x, y = controls.run_btn_coords()
 
@@ -277,11 +235,17 @@ def flee_encounter():
             break
 
         time.sleep(0.1)
-        if pyautogui.pixelMatchesColor(x, y, (41, 148, 206)):
+        if pyautogui.pixelMatchesColor(x, y, (41, 148, 206)):  # Blue run button
             controls.click_coord(x, y)
-            print("Encounter ended. Search continues...\n")
-            time.sleep(4.5)
-            break
+            w, h = WindowStateManager.get_instance().get_window_size()
+            time.sleep(3.5)
+            if pyautogui.pixelMatchesColor(int(w / 4), int(h / 2), (0, 0, 0)):  # Black screen
+                print("Encounter ended. Search continues...\n")
+                time.sleep(1.2)
+                break
+            else:
+                print("Error: Unable to escape for some reason...")
+                exit()
 
 
 def set_window_focus():
