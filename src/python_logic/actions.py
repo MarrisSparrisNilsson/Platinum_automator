@@ -2,9 +2,10 @@ import threading
 import time
 import keyboard
 import random
+import pyautogui
 
 import detection
-from state_manager import ShutdownStateManager, PauseStateManager
+from state_manager import ShutdownStateManager, PauseStateManager, WindowStateManager
 import controls
 
 
@@ -33,7 +34,7 @@ def pokeradar_hunt():
 
 
 def fishing_hunt():
-    detection.encounter_detection(search_encounter_func=fishing)
+    detection.encounter_detection(search_encounter_func=fishing, end_encounter_func=flee_encounter)
 
 
 def fishing():
@@ -50,8 +51,14 @@ def fishing():
         if shutdown_event is not None:
             break
 
-        controls.use_selected_item()
-        detection.find_exclamation_mark()
+        if controls.use_selected_item():
+            detection.find_exclamation_mark()
+        else:
+            shutdown_state = ShutdownStateManager.get_instance()
+            shutdown_event = threading.Event()
+            print("Incorrect fishing spot!❌")
+            shutdown_event.clear()  # Reset the internal flag to false (Shutting down)
+            shutdown_state.set_state(shutdown_event)  # Updating state
 
 
 def soft_reset_hunt():
@@ -59,7 +66,7 @@ def soft_reset_hunt():
 
 
 def regular_hunt():
-    detection.encounter_detection(search_encounter_func=walk_random)
+    detection.encounter_detection(search_encounter_func=walk_random, end_encounter_func=flee_encounter)
 
 
 def watch_exit():
@@ -69,6 +76,35 @@ def watch_exit():
     print("\nEscape was pressed!🚨")
     shutdown_event.clear()  # Reset the internal flag to false (Shutting down)
     shutdown_state.set_state(shutdown_event)  # Updating state
+
+
+def soft_reset():
+    # pyautogui.hotkey("ctrl", "r")
+    keyboard.press("ctrl+r")
+    time.sleep(0.1)
+    keyboard.release("ctrl+r")
+
+
+def flee_encounter():
+    x, y = controls.run_btn_coords()
+
+    while True:
+        shutdown_event = ShutdownStateManager.get_instance().get_state()
+        if shutdown_event is not None:
+            break
+
+        time.sleep(0.1)
+        if pyautogui.pixelMatchesColor(x, y, (41, 148, 206)):  # Blue run button
+            controls.click_coord(x, y)
+            w, h = WindowStateManager.get_instance().get_window_size()
+            time.sleep(3.5)
+            if pyautogui.pixelMatchesColor(int(w / 4), int(h / 2), (0, 0, 0)):  # Black screen
+                print("Encounter ended. Search continues...\n")
+                time.sleep(1.2)
+                break
+            else:
+                print("Error: Unable to escape for some reason...")
+                exit()
 
 
 def walk_random():

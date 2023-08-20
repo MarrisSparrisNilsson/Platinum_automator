@@ -63,12 +63,13 @@ class WindowStateManager:
     def set_state(self):
         # Find window dynamically
         all_w = pywindow.getAllWindows()
+        print("Scanning open windows:")
         for i in range(len(all_w)):
             window = all_w[i]
             print(window.title)
             window_u = str.upper(window.title)
             if window_u.find("DESMUME") != -1 or window_u.find("PAUSED") != -1:
-                print(f"{window.title} was detected!")
+                print(f"\n{window.title} was detected!")
                 try:
                     window = pywindow.getWindowsWithTitle(window.title)[0]
                     self._window = window

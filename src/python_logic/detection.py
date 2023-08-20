@@ -3,7 +3,6 @@ import pygetwindow as pywindow
 import pyautogui
 import time
 import math
-# import os
 import threading as thread
 
 import controls
@@ -90,10 +89,10 @@ def find_exclamation_mark():
     exc_p_middle_up = (int(window_width * 0.24690721649484537), int(window_height * 0.4030373831775701))
     exc_p_right = (int(window_width * 0.2572164948453608), int(window_height * 0.4053738317757009))
 
-    no_fish_p1 = (int(window_width * 0.032474226804123714), int(window_height * 0.802570093457944))
-    no_fish_p2 = (int(window_width * 0.4747422680412371), int(window_height * 0.9217289719626168))
+    dialog_p1 = (int(window_width * 0.032474226804123714), int(window_height * 0.802570093457944))
+    dialog_p2 = (int(window_width * 0.4747422680412371), int(window_height * 0.9217289719626168))
 
-    start_p = pyautogui.pixel(no_fish_p2[0], no_fish_p2[1])
+    start_p = pyautogui.pixel(dialog_p2[0], dialog_p2[1])
 
     while True:
         pause_event = PauseStateManager.get_instance().get_state()
@@ -106,19 +105,12 @@ def find_exclamation_mark():
         if shutdown_event is not None:
             return
 
-        exclamation_mark_found = False
-        no_fish = False
-
         # Pixels matching the red exclamation mark
-        if (pyautogui.pixelMatchesColor(exc_p_left[0], exc_p_left[1], (255, 66, 0)) or
-                pyautogui.pixelMatchesColor(exc_p_middle_down[0], exc_p_middle_down[1], (255, 66, 0)) or
-                pyautogui.pixelMatchesColor(exc_p_middle_up[0], exc_p_middle_up[1], (255, 66, 0)) or
-                pyautogui.pixelMatchesColor(exc_p_right[0], exc_p_right[1], (255, 66, 0))):
-            exclamation_mark_found = True
-        elif (pyautogui.pixelMatchesColor(
-                no_fish_p1[0], no_fish_p1[1], (255, 255, 255)) and not pyautogui.pixelMatchesColor(
-            no_fish_p2[0], no_fish_p2[1], start_p)):
-            no_fish = True
+        exclamation_mark_found = is_exclamation_mark(exc_p_left, exc_p_middle_down, exc_p_middle_up, exc_p_right)
+        
+        no_fish = False
+        if not exclamation_mark_found:
+            no_fish = dialog_is_open(dialog_p1, dialog_p2, start_p)
 
         if exclamation_mark_found:
             print("\nExclamation found❗")
@@ -134,6 +126,24 @@ def find_exclamation_mark():
             controls.b_key()
             print("No fish this time.")
             return
+
+
+def is_exclamation_mark(exc_p_left, exc_p_middle_down, exc_p_middle_up, exc_p_right):
+    if (pyautogui.pixelMatchesColor(exc_p_left[0], exc_p_left[1], (255, 66, 0)) or
+            pyautogui.pixelMatchesColor(exc_p_middle_down[0], exc_p_middle_down[1], (255, 66, 0)) or
+            pyautogui.pixelMatchesColor(exc_p_middle_up[0], exc_p_middle_up[1], (255, 66, 0)) or
+            pyautogui.pixelMatchesColor(exc_p_right[0], exc_p_right[1], (255, 66, 0))):
+        return True
+    else:
+        return False
+
+
+def dialog_is_open(dialog_p1, dialog_p2, start_p):
+    if (pyautogui.pixelMatchesColor(dialog_p1[0], dialog_p1[1], (255, 255, 255)) and not pyautogui.pixelMatchesColor(
+            dialog_p2[0], dialog_p2[1], start_p)):
+        return True
+    else:
+        return False
 
 
 def get_encounter_pixels():
@@ -178,7 +188,7 @@ def encounter_started(pixel_coord_one, pixel_coord_two):
         return False
 
 
-def encounter_detection(search_encounter_func):
+def encounter_detection(search_encounter_func, end_encounter_func):
     p1, p2 = get_encounter_pixels()
 
     pause_state = PauseStateManager.get_instance()
@@ -216,36 +226,14 @@ def encounter_detection(search_encounter_func):
 
                 # --- Shiny test (Commented by default) ---
                 shiny_is_found = False
-                flee_encounter()
+                end_encounter_func()
                 pause_event.set()  # Resumes search_encounter_func (Set flag True)
                 pause_state.set_state(pause_event)
                 # -----------------------------------------
             else:
-                flee_encounter()
+                end_encounter_func()
                 pause_event.set()  # Resumes search_encounter_func (Set flag True)
                 pause_state.set_state(pause_event)
-
-
-def flee_encounter():
-    x, y = controls.run_btn_coords()
-
-    while True:
-        shutdown_event = ShutdownStateManager.get_instance().get_state()
-        if shutdown_event is not None:
-            break
-
-        time.sleep(0.1)
-        if pyautogui.pixelMatchesColor(x, y, (41, 148, 206)):  # Blue run button
-            controls.click_coord(x, y)
-            w, h = WindowStateManager.get_instance().get_window_size()
-            time.sleep(3.5)
-            if pyautogui.pixelMatchesColor(int(w / 4), int(h / 2), (0, 0, 0)):  # Black screen
-                print("Encounter ended. Search continues...\n")
-                time.sleep(1.2)
-                break
-            else:
-                print("Error: Unable to escape for some reason...")
-                exit()
 
 
 def set_window_focus():
