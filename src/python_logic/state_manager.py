@@ -27,6 +27,7 @@ class ShutdownStateManager:
 class PauseStateManager:
     _instance = None
     _state = None
+    _main_state = None
     _lock = threading.Lock()
 
     @staticmethod
@@ -44,6 +45,14 @@ class PauseStateManager:
     def get_state(self):
         with PauseStateManager._lock:
             return self._state
+
+    def set_main_state(self, value):
+        with PauseStateManager._lock:
+            self._main_state = value
+
+    def get_main_state(self):
+        with PauseStateManager._lock:
+            return self._main_state
 
 
 class WindowStateManager:
@@ -63,12 +72,13 @@ class WindowStateManager:
     def set_state(self):
         # Find window dynamically
         all_w = pywindow.getAllWindows()
+        print("Scanning open windows:")
         for i in range(len(all_w)):
             window = all_w[i]
             print(window.title)
             window_u = str.upper(window.title)
             if window_u.find("DESMUME") != -1 or window_u.find("PAUSED") != -1:
-                print(f"{window.title} was detected!")
+                print(f"\n{window.title} was detected!")
                 try:
                     window = pywindow.getWindowsWithTitle(window.title)[0]
                     self._window = window

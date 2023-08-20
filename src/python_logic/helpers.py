@@ -22,7 +22,7 @@ def display_actions_menu():
         "Fishing hunt",
         "Fossil hunt",
         "Safari zone hunt",
-        "Soft reset hunt",
+        "Soft-Reset hunt",
         "Egg hunt",
         "Regular hunt"
     ]
@@ -76,9 +76,9 @@ def select_action():
                     print("Safari zone hunt coming soon.")
                     return None
                 case 5:
-                    # print("Beginning Soft reset hunt!")
-                    print("Soft reset hunt coming soon.")
-                    return None
+                    print("Beginning Soft-Reset hunt!")
+                    # print("Soft-Reset hunt coming soon.")
+                    return thread.Thread(target=actions.soft_reset_hunt, daemon=True)
                 case 6:
                     # print("Beginning Egg hunt!")
                     print("Egg hunt coming soon.")
