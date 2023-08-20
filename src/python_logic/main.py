@@ -1,10 +1,5 @@
 # External modules
-# import os
-# import time
-# import random
-# import keyboard
 import threading as thread
-# import pyautogui
 
 # Local modules
 import controls

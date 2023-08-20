@@ -82,20 +82,16 @@ def switch_tab():
 
 
 def run_btn_coords():
+    # Run button: region = (2300, 1100, 550, 300)
     window_width, window_height = WindowStateManager.get_instance().get_window_size()
     x, y = (int(window_width * 0.75), int(window_height * 0.88))
     return x, y
 
 
 def click_coord(x, y):
-    # Run button: region = (2300, 1100, 550, 300)
-    # x, y = (int(window_width * 0.75), int(window_height * 0.88))
-
-    # pyautogui.moveTo(x, y, duration=0.3)
     pyautogui.moveTo(x, y)
     time.sleep(0.1)
     in_game_click()
-    # return coord
 
 
 def soft_reset():

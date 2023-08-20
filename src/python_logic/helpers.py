@@ -1,4 +1,3 @@
-import keyboard
 import time
 import threading as thread
 import os
@@ -48,97 +47,86 @@ def select_action():
     is_valid = False
 
     while not is_valid:
-        display_actions_menu()
+        try:
+            display_actions_menu()
 
-        controls.console_focus()
-        option = int(input("Enter your option (0-8): "))
-        # print("")
-        is_valid = True
+            controls.console_focus()
+            option = int(input("Enter your option (0-8): "))
+            # print("")
+            is_valid = True
 
-        match option:
-            case 0:
-                print("Program exited.")
-                exit()
-            case 1:
-                # print("Begin Pokeradar hunt!")
-                print("Pokeradar hunt coming soon.")
-                return None
-            case 2:
-                print("Begin Fishing hunt!")
-                # print("Fishing hunt coming soon.")
-                # habitat = get_habitat()
-                return thread.Thread(target=actions.fishing_hunt, daemon=True)
-            case 3:
-                # print("Begin Fossil hunt!")
-                print("Fossil hunt coming soon.")
-                return None
-            case 4:
-                # print("Begin Safari zone hunt!")
-                print("Safari zone hunt coming soon.")
-                return None
-            case 5:
-                # print("Begin Soft reset hunt!")
-                print("Soft reset hunt coming soon.")
-                return None
-            case 6:
-                # print("Begin Egg hunt!")
-                print("Egg hunt coming soon.")
-                return None
-            case 7:
-                print("Begin Regular hunt!")
-                # habitat = get_habitat()
-                return thread.Thread(target=actions.regular_hunt, daemon=True)
+            match option:
+                case 0:
+                    print("Program exited.")
+                    exit()
+                case 1:
+                    # print("Beginning Pokeradar hunt!")
+                    print("Pokeradar hunt coming soon.")
+                    return None
+                case 2:
+                    print("Beginning Fishing hunt!")
+                    # print("Fishing hunt coming soon.")
+                    return thread.Thread(target=actions.fishing_hunt, daemon=True)
+                case 3:
+                    # print("Beginning Fossil hunt!")
+                    print("Fossil hunt coming soon.")
+                    return None
+                case 4:
+                    # print("Beginning Safari zone hunt!")
+                    print("Safari zone hunt coming soon.")
+                    return None
+                case 5:
+                    # print("Beginning Soft reset hunt!")
+                    print("Soft reset hunt coming soon.")
+                    return None
+                case 6:
+                    # print("Beginning Egg hunt!")
+                    print("Egg hunt coming soon.")
+                    return None
+                case 7:
+                    print("Beginning Regular hunt!")
+                    return thread.Thread(target=actions.regular_hunt, daemon=True)
 
-            case _:
-                if is_valid:
-                    is_valid = False
-                print("This option is not available, try again")
+                case _:
+                    if is_valid:
+                        is_valid = False
+                    print("This option is not available, try again")
+        except EOFError:
+            print("End of file.")
 
 
 def test_function():
     detection.set_window_focus()
 
-    width, height = WindowStateManager.get_instance().get_window_size()
+    # window_width, window_height = WindowStateManager.get_instance().get_window_size()
 
-    print(f"W: {width}, H: {height}")
-
-    # WORKS GREAT :)
+    get_mouse_coordinates()
 
     # detection.find_exclamation_mark()
-    # time.sleep(2)
-    # window = detection.get_window()
-    # # detection.get_mouse_coordinates()
-    #
-    # x1 = int(window.width * 0.2630359212050985)
-    # y1 = int(window.height * 0.27670250896057347)
-    #
-    # x2 = int(window.width * 0.36993047508690613)
-    # y2 = int(window.height * 0.6336917562724015)
-    #
-    # x3 = int(window.width * 0.45712630359212053)
-    # y3 = int(window.height * 0.2623655913978495)
-    #
-    # x4 = int(window.width * 0.3579142526071842)
-    # y4 = int(window.height * 0.1013620071684588)
-    #
-    # x5 = int(window.width * 0.45654692931633833)
-    # y5 = int(window.height * 0.5684587813620071)
-    #
-    # # width = "3452", height = "1395"
-    #
-    # list = [(x1, y1), (x2, y2), (x3, y3), (x4, y4), (x5, y5)]
-    #
-    # for i in range(len(list)):
-    #     pyautogui.moveTo(list[i])
-    #     time.sleep(3)
+    # screenshot = pyautogui.screenshot(region=(start_x, start_y, end_x, end_y))
+    # screenshot.save("../images/test/exclamation_area.png")
 
-    # keyboard.press('s')
-    # time.sleep(2)
-    # pyautogui.keyUp('s')
-    # pyautogui.keyDown('w')
-    # pyautogui.keyUp('w')
-    # keyboard.release('w')
-    # keyboard.start_recording()
+
+def get_mouse_coordinates():
+    print("Mouse coordinates in:")
+
+    time.sleep(1)
+    seconds = 3
+    for i in range(seconds):
+        print(f"{seconds - i}")
+        time.sleep(1)
+
+    mouse = pyautogui.position()
+    print(mouse)
+    window_width, window_height = WindowStateManager.get_instance().get_window_size()
+
+    pixel = pyautogui.pixel(mouse.x, mouse.y)
+    print(f"Pixel rbg: {pixel}")
+
+    percent_w = mouse.x / window_width
+    print(f"W: {percent_w}")
+    percent_h = mouse.y / window_height
+    print(f"H: {percent_h}")
 
 
 def get_habitat():

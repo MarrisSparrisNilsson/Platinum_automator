@@ -32,18 +32,18 @@ class PauseStateManager:
     @staticmethod
     def get_instance():
         if PauseStateManager._instance is None:
-            # with PauseStateManager._lock:
-            if PauseStateManager._instance is None:
-                PauseStateManager._instance = PauseStateManager()
+            with PauseStateManager._lock:
+                if PauseStateManager._instance is None:
+                    PauseStateManager._instance = PauseStateManager()
         return PauseStateManager._instance
 
     def set_state(self, value):
-        # with PauseStateManager._lock:
-        self._state = value
+        with PauseStateManager._lock:
+            self._state = value
 
     def get_state(self):
-        # with PauseStateManager._lock:
-        return self._state
+        with PauseStateManager._lock:
+            return self._state
 
 
 class WindowStateManager:
