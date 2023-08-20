@@ -27,6 +27,7 @@ class ShutdownStateManager:
 class PauseStateManager:
     _instance = None
     _state = None
+    _main_state = None
     _lock = threading.Lock()
 
     @staticmethod
@@ -44,6 +45,14 @@ class PauseStateManager:
     def get_state(self):
         with PauseStateManager._lock:
             return self._state
+
+    def set_main_state(self, value):
+        with PauseStateManager._lock:
+            self._main_state = value
+
+    def get_main_state(self):
+        with PauseStateManager._lock:
+            return self._main_state
 
 
 class WindowStateManager:

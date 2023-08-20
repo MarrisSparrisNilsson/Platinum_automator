@@ -48,7 +48,7 @@ def find_sparkles():
     duration = 0
     print("Searching for sparkles...🔎")
     start_time = time.time()
-    while duration < 1.6:  # Sparkles duration
+    while duration < 2:  # Sparkles duration
         shutdown_event = ShutdownStateManager.get_instance().get_state()
 
         if shutdown_event is not None:
@@ -107,7 +107,7 @@ def find_exclamation_mark():
 
         # Pixels matching the red exclamation mark
         exclamation_mark_found = is_exclamation_mark(exc_p_left, exc_p_middle_down, exc_p_middle_up, exc_p_right)
-        
+
         no_fish = False
         if not exclamation_mark_found:
             no_fish = dialog_is_open(dialog_p1, dialog_p2, start_p)
@@ -176,6 +176,14 @@ def get_encounter_pixels():
 
 
 def encounter_started(pixel_coord_one, pixel_coord_two):
+    pause_main_event = PauseStateManager.get_instance().get_main_state()
+
+    if pause_main_event is not None:
+        if not pause_main_event.is_set():
+            print("Encounter detection is paused.")
+            pause_main_event.wait()
+            print("Encounter detection now continues.")
+
     # print(f"Left_P: {pixel_coord_one}\nRight_P: {pixel_coord_two}")
     pixel_one_is_black = pyautogui.pixelMatchesColor(pixel_coord_one[0], pixel_coord_one[1], (0, 0, 0))
     pixel_two_is_black = pyautogui.pixelMatchesColor(pixel_coord_two[0], pixel_coord_two[1], (0, 0, 0))
@@ -212,7 +220,7 @@ def encounter_detection(search_encounter_func, end_encounter_func):
 
             controls.clear_movement()  # Stops movement / button presses
 
-            time.sleep(4)  # Time of encounter intro
+            time.sleep(3)  # Time of encounter intro
 
             shutdown_event = ShutdownStateManager.get_instance().get_state()
             if shutdown_event is not None:
@@ -225,10 +233,10 @@ def encounter_detection(search_encounter_func, end_encounter_func):
                 time.sleep(1)
 
                 # --- Shiny test (Commented by default) ---
-                shiny_is_found = False
-                end_encounter_func()
-                pause_event.set()  # Resumes search_encounter_func (Set flag True)
-                pause_state.set_state(pause_event)
+                # shiny_is_found = False
+                # end_encounter_func()
+                # pause_event.set()  # Resumes search_encounter_func (Set flag True)
+                # pause_state.set_state(pause_event)
                 # -----------------------------------------
             else:
                 end_encounter_func()

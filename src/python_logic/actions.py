@@ -61,8 +61,42 @@ def fishing():
             shutdown_state.set_state(shutdown_event)  # Updating state
 
 
+def save_game():
+    window_width, window_height = WindowStateManager.get_instance().get_window_size()
+    save_p = (int(window_width * 0.3077319587628866), int(window_height * 0.6285046728971962))
+    save_box_p = (int(window_width * 0.12061855670103093), int(window_height * 0.32710280373831774))
+    start_save_box = pyautogui.pixel(save_box_p[0], save_box_p[1])
+
+    controls.open_bag()
+
+    while True:
+        time.sleep(0.1)
+        shutdown_event = ShutdownStateManager.get_instance().get_state()
+        if shutdown_event is not None:
+            return
+
+        if pyautogui.pixelMatchesColor(save_p[0], save_p[1], (255, 107, 16)):
+            while True:
+                shutdown_event = ShutdownStateManager.get_instance().get_state()
+                if shutdown_event is not None:
+                    return
+
+                controls.a_key()
+                time.sleep(0.5)
+
+                if pyautogui.pixelMatchesColor(save_box_p[0], save_box_p[1], start_save_box):
+                    print("Game is saved!")
+                    return
+        else:
+            controls.up()
+
+
 def soft_reset_hunt():
-    return None
+    save_game()
+    shutdown_event = ShutdownStateManager.get_instance().get_state()
+    if shutdown_event is not None:
+        return
+    detection.encounter_detection(search_encounter_func=static_encounter, end_encounter_func=soft_reset)
 
 
 def regular_hunt():
@@ -76,6 +110,55 @@ def watch_exit():
     print("\nEscape was pressed!🚨")
     shutdown_event.clear()  # Reset the internal flag to false (Shutting down)
     shutdown_state.set_state(shutdown_event)  # Updating state
+
+    pause_main_event = PauseStateManager.get_instance().get_main_state()
+    if pause_main_event is not None:
+        pause_main_event.set()  # Signal main pause event to get out of wait state
+
+
+def static_encounter():
+    pause_main_state = PauseStateManager.get_instance()
+    pause_main_event = threading.Event()
+    while True:
+        pause_main_event.clear()  # Pauses encounter detection
+        pause_main_state.set_main_state(pause_main_event)
+
+        soft_reset()
+
+        start_time = time.time()
+        duration = 0
+
+        # Press "a" during startup
+        while duration < 15:  # Time until encounter detection starts
+            shutdown_event = ShutdownStateManager.get_instance().get_state()
+            if shutdown_event is not None:
+                return
+
+            time.sleep(0.3)
+            controls.a_key()
+            end_time = time.time()
+            duration = end_time - start_time
+
+        pause_main_event.set()  # Resumes encounter detection
+        pause_main_state.set_main_state(pause_main_event)
+
+        # Press "a" until encounter starts
+        while True:
+            pause_event = PauseStateManager.get_instance().get_state()
+            # If encounter is active
+            if pause_event is not None:
+                if not pause_event.is_set():
+                    print("Button presses is paused.")
+                    pause_event.wait()  # Wait for encounter to finish
+                    print("\nButton presses now continues.")
+                    break
+
+            shutdown_event = ShutdownStateManager.get_instance().get_state()
+            if shutdown_event is not None:
+                return
+
+            time.sleep(0.5)
+            controls.a_key()
 
 
 def soft_reset():

@@ -1,6 +1,6 @@
 import time
 
-import keyboard
+# import keyboard
 import pyautogui
 
 import detection
@@ -16,27 +16,27 @@ def clear_movement():
 
 
 def down():
-    keyboard.press('s')
-    # pyautogui.keyDown('s')
-    # pyautogui.keyUp('s')
+    # keyboard.press('s')
+    pyautogui.keyDown('s')
+    pyautogui.keyUp('s')
 
 
 def up():
-    keyboard.press('w')
-    # pyautogui.keyDown('w')
-    # pyautogui.keyUp('w')
+    #     keyboard.press('w')
+    pyautogui.keyDown('w')
+    pyautogui.keyUp('w')
 
 
 def left():
-    keyboard.press('a')
-    # pyautogui.keyDown('a')
-    # pyautogui.keyUp('a')
+    #     keyboard.press('a')
+    pyautogui.keyDown('a')
+    pyautogui.keyUp('a')
 
 
 def right():
-    keyboard.press('d')
-    # pyautogui.keyDown('d')
-    # pyautogui.keyUp('d')
+    #     keyboard.press('d')
+    pyautogui.keyDown('d')
+    pyautogui.keyUp('d')
 
 
 def open_bag():
