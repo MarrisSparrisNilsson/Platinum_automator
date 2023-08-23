@@ -4,7 +4,7 @@ import pygetwindow as pywindow
 
 class ShutdownStateManager:
     _instance = None
-    _state = None
+    _state: threading.Event = None
     _lock = threading.Lock()
 
     @staticmethod
@@ -26,8 +26,8 @@ class ShutdownStateManager:
 
 class PauseStateManager:
     _instance = None
-    _state = None
-    _main_state = None
+    _state: threading.Event = None
+    _main_state: threading.Event = None
     _lock = threading.Lock()
 
     @staticmethod
@@ -58,7 +58,7 @@ class PauseStateManager:
 class WindowStateManager:
     _instance = None
     _window = None
-    _window_size = (0, 0)
+    _window_size: (int, int) = (0, 0)
     _lock = threading.Lock()
 
     @staticmethod
