@@ -6,7 +6,7 @@ import math
 import threading as thread
 
 import controls
-from state_manager import ShutdownStateManager, PauseStateManager, WindowStateManager
+from state_manager import ShutdownStateManager, PauseStateManager, WindowStateManager, HuntStateManager
 
 
 def find_pause_and_resume():
@@ -48,10 +48,8 @@ def find_sparkles():
     duration = 0
     print("Searching for sparkles...🔎")
     start_time = time.time()
-    while duration < 2:  # Sparkles duration
-        shutdown_event = ShutdownStateManager.get_instance().get_state()
-
-        if shutdown_event is not None:
+    while duration < 2.2:  # Sparkles duration
+        if check_shutdown_state():
             return
 
         if not pyautogui.pixelMatchesColor(x1, y1, shiny_p1):
@@ -76,18 +74,19 @@ def find_sparkles():
             return True
         end_time = time.time()
         duration = end_time - start_time
+        # print(duration)
 
     print("No shiny this time...☹️")
     return False
 
 
-def find_exclamation_mark():
+def find_exclamation_mark(cast):
     window_width, window_height = WindowStateManager.get_instance().get_window_size()
 
-    exc_p_left = (int(window_width * 0.23608247422680412), int(window_height * 0.4077102803738318))
+    exc_p_left = (int(window_width * 0.23608247422680412), int(window_height * 0.40771028037383180))
     exc_p_middle_down = (int(window_width * 0.24690721649484537), int(window_height * 0.42757009345794394))
-    exc_p_middle_up = (int(window_width * 0.24690721649484537), int(window_height * 0.4030373831775701))
-    exc_p_right = (int(window_width * 0.2572164948453608), int(window_height * 0.4053738317757009))
+    exc_p_middle_up = (int(window_width * 0.24690721649484537), int(window_height * 0.40303738317757010))
+    exc_p_right = (int(window_width * 0.25721649484536080), int(window_height * 0.40537383177570090))
 
     dialog_p1 = (int(window_width * 0.032474226804123714), int(window_height * 0.802570093457944))
     dialog_p2 = (int(window_width * 0.4747422680412371), int(window_height * 0.9217289719626168))
@@ -96,13 +95,11 @@ def find_exclamation_mark():
 
     while True:
         pause_event = PauseStateManager.get_instance().get_state()
-
         if pause_event is not None:
             if not pause_event.is_set():
                 break
 
-        shutdown_event = ShutdownStateManager.get_instance().get_state()
-        if shutdown_event is not None:
+        if check_shutdown_state():
             return
 
         # Pixels matching the red exclamation mark
@@ -113,7 +110,8 @@ def find_exclamation_mark():
             no_fish = dialog_is_open(dialog_p1, dialog_p2, start_p)
 
         if exclamation_mark_found:
-            print("\nExclamation found❗")
+            print("Exclamation found❗")
+            cast[0] = 0
             for i in range(5):
                 pyautogui.keyDown('e')
                 time.sleep(0.05)
@@ -124,11 +122,13 @@ def find_exclamation_mark():
         elif no_fish:
             time.sleep(0.3)
             controls.b_key()
-            print("No fish this time.")
+            cast[0] += 1
+            print(f"No fish this time. ({cast[0]})")
             return
 
 
-def is_exclamation_mark(exc_p_left, exc_p_middle_down, exc_p_middle_up, exc_p_right):
+def is_exclamation_mark(exc_p_left: (int, int), exc_p_middle_down: (int, int), exc_p_middle_up: (
+        int, int), exc_p_right: (int, int)):
     if (pyautogui.pixelMatchesColor(exc_p_left[0], exc_p_left[1], (255, 66, 0)) or
             pyautogui.pixelMatchesColor(exc_p_middle_down[0], exc_p_middle_down[1], (255, 66, 0)) or
             pyautogui.pixelMatchesColor(exc_p_middle_up[0], exc_p_middle_up[1], (255, 66, 0)) or
@@ -144,6 +144,29 @@ def dialog_is_open(dialog_p1, dialog_p2, start_p):
         return True
     else:
         return False
+
+
+def check_shutdown_state():
+    shutdown_event = ShutdownStateManager.get_instance().get_state()
+    if shutdown_event is not None:
+        return True
+    else:
+        return False
+
+
+def check_pause_state(pause_message: str, continue_message: str):
+    pause_event = PauseStateManager.get_instance().get_state()
+    # If encounter is active
+    if pause_event is not None:
+        if not pause_event.is_set():
+            if len(pause_message) > 0:
+                print(pause_message)
+            pause_event.wait()  # Wait for encounter to finish
+
+            if len(continue_message) > 0 and not check_shutdown_state():
+                print(continue_message + "\n")
+            return True
+    return False
 
 
 def get_encounter_pixels():
@@ -165,7 +188,7 @@ def get_encounter_pixels():
     else:
         height = (h_hundred + 1) * 100
 
-    print(f"ROUNDED_W: {width}, ROUNDED_H: {height}")
+    # print(f"ROUNDED_W: {width}, ROUNDED_H: {height}")
     w1 = int(width / 4)
     w2 = int(width - (width / 4))
     h = int(height / 2)
@@ -190,7 +213,9 @@ def encounter_started(pixel_coord_one, pixel_coord_two):
 
     time.sleep(0.1)
     if pixel_one_is_black and pixel_two_is_black:
-        print("\nEncounter started!👊💥")
+        HuntStateManager.get_instance().increment_encounters()
+        encounters = HuntStateManager.get_instance().get_encounters()
+        print(f"\nEncounter #{encounters} started!👊💥")
         return True
     else:
         return False
@@ -209,8 +234,7 @@ def encounter_detection(search_encounter_func, end_encounter_func):
 
     while not shiny_is_found:
 
-        shutdown_event = ShutdownStateManager.get_instance().get_state()
-        if shutdown_event is not None:
+        if check_shutdown_state():
             return
 
         is_encounter = encounter_started(p1, p2)
@@ -220,16 +244,17 @@ def encounter_detection(search_encounter_func, end_encounter_func):
 
             controls.clear_movement()  # Stops movement / button presses
 
-            time.sleep(3)  # Time of encounter intro
+            time.sleep(3.2)  # Time of encounter intro (Legendary encounter)
+            # time.sleep(4)  # Time of encounter intro (Regular encounter)
 
-            shutdown_event = ShutdownStateManager.get_instance().get_state()
-            if shutdown_event is not None:
+            if check_shutdown_state():
                 return
 
             shiny_is_found = find_sparkles()
 
             if shiny_is_found:
                 print("Congratulations! You found a shiny!✨")
+                HuntStateManager.get_instance().finish_hunt(is_finished=shiny_is_found)
                 time.sleep(1)
 
                 # --- Shiny test (Commented by default) ---

@@ -5,7 +5,7 @@ import random
 import pyautogui
 
 import detection
-from state_manager import ShutdownStateManager, PauseStateManager, WindowStateManager
+from state_manager import HuntStateManager, PauseStateManager, WindowStateManager, ShutdownStateManager
 import controls
 
 
@@ -38,21 +38,17 @@ def fishing_hunt():
 
 
 def fishing():
+    cast = [0]
     while True:
-        pause_event = PauseStateManager.get_instance().get_state()
 
-        if pause_event is not None:
-            if not pause_event.is_set():
-                print("Fishing is paused▶️")
-                pause_event.wait()
-                print("Fishing now continues🎣🪝")
+        # print("Fishing is paused▶️")
+        detection.check_pause_state("Fishing is paused▶️", "Fishing now continues🎣🪝")
 
-        shutdown_event = ShutdownStateManager.get_instance().get_state()
-        if shutdown_event is not None:
-            break
+        if detection.check_shutdown_state():
+            return
 
         if controls.use_selected_item():
-            detection.find_exclamation_mark()
+            detection.find_exclamation_mark(cast)
         else:
             shutdown_state = ShutdownStateManager.get_instance()
             shutdown_event = threading.Event()
@@ -71,14 +67,12 @@ def save_game():
 
     while True:
         time.sleep(0.1)
-        shutdown_event = ShutdownStateManager.get_instance().get_state()
-        if shutdown_event is not None:
+        if detection.check_shutdown_state():
             return
 
         if pyautogui.pixelMatchesColor(save_p[0], save_p[1], (255, 107, 16)):
             while True:
-                shutdown_event = ShutdownStateManager.get_instance().get_state()
-                if shutdown_event is not None:
+                if detection.check_shutdown_state():
                     return
 
                 controls.a_key()
@@ -93,8 +87,7 @@ def save_game():
 
 def soft_reset_hunt():
     save_game()
-    shutdown_event = ShutdownStateManager.get_instance().get_state()
-    if shutdown_event is not None:
+    if detection.check_shutdown_state():
         return
     detection.encounter_detection(search_encounter_func=static_encounter, end_encounter_func=soft_reset)
 
@@ -114,6 +107,7 @@ def watch_exit():
     pause_main_event = PauseStateManager.get_instance().get_main_state()
     if pause_main_event is not None:
         pause_main_event.set()  # Signal main pause event to get out of wait state
+    HuntStateManager.get_instance().finish_hunt()
 
 
 def static_encounter():
@@ -130,8 +124,7 @@ def static_encounter():
 
         # Press "a" during startup
         while duration < 15:  # Time until encounter detection starts
-            shutdown_event = ShutdownStateManager.get_instance().get_state()
-            if shutdown_event is not None:
+            if detection.check_shutdown_state():
                 return
 
             time.sleep(0.3)
@@ -144,17 +137,10 @@ def static_encounter():
 
         # Press "a" until encounter starts
         while True:
-            pause_event = PauseStateManager.get_instance().get_state()
-            # If encounter is active
-            if pause_event is not None:
-                if not pause_event.is_set():
-                    print("Button presses is paused.")
-                    pause_event.wait()  # Wait for encounter to finish
-                    print("\nButton presses now continues.")
-                    break
+            if detection.check_pause_state("Button presses is paused.", "\nButton presses now continues."):
+                break
 
-            shutdown_event = ShutdownStateManager.get_instance().get_state()
-            if shutdown_event is not None:
+            if detection.check_shutdown_state():
                 return
 
             time.sleep(0.5)
@@ -172,9 +158,8 @@ def flee_encounter():
     x, y = controls.run_btn_coords()
 
     while True:
-        shutdown_event = ShutdownStateManager.get_instance().get_state()
-        if shutdown_event is not None:
-            break
+        if detection.check_shutdown_state():
+            return
 
         time.sleep(0.1)
         if pyautogui.pixelMatchesColor(x, y, (41, 148, 206)):  # Blue run button
@@ -182,7 +167,7 @@ def flee_encounter():
             w, h = WindowStateManager.get_instance().get_window_size()
             time.sleep(3.5)
             if pyautogui.pixelMatchesColor(int(w / 4), int(h / 2), (0, 0, 0)):  # Black screen
-                print("Encounter ended. Search continues...\n")
+                print("Encounter ended. Search continues...")
                 time.sleep(1.2)
                 break
             else:
@@ -194,16 +179,9 @@ def walk_random():
     last_dir = 10  # Starts as a value with no direction representation
 
     while True:
-        shutdown_event = ShutdownStateManager.get_instance().get_state()
-        pause_event = PauseStateManager.get_instance().get_state()
+        detection.check_pause_state("Walking is paused.", "Walking now continues:")
 
-        if pause_event is not None:
-            if not pause_event.is_set():
-                print("Walking is paused.")
-                pause_event.wait()
-                print("Walking now continues:")
-
-        if shutdown_event is not None:
+        if detection.check_shutdown_state():
             return
 
         random_dir = random.randint(0, 3)
@@ -217,8 +195,7 @@ def walk_random():
 
 
 def move(direction_int, steps=1):
-    shutdown_event = ShutdownStateManager.get_instance().get_state()
-    if shutdown_event is not None:
+    if detection.check_shutdown_state():
         return
 
     move_dirs = ['a', 'w', 'd', 's']
@@ -244,22 +221,10 @@ def lets_try_spinning():
     print("Character is spinning")
 
     while True:
-        pause_event = PauseStateManager.get_instance().get_state()
-        if pause_event is not None:
-            if not pause_event.is_set():
-                print("Spinning is paused.")
-                pause_event.wait()
-                print("Spinning now continues:")
-
-        shutdown_event = ShutdownStateManager.get_instance().get_state()
-        if shutdown_event is not None:
-            break
-
         for dirs in range(4):
-            shutdown_event = ShutdownStateManager.get_instance().get_state()
-            if shutdown_event is not None:
-                print(f"Break was fired at i={dirs}")
-                break
+            detection.check_pause_state("Spinning is paused.", "Spinning now continues:")
+            if detection.check_shutdown_state():
+                return
 
             move(direction_int=dirs, steps=2)
 
