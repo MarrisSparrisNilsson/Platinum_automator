@@ -1,5 +1,8 @@
 import threading
+import uuid
+
 import pygetwindow as pywindow
+import file_manager
 
 
 class ShutdownStateManager:
@@ -72,10 +75,10 @@ class WindowStateManager:
     def set_state(self):
         # Find window dynamically
         all_w = pywindow.getAllWindows()
-        print("Scanning open windows:")
+        # print("Scanning open windows:")
         for i in range(len(all_w)):
             window = all_w[i]
-            print(window.title)
+            # print(window.title)
             window_u = str.upper(window.title)
             if window_u.find("DESMUME") != -1 or window_u.find("PAUSED") != -1:
                 print(f"\n{window.title} was detected!")
@@ -94,3 +97,50 @@ class WindowStateManager:
 
     def get_window(self):
         return self._window
+
+
+class HuntStateManager:
+    _instance = None
+    _hunt_id: str = str(uuid.uuid4())
+    _pokemon_name: str = ""
+    _hunt_mode: str = ""
+    _encounters: int = 0
+    # _hunt_index: int
+    _finished: bool = False
+    _is_practice: bool = False
+    _lock = threading.Lock()
+
+    @staticmethod
+    def get_instance():
+        if HuntStateManager._instance is None:
+            with HuntStateManager._lock:
+                if HuntStateManager._instance is None:
+                    HuntStateManager._instance = HuntStateManager()
+        return HuntStateManager._instance
+
+    def set_hunt_state(self, hunt_id=str(uuid.uuid4()), pokemon_name="Unknown", hunt_mode="", encounters=0, is_practice=False):
+        with HuntStateManager._lock:
+            self._hunt_id = hunt_id
+            self._pokemon_name = pokemon_name
+            self._hunt_mode = hunt_mode
+            self._encounters = encounters
+            self._is_practice = is_practice
+
+    def set_hunt_mode(self, hunt_mode):
+        with HuntStateManager._lock:
+            self._hunt_mode = hunt_mode
+
+    def get_encounters(self):
+        with HuntStateManager._lock:
+            return self._encounters
+
+    def increment_encounters(self):
+        with HuntStateManager._lock:
+            self._encounters += 1
+
+    def finish_hunt(self, is_finished=False):
+        with HuntStateManager._lock:
+            if not self._is_practice:
+                file_manager.save_hunt(self._hunt_id, self._pokemon_name, self._hunt_mode, self._encounters, is_finished)
+            else:
+                return self._encounters
