@@ -5,7 +5,7 @@ import random
 import pyautogui
 
 import detection
-from state_manager import ShutdownStateManager, PauseStateManager, WindowStateManager
+from state_manager import HuntStateManager, PauseStateManager, WindowStateManager, ShutdownStateManager
 import controls
 
 
@@ -38,16 +38,17 @@ def fishing_hunt():
 
 
 def fishing():
+    cast = [0]
     while True:
 
         # print("Fishing is paused▶️")
         detection.check_pause_state("Fishing is paused▶️", "Fishing now continues🎣🪝")
-        
+
         if detection.check_shutdown_state():
             return
 
         if controls.use_selected_item():
-            detection.find_exclamation_mark()
+            detection.find_exclamation_mark(cast)
         else:
             shutdown_state = ShutdownStateManager.get_instance()
             shutdown_event = threading.Event()
@@ -106,6 +107,7 @@ def watch_exit():
     pause_main_event = PauseStateManager.get_instance().get_main_state()
     if pause_main_event is not None:
         pause_main_event.set()  # Signal main pause event to get out of wait state
+    HuntStateManager.get_instance().finish_hunt()
 
 
 def static_encounter():
@@ -165,7 +167,7 @@ def flee_encounter():
             w, h = WindowStateManager.get_instance().get_window_size()
             time.sleep(3.5)
             if pyautogui.pixelMatchesColor(int(w / 4), int(h / 2), (0, 0, 0)):  # Black screen
-                print("Encounter ended. Search continues...\n")
+                print("Encounter ended. Search continues...")
                 time.sleep(1.2)
                 break
             else:
