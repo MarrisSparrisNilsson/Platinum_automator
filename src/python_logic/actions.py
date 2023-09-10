@@ -7,6 +7,7 @@ import pyautogui
 import detection
 from state_manager import HuntStateManager, PauseStateManager, WindowStateManager, ShutdownStateManager
 import controls
+from Enums import WalkTypes
 
 
 def pokeradar_hunt():
@@ -33,11 +34,11 @@ def pokeradar_hunt():
         return None
 
 
-def fishing_hunt():
-    detection.encounter_detection(search_encounter_func=fishing, end_encounter_func=flee_encounter)
+def fishing_hunt(search_encounter_func, search_args):
+    detection.encounter_detection(search_encounter_func, end_encounter_func=flee_encounter, search_args=search_args)
 
 
-def fishing():
+def fishing(_):
     cast = [0]
     while True:
 
@@ -57,7 +58,7 @@ def fishing():
             shutdown_state.set_state(shutdown_event)  # Updating state
 
 
-def save_game():
+def save_in_game():
     window_width, window_height = WindowStateManager.get_instance().get_window_size()
     save_p = (int(window_width * 0.3077319587628866), int(window_height * 0.6285046728971962))
     save_box_p = (int(window_width * 0.12061855670103093), int(window_height * 0.32710280373831774))
@@ -86,14 +87,14 @@ def save_game():
 
 
 def soft_reset_hunt():
-    save_game()
+    save_in_game()
     if detection.check_shutdown_state():
         return
     detection.encounter_detection(search_encounter_func=static_encounter, end_encounter_func=soft_reset)
 
 
-def regular_hunt():
-    detection.encounter_detection(search_encounter_func=walk_random, end_encounter_func=flee_encounter)
+def regular_hunt(search_encounter_func, search_args):
+    detection.encounter_detection(search_encounter_func, end_encounter_func=flee_encounter, search_args=search_args)
 
 
 def watch_exit():
@@ -175,7 +176,7 @@ def flee_encounter():
                 exit()
 
 
-def walk_random():
+def walk_random(_):
     last_dir = 10  # Starts as a value with no direction representation
 
     while True:
@@ -212,21 +213,21 @@ def move(direction_int, steps=1):
     if steps == 0:
         time.sleep(0.5)
     else:
-        time.sleep(0.2)
+        time.sleep(0.1)
     # end = time.time()
     # print(f"Step active for: {end - start}s")
 
 
-def lets_try_spinning():
+def lets_try_spinning(steps):
     print("Character is spinning")
 
     while True:
-        for dirs in range(4):
+        for direction_int in range(4):
             detection.check_pause_state("Spinning is paused.", "Spinning now continues:")
             if detection.check_shutdown_state():
                 return
 
-            move(direction_int=dirs, steps=2)
+            move(direction_int, steps)
 
 
 def walk_straight_down(steps=1):

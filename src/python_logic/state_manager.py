@@ -3,6 +3,7 @@ import uuid
 
 import pygetwindow as pywindow
 import file_manager
+from Enums import EncounterTimeout, HuntMode
 
 
 class ShutdownStateManager:
@@ -108,6 +109,7 @@ class HuntStateManager:
     # _hunt_index: int
     _finished: bool = False
     _is_practice: bool = False
+    _encounter_timeout = 0
     _lock = threading.Lock()
 
     @staticmethod
@@ -119,20 +121,28 @@ class HuntStateManager:
         return HuntStateManager._instance
 
     def set_hunt_state(self, hunt_id=str(uuid.uuid4()), pokemon_name="Unknown", hunt_mode="", encounters=0, is_practice=False):
-        with HuntStateManager._lock:
+        with (HuntStateManager._lock):
             self._hunt_id = hunt_id
             self._pokemon_name = pokemon_name
             self._hunt_mode = hunt_mode
+            self._encounter_timeout = EncounterTimeout.LEGENDARY.value if hunt_mode == HuntMode.SOFT_RESET.value else EncounterTimeout.REGULAR.value
             self._encounters = encounters
             self._is_practice = is_practice
+            print(f"Beginning {hunt_mode} hunt!")
 
     def set_hunt_mode(self, hunt_mode):
         with HuntStateManager._lock:
             self._hunt_mode = hunt_mode
+            self._encounter_timeout = EncounterTimeout.LEGENDARY.value if hunt_mode == HuntMode.SOFT_RESET.value else EncounterTimeout.REGULAR.value
+            print(f"Beginning {hunt_mode} hunt!")
 
     def get_encounters(self):
         with HuntStateManager._lock:
             return self._encounters
+
+    def get_encounter_timeout(self):
+        with HuntStateManager._lock:
+            return self._encounter_timeout
 
     def increment_encounters(self):
         with HuntStateManager._lock:
