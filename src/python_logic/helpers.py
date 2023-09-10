@@ -6,9 +6,10 @@ import pyautogui
 
 from state_manager import WindowStateManager, HuntStateManager
 import actions
-import detection
-import controls
+# import detection
+# import controls
 import file_manager
+from Enums import HuntMode, WalkTypes, FishingTypes
 
 
 def print_start_menu():
@@ -76,7 +77,7 @@ def select_menu_option():
 def select_hunt():
     x = file_manager.display_current_hunts()
     while True:
-        res = input("\nPlease select a hunt to resume (#): ")
+        res = int(input("\nPlease select a hunt to resume (#): "))
 
         for item in x:
             for k in item.keys():
@@ -87,13 +88,13 @@ def select_hunt():
 
 def display_actions_menu():
     action_list = [
-        "Pokeradar hunt",
-        "Fishing hunt",
-        "Fossil hunt",
-        "Safari zone hunt",
-        "Soft-Reset hunt",
-        "Egg hunt",
-        "Regular hunt"
+        f"{HuntMode.POKERADAR.value} hunt",
+        f"{HuntMode.FISHING.value} hunt",
+        f"{HuntMode.FOSSIL.value} hunt",
+        f"{HuntMode.SAFARI_ZONE.value} hunt",
+        f"{HuntMode.SOFT_RESET.value} hunt",
+        f"{HuntMode.EGG.value} hunt",
+        f"{HuntMode.REGULAR.value} hunt"
     ]
 
     print(
@@ -115,19 +116,18 @@ def display_actions_menu():
 
 def load_action(hunt_mode):
     options = [
-        {"Pokeradar": None},
-        {"Fishing": actions.fishing_hunt},
-        {"Fossil": None},
-        {"Safari zone": None},
-        {"Soft-Reset": actions.soft_reset_hunt},
-        {"Egg": None},
-        {"Regular": actions.regular_hunt}
+        {f"{HuntMode.POKERADAR.value}": None},
+        {f"{HuntMode.FISHING.value}": actions.fishing_hunt},
+        {f"{HuntMode.FOSSIL.value}": None},
+        {f"{HuntMode.SAFARI_ZONE.value}": None},
+        {f"{HuntMode.SOFT_RESET.value}": actions.soft_reset_hunt},
+        {f"{HuntMode.EGG.value}": None},
+        {f"{HuntMode.REGULAR.value}": actions.regular_hunt}
     ]
 
     for mode in options:
         for k in mode.keys():
             if k == hunt_mode:
-                print(f"Beginning {hunt_mode} hunt!")
                 return thread.Thread(target=mode[k], daemon=True)
 
 
@@ -139,7 +139,6 @@ def select_action():
             display_actions_menu()
 
             option = int(input("Enter your option (0-8): "))
-            # print("")
             is_valid = True
 
             match option:
@@ -147,49 +146,139 @@ def select_action():
                     print("Program exited.")
                     exit()
                 case 1:
-                    # print("Beginning Pokeradar hunt!")
-                    print("Pokeradar hunt coming soon.")
+                    # print(f"Beginning {HuntMode.POKERADAR.value} hunt!")
+                    # print(f"{HuntMode.POKERADAR.value} hunt coming soon.")
                     return None
                 case 2:
-                    print("Beginning Fishing hunt!")
-                    # print("Fishing hunt coming soon.")
-                    HuntStateManager.get_instance().set_hunt_mode("Fishing")
-                    return thread.Thread(target=actions.fishing_hunt, daemon=True)
+                    fishing_methods = [
+                        {
+                            "number": 1,
+                            "description": f"{FishingTypes.REGULAR.value}",
+                            "method": actions.fishing,
+                            "args": None
+                        },
+                        {
+                            "number": 2,
+                            "description": f"{FishingTypes.FEEBAS.value}",
+                            "method": None,
+                            "args": None
+                        }
+                    ]
+                    method, args = select_search_func(fishing_methods)
+                    HuntStateManager.get_instance().set_hunt_mode(HuntMode.FISHING.value)
+
+                    return thread.Thread(target=actions.fishing_hunt, args=[method, args], daemon=True)
                 case 3:
-                    # print("Beginning Fossil hunt!")
-                    print("Fossil hunt coming soon.")
+                    # print(f"Beginning {HuntMode.FOSSIL.value} hunt!")
+                    # print(f"{HuntMode.FOSSIL.value} hunt coming soon.")
                     return None
                 case 4:
-                    # print("Beginning Safari zone hunt!")
-                    print("Safari zone hunt coming soon.")
+                    # print(f"Beginning {HuntMode.SAFARI_ZONE.value} hunt!")
+                    # print(f"{HuntMode.SAFARI_ZONE.value} hunt coming soon.")
                     return None
                 case 5:
-                    print("Beginning Soft-Reset hunt!")
-                    # print("Soft-Reset hunt coming soon.")
-                    HuntStateManager.get_instance().set_hunt_mode("Soft-Reset")
+                    # print(f"{HuntMode.SOFT_RESET.value} hunt coming soon.")
+                    HuntStateManager.get_instance().set_hunt_mode(HuntMode.SOFT_RESET.value)
                     return thread.Thread(target=actions.soft_reset_hunt, daemon=True)
                 case 6:
-                    # print("Beginning Egg hunt!")
-                    print("Egg hunt coming soon.")
+                    # print(f"Beginning {HuntMode.EGG.value} hunt!")
+                    # print(f"{HuntMode.EGG.value} hunt coming soon.")
                     return None
                 case 7:
-                    print("Beginning Regular hunt!")
-                    HuntStateManager.get_instance().set_hunt_mode("Regular")
-                    return thread.Thread(target=actions.regular_hunt, daemon=True)
+                    walk_methods = [
+                        {
+                            "number": 1,
+                            "description": f"{WalkTypes.RANDOM.value}",
+                            "method": actions.walk_random,
+                            "args": None
+                        },
+                        {
+                            "number": 2,
+                            "description": f"{WalkTypes.CIRCLES.value}",
+                            "method": actions.lets_try_spinning,
+                            "args": 1
+                        }
+                    ]
+
+                    method, args = select_search_func(walk_methods)
+                    HuntStateManager.get_instance().set_hunt_mode(HuntMode.REGULAR.value)
+
+                    return thread.Thread(target=actions.regular_hunt, args=[method, args], daemon=True)
 
                 case _:
-                    if is_valid:
-                        is_valid = False
+                    is_valid = False
                     print("This option is not available, try again")
         except EOFError:
             print("End of file.")
+
+
+def select_search_func(search_methods):
+    while True:
+        try:
+            num = 0
+            print("Please select search method:")
+            for option in search_methods:
+                num += 1
+                print(f"{option['number']}: {option['description']}")
+
+            ans = int(input(f"Select option (1-{num}): "))
+
+            method = search_methods[ans - 1]['method']
+            args = search_methods[ans - 1]['args']
+
+            if method is None:
+                print("This method is currently unavailable, try again.\n")
+            else:
+                return method, args
+        except IndexError:
+            print("Invalid option.\n")
 
 
 def test_function():
     # detection.set_window_focus()
 
     # file_manager.read_data()
-    print_start_menu()
+    # print_start_menu()
+
+    # search_methods = [
+    #     {1: [f"{WalkTypes.RANDOM.value}", actions.walk_random]},
+    #     {2: [f"{WalkTypes.CIRCLES.value}", actions.lets_try_spinning]},
+    #     {3: [f"{WalkTypes.UP_DOWN.value}", None]},
+    #     {4: [f"{WalkTypes.LEFT_RIGHT.value}", None]}
+    # ]
+
+    walk_methods = [
+        {
+            "number": 1,
+            "description": f"{WalkTypes.RANDOM.value}",
+            "method": actions.walk_random,
+            "args": None
+        },
+        {
+            "number": 2,
+            "description": f"{WalkTypes.CIRCLES.value}",
+            "method": actions.lets_try_spinning,
+            "args": None
+        }
+    ]
+    # print(select_search_func(walk_methods))
+    select_search_func(walk_methods)
+
+    # for method in search_methods:
+    #     for k in method.keys():
+    #         if k == :
+    #
+
+    # for mode in search_methods:
+    #     for k in mode.keys():
+    #         if k == hunt_mode:
+    #             print(f"Beginning {hunt_mode} hunt!")
+    #             return thread.Thread(target=mode[k], daemon=True)
+    #
+    # while not is_valid:
+    #     print(
+    #         ""
+    #     )
 
     # file_manager.display_all_hunts()
     # file_manager.create_data()

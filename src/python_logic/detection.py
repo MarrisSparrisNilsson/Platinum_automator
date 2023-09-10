@@ -53,23 +53,23 @@ def find_sparkles():
             return
 
         if not pyautogui.pixelMatchesColor(x1, y1, shiny_p1):
-            print(f"P1: {pyautogui.pixel(x1, y1)}, {shiny_p1}")
+            #  print(f"P1: {pyautogui.pixel(x1, y1)}, {shiny_p1}")
             pyautogui.moveTo(x1, y1)
             return True
         elif not pyautogui.pixelMatchesColor(x2, y2, shiny_p2):
-            print(f"P2: {pyautogui.pixel(x2, y2)}, {shiny_p2}")
+            #  print(f"P2: {pyautogui.pixel(x2, y2)}, {shiny_p2}")
             pyautogui.moveTo(x2, y2)
             return True
         elif not pyautogui.pixelMatchesColor(x3, y3, shiny_p3):
-            print(f"P3: {pyautogui.pixel(x3, y3)}, {shiny_p3}")
+            #  print(f"P3: {pyautogui.pixel(x3, y3)}, {shiny_p3}")
             pyautogui.moveTo(x3, y3)
             return True
         elif not pyautogui.pixelMatchesColor(x4, y4, shiny_p4):
-            print(f"P4: {pyautogui.pixel(x4, y4)}, {shiny_p4}")
+            #  print(f"P4: {pyautogui.pixel(x4, y4)}, {shiny_p4}")
             pyautogui.moveTo(x4, y4)
             return True
         elif not pyautogui.pixelMatchesColor(x5, y5, shiny_p5):
-            print(f"P5: {pyautogui.pixel(x5, y5)}, {shiny_p5}")
+            #  print(f"P5: {pyautogui.pixel(x5, y5)}, {shiny_p5}")
             pyautogui.moveTo(x5, y5)
             return True
         end_time = time.time()
@@ -221,13 +221,13 @@ def encounter_started(pixel_coord_one, pixel_coord_two):
         return False
 
 
-def encounter_detection(search_encounter_func, end_encounter_func):
+def encounter_detection(search_encounter_func, end_encounter_func, search_args=None):
     p1, p2 = get_encounter_pixels()
 
     pause_state = PauseStateManager.get_instance()
     pause_event = thread.Event()
 
-    search_encounter_thread = thread.Thread(target=search_encounter_func, daemon=True)
+    search_encounter_thread = thread.Thread(target=search_encounter_func, args=[search_args], daemon=True)
     search_encounter_thread.start()
 
     shiny_is_found = False
@@ -244,7 +244,10 @@ def encounter_detection(search_encounter_func, end_encounter_func):
 
             controls.clear_movement()  # Stops movement / button presses
 
-            time.sleep(3.2)  # Time of encounter intro (Legendary encounter)
+            timeout = HuntStateManager.get_instance().get_encounter_timeout()
+            print(f"Waiting: {timeout} seconds.")
+
+            time.sleep(timeout)  # Time of encounter intro (Legendary encounter)
             # time.sleep(4)  # Time of encounter intro (Regular encounter)
 
             if check_shutdown_state():
