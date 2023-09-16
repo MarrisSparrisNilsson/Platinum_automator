@@ -261,10 +261,10 @@ def encounter_detection(search_encounter_func, end_encounter_func, search_args=N
                 time.sleep(1)
 
                 # --- Shiny test (Commented by default) ---
-                # shiny_is_found = False
-                # end_encounter_func()
-                # pause_event.set()  # Resumes search_encounter_func (Set flag True)
-                # pause_state.set_state(pause_event)
+                shiny_is_found = False
+                end_encounter_func()
+                pause_event.set()  # Resumes search_encounter_func (Set flag True)
+                pause_state.set_state(pause_event)
                 # -----------------------------------------
             else:
                 end_encounter_func()

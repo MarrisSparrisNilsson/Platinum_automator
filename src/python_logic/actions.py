@@ -7,7 +7,6 @@ import pyautogui
 import detection
 from state_manager import HuntStateManager, PauseStateManager, WindowStateManager, ShutdownStateManager
 import controls
-from Enums import WalkTypes
 
 
 def pokeradar_hunt():
@@ -42,7 +41,6 @@ def fishing(_):
     cast = [0]
     while True:
 
-        # print("Fishing is paused▶️")
         detection.check_pause_state("Fishing is paused▶️", "Fishing now continues🎣🪝")
 
         if detection.check_shutdown_state():
@@ -87,7 +85,8 @@ def save_in_game():
 
 
 def soft_reset_hunt():
-    save_in_game()
+    if not HuntStateManager.get_instance().get_was_hunted_today():
+        save_in_game()
     if detection.check_shutdown_state():
         return
     detection.encounter_detection(search_encounter_func=static_encounter, end_encounter_func=soft_reset)
@@ -111,7 +110,7 @@ def watch_exit():
     HuntStateManager.get_instance().finish_hunt()
 
 
-def static_encounter():
+def static_encounter(_):
     pause_main_state = PauseStateManager.get_instance()
     pause_main_event = threading.Event()
     while True:
