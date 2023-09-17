@@ -8,6 +8,7 @@ from state_manager import WindowStateManager, HuntStateManager
 import actions
 # import detection
 # import controls
+import encounter_methods
 import file_manager
 from Enums import HuntMode, WalkTypes, FishingTypes
 
@@ -149,14 +150,11 @@ def load_action(hunt_mode):
 
 
 def select_action():
-    is_valid = False
-
-    while not is_valid:
+    while True:
         try:
             display_actions_menu()
 
             option = int(input("Enter your option (0-8): "))
-            is_valid = True
 
             match option:
                 case 0:
@@ -167,21 +165,7 @@ def select_action():
                     # print(f"{HuntMode.POKERADAR.value} hunt coming soon.")
                     return None
                 case 2:
-                    fishing_methods = [
-                        {
-                            "number": 1,
-                            "description": f"{FishingTypes.REGULAR.value}",
-                            "method": actions.fishing,
-                            "args": None
-                        },
-                        {
-                            "number": 2,
-                            "description": f"{FishingTypes.FEEBAS.value}",
-                            "method": None,
-                            "args": None
-                        }
-                    ]
-                    method, args = select_search_func(fishing_methods)
+                    method, args = select_search_func(HuntMode.FISHING.value)
                     HuntStateManager.get_instance().set_hunt_mode(HuntMode.FISHING.value)
 
                     return thread.Thread(target=actions.fishing_hunt, args=[method, args], daemon=True)
@@ -202,34 +186,62 @@ def select_action():
                     # print(f"{HuntMode.EGG.value} hunt coming soon.")
                     return None
                 case 7:
-                    walk_methods = [
-                        {
-                            "number": 1,
-                            "description": f"{WalkTypes.RANDOM.value}",
-                            "method": actions.walk_random,
-                            "args": None
-                        },
-                        {
-                            "number": 2,
-                            "description": f"{WalkTypes.CIRCLES.value}",
-                            "method": actions.lets_try_spinning,
-                            "args": 1
-                        }
-                    ]
-
-                    method, args = select_search_func(walk_methods)
+                    method, args = select_search_func(HuntMode.REGULAR.value)
                     HuntStateManager.get_instance().set_hunt_mode(HuntMode.REGULAR.value)
 
                     return thread.Thread(target=actions.regular_hunt, args=[method, args], daemon=True)
 
                 case _:
-                    is_valid = False
                     print("This option is not available, try again")
         except EOFError:
             print("End of file.")
+        except ValueError:
+            print("This hunt mode have no other search method.")
 
 
-def select_search_func(search_methods):
+def select_search_func(hunt_mode):
+    match hunt_mode:
+        # case HuntMode.POKERADAR.value:
+        case HuntMode.FISHING.value:
+            fishing_methods = [
+                {
+                    "number": 1,
+                    "description": f"{FishingTypes.REGULAR.value}",
+                    "method": encounter_methods.fishing,
+                    "args": None
+                },
+                {
+                    "number": 2,
+                    "description": f"{FishingTypes.FEEBAS.value}",
+                    "method": None,
+                    "args": None
+                }
+            ]
+            search_methods = fishing_methods
+
+        # case HuntMode.FOSSIL.value:
+        # case HuntMode.SAFARI_ZONE.value:
+        # case HuntMode.SOFT_RESET.value:
+        # case HuntMode.EGG.value:
+        case HuntMode.REGULAR.value:
+            walk_methods = [
+                {
+                    "number": 1,
+                    "description": f"{WalkTypes.RANDOM.value}",
+                    "method": encounter_methods.walk_random,
+                    "args": None
+                },
+                {
+                    "number": 2,
+                    "description": f"{WalkTypes.CIRCLES.value}",
+                    "method": encounter_methods.lets_try_spinning,
+                    "args": 1
+                }
+            ]
+            search_methods = walk_methods
+        case _:
+            raise ValueError
+
     while True:
         try:
             num = 0
@@ -252,58 +264,7 @@ def select_search_func(search_methods):
 
 
 def test_function():
-    # detection.set_window_focus()
-
-    # file_manager.read_data()
-    # print_start_menu()
-
-    # search_methods = [
-    #     {1: [f"{WalkTypes.RANDOM.value}", actions.walk_random]},
-    #     {2: [f"{WalkTypes.CIRCLES.value}", actions.lets_try_spinning]},
-    #     {3: [f"{WalkTypes.UP_DOWN.value}", None]},
-    #     {4: [f"{WalkTypes.LEFT_RIGHT.value}", None]}
-    # ]
-
-    walk_methods = [
-        {
-            "number": 1,
-            "description": f"{WalkTypes.RANDOM.value}",
-            "method": actions.walk_random,
-            "args": None
-        },
-        {
-            "number": 2,
-            "description": f"{WalkTypes.CIRCLES.value}",
-            "method": actions.lets_try_spinning,
-            "args": None
-        }
-    ]
-    # print(select_search_func(walk_methods))
-    select_search_func(walk_methods)
-
-    # for method in search_methods:
-    #     for k in method.keys():
-    #         if k == :
-    #
-
-    # for mode in search_methods:
-    #     for k in mode.keys():
-    #         if k == hunt_mode:
-    #             print(f"Beginning {hunt_mode} hunt!")
-    #             return thread.Thread(target=mode[k], daemon=True)
-    #
-    # while not is_valid:
-    #     print(
-    #         ""
-    #     )
-
-    # file_manager.display_all_hunts()
-    # file_manager.create_data()
-
-    # window_width, window_height = WindowStateManager.get_instance().get_window_size()
-
-    # get_mouse_coordinates()
-
+    print("Test function")
     # detection.find_exclamation_mark()
     # screenshot = pyautogui.screenshot(region=(start_x, start_y, end_x, end_y))
     # screenshot.save("../images/test/exclamation_area.png")

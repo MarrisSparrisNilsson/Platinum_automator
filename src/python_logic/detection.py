@@ -127,8 +127,7 @@ def find_exclamation_mark(cast):
             return
 
 
-def is_exclamation_mark(exc_p_left: (int, int), exc_p_middle_down: (int, int), exc_p_middle_up: (
-        int, int), exc_p_right: (int, int)):
+def is_exclamation_mark(exc_p_left: (int, int), exc_p_middle_down: (int, int), exc_p_middle_up: (int, int), exc_p_right: (int, int)):
     if (pyautogui.pixelMatchesColor(exc_p_left[0], exc_p_left[1], (255, 66, 0)) or
             pyautogui.pixelMatchesColor(exc_p_middle_down[0], exc_p_middle_down[1], (255, 66, 0)) or
             pyautogui.pixelMatchesColor(exc_p_middle_up[0], exc_p_middle_up[1], (255, 66, 0)) or
@@ -139,8 +138,8 @@ def is_exclamation_mark(exc_p_left: (int, int), exc_p_middle_down: (int, int), e
 
 
 def dialog_is_open(dialog_p1, dialog_p2, start_p):
-    if (pyautogui.pixelMatchesColor(dialog_p1[0], dialog_p1[1], (255, 255, 255)) and not pyautogui.pixelMatchesColor(
-            dialog_p2[0], dialog_p2[1], start_p)):
+    if (pyautogui.pixelMatchesColor(dialog_p1[0], dialog_p1[1], (255, 255, 255)) and
+            not pyautogui.pixelMatchesColor(dialog_p2[0], dialog_p2[1], start_p)):
         return True
     else:
         return False
