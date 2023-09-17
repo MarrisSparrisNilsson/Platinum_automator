@@ -143,7 +143,6 @@ def save_hunt(hunt_id, pokemon_name, hunt_mode, encounters, is_practice, is_fini
                 }
                 data['latest_hunt'] = x
 
-
                 # data(
                 #     "latest_hunt": {
                 #         "id": hunt_id,
