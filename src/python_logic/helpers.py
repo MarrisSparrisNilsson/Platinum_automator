@@ -44,7 +44,10 @@ def select_menu_option():
                         pokemon_name = hunt['pokemon_name']
                         hunt_mode = hunt['hunt_mode']
                         encounters = hunt['encounters']
-                        is_practice = hunt['is_practice']
+                        try:
+                            is_practice = hunt['is_practice']
+                        except KeyError:
+                            is_practice = False
 
                         date_match: int = str(hunt['last_time_hunted_date']).find(file_manager.get_date("%Y-%m-%d"))
                         if date_match != -1:
