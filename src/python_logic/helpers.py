@@ -14,6 +14,7 @@ from Enums import HuntMode, WalkTypes, FishingTypes
 
 def print_start_menu():
     menu_options = [
+        "Continue latest hunt",
         "Resume hunt",
         "Start new hunt",
         "Practice hunt",
@@ -21,35 +22,49 @@ def print_start_menu():
         "Quit"
     ]
 
-    print("Menu:")
+    print("\nMenu:")
     for i in range(len(menu_options)):
         print(f"{i + 1}. {menu_options[i]}")
 
 
 def select_menu_option():
-    is_valid = False
-
-    while not is_valid:
+    while True:
         try:
             print_start_menu()
             option = int(input("#: "))
 
-            is_valid = True
             match option:
                 case 1:
-                    try:
-                        hunt = select_hunt()
-                        # print(hunt)
+                    hunt = file_manager.load_latest_hunt()
+                    print("\n---------------------------------------------------------")
+                    file_manager.display_hunt(hunt)
+                    ans = input("Do you want to continue this hunt? (y/n): ")
+                    if ans == 'y' or ans == 'yes':
                         hunt_id = hunt['id']
                         pokemon_name = hunt['pokemon_name']
                         hunt_mode = hunt['hunt_mode']
                         encounters = hunt['encounters']
-                        HuntStateManager.get_instance().set_hunt_state(hunt_id=hunt_id, pokemon_name=pokemon_name, hunt_mode=hunt_mode, encounters=encounters)
+                        try:
+                            is_practice = hunt['is_practice']
+                        except KeyError:
+                            is_practice = False
+
+                        date_match: int = str(hunt['last_time_hunted_date']).find(file_manager.get_date("%Y-%m-%d"))
+                        if date_match != -1:
+                            HuntStateManager.get_instance().set_was_hunted_today(True)
+                        HuntStateManager.get_instance().set_hunt_state(hunt_id, pokemon_name, hunt_mode, encounters, is_practice)
 
                         return load_action(hunt_mode)
-                    except json.decoder.JSONDecodeError:
-                        print("No save data available.")
-                case 2 | 3:
+                case 2:
+                    hunt = select_hunt()
+                    hunt_id = hunt['id']
+                    pokemon_name = hunt['pokemon_name']
+                    hunt_mode = hunt['hunt_mode']
+                    encounters = hunt['encounters']
+                    HuntStateManager.get_instance().set_hunt_state(hunt_id, pokemon_name, hunt_mode, encounters)
+
+                    return load_action(hunt_mode)
+                case 3 | 4:
                     pokemon_name = input("Which Pokémon are you hunting?: ")
                     if option == 2:
                         HuntStateManager.get_instance().set_hunt_state(pokemon_name=pokemon_name)
@@ -57,21 +72,23 @@ def select_menu_option():
                         HuntStateManager.get_instance().set_hunt_state(pokemon_name=pokemon_name, is_practice=True)
                     return select_action()
 
-                case 4:
+                case 5:
                     file_manager.display_all_hunts()
                     input("Next (enter):")
-                    is_valid = False
-
-                case 5:
+                case 6:
                     exit()
                 case _:
-                    if is_valid:
-                        is_valid = False
                     print("Invalid option, try again.")
         except EOFError:
             print("End of file.")
+        except json.decoder.JSONDecodeError:
+            print("No save data available.")
+        except TypeError:
+            print("No save data available.")
+        except KeyError:
+            print("No save data available.")
         except ValueError:
-            exit()
+            pass
 
 
 def select_hunt():

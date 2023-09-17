@@ -109,6 +109,7 @@ class HuntStateManager:
     # _hunt_index: int
     _finished: bool = False
     _is_practice: bool = False
+    _was_hunted_today: bool = False
     _encounter_timeout = 0
     _lock = threading.Lock()
 
@@ -136,6 +137,14 @@ class HuntStateManager:
             self._encounter_timeout = EncounterTimeout.LEGENDARY.value if hunt_mode == HuntMode.SOFT_RESET.value else EncounterTimeout.REGULAR.value
             print(f"Beginning {hunt_mode} hunt!")
 
+    def set_was_hunted_today(self, was_hunted_today=False):
+        with HuntStateManager._lock:
+            self._was_hunted_today = was_hunted_today
+
+    def get_was_hunted_today(self):
+        with HuntStateManager._lock:
+            return self._was_hunted_today
+
     def get_encounters(self):
         with HuntStateManager._lock:
             return self._encounters
@@ -150,7 +159,4 @@ class HuntStateManager:
 
     def finish_hunt(self, is_finished=False):
         with HuntStateManager._lock:
-            if not self._is_practice:
-                file_manager.save_hunt(self._hunt_id, self._pokemon_name, self._hunt_mode, self._encounters, is_finished)
-            else:
-                return self._encounters
+            file_manager.save_hunt(self._hunt_id, self._pokemon_name, self._hunt_mode, self._encounters, self._is_practice, is_finished)
