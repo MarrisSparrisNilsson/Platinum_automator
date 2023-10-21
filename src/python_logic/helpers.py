@@ -8,8 +8,8 @@ from state_manager import WindowStateManager, HuntStateManager
 import actions
 # import detection
 # import controls
-import encounter_methods
 import file_manager
+from encounter_methods import Fishing, Regular
 from Enums import HuntMode, WalkTypes, FishingTypes
 
 
@@ -207,7 +207,7 @@ def select_search_func(hunt_mode):
                 {
                     "number": 1,
                     "description": f"{FishingTypes.REGULAR.value}",
-                    "method": encounter_methods.fishing,
+                    "method": Fishing.fishing,
                     "args": None
                 },
                 {
@@ -228,13 +228,13 @@ def select_search_func(hunt_mode):
                 {
                     "number": 1,
                     "description": f"{WalkTypes.RANDOM.value}",
-                    "method": encounter_methods.walk_random,
+                    "method": Regular.walk_random,
                     "args": None
                 },
                 {
                     "number": 2,
                     "description": f"{WalkTypes.CIRCLES.value}",
-                    "method": encounter_methods.lets_try_spinning,
+                    "method": Regular.lets_try_spinning,
                     "args": 1
                 }
             ]
