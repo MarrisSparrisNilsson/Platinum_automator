@@ -58,6 +58,9 @@ def select_menu_option():
                         return load_action(hunt_mode)
                 case 2:
                     hunt = select_hunt()
+                    if hunt is None:
+                        continue
+
                     hunt_id = hunt['id']
                     pokemon_name = hunt['pokemon_name']
                     hunt_mode = hunt['hunt_mode']
@@ -67,9 +70,9 @@ def select_menu_option():
                     return load_action(hunt_mode)
                 case 3 | 4:
                     pokemon_name = input("Which Pokémon are you hunting?: ")
-                    if option == 2:
+                    if option == 3:
                         HuntStateManager.get_instance().set_hunt_state(pokemon_name=pokemon_name)
-                    else:
+                    if option == 4:
                         HuntStateManager.get_instance().set_hunt_state(pokemon_name=pokemon_name, is_practice=True)
                     return select_action()
 
@@ -77,7 +80,7 @@ def select_menu_option():
                     file_manager.display_all_hunts()
                     input("Next (enter):")
                 case 6:
-                    exit()
+                    exit(0)
                 case _:
                     print("Invalid option, try again.")
         except EOFError:
@@ -95,13 +98,18 @@ def select_menu_option():
 def select_hunt():
     x = file_manager.display_current_hunts()
     while True:
-        res = int(input("\nPlease select a hunt to resume (#): "))
+        try:
+            res = int(input("\nPlease select a hunt to resume or -1 to go back (#): "))
+            if res == -1:
+                return None
 
-        for item in x:
-            for k in item.keys():
-                if k == res:
-                    return file_manager.load_hunt(item[k])
-        print("Invalid selection, try again.")
+            for item in x:
+                for k in item.keys():
+                    if k == res:
+                        return file_manager.load_hunt(item[k])
+            print("Invalid selection, try again.")
+        except ValueError:
+            print("Input is not a number, try again.")
 
 
 def display_actions_menu():

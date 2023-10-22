@@ -68,9 +68,9 @@ class WindowStateManager:
     @staticmethod
     def get_instance():
         if WindowStateManager._instance is None:
-            # with WindowStateManager._lock:
-            if WindowStateManager._instance is None:
-                WindowStateManager._instance = WindowStateManager()
+            with WindowStateManager._lock:
+                if WindowStateManager._instance is None:
+                    WindowStateManager._instance = WindowStateManager()
         return WindowStateManager._instance
 
     def set_state(self):
@@ -87,6 +87,7 @@ class WindowStateManager:
                     window = pywindow.getWindowsWithTitle(window.title)[0]
                     self._window = window
                     self._window_size = (window.width, window.height)
+                    print(self._window_size)
                     return
                 except IndexError:
                     print("Something went wrong.")

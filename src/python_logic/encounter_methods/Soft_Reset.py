@@ -9,6 +9,7 @@ from src.python_logic.state_manager import WindowStateManager, PauseStateManager
 
 def save_in_game():
     window_width, window_height = WindowStateManager.get_instance().get_window_size()
+    print(window_width, window_height)
     save_p = (int(window_width * 0.3077319587628866), int(window_height * 0.6285046728971962))
     save_box_p = (int(window_width * 0.12061855670103093), int(window_height * 0.32710280373831774))
     start_save_box = pyautogui.pixel(save_box_p[0], save_box_p[1])
