@@ -93,6 +93,7 @@ class WindowStateManager:
                     print("Something went wrong.")
                     exit()
         print("Desmume was not detected.")
+        exit(-1)
 
     def get_window_size(self):
         return self._window_size

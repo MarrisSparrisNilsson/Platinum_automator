@@ -8,6 +8,8 @@ from src.python_logic.state_manager import WindowStateManager, PauseStateManager
 
 
 def save_in_game():
+    print(f"Window size is: {WindowStateManager.get_instance().get_window_size()}")
+    # WindowStateManager.get_instance().set_state()
     window_width, window_height = WindowStateManager.get_instance().get_window_size()
     print(window_width, window_height)
     save_p = (int(window_width * 0.3077319587628866), int(window_height * 0.6285046728971962))
@@ -49,7 +51,9 @@ def static_encounter(_):
         duration = 0
 
         # Press "a" during startup
+        print("Started waiting")
         while duration < 15:  # Time until encounter detection starts
+
             if detection.check_shutdown_state():
                 return
 
@@ -58,6 +62,7 @@ def static_encounter(_):
             end_time = time.time()
             duration = end_time - start_time
 
+        print("Finished waiting", duration)
         pause_main_event.set()  # Resumes encounter detection
         pause_main_state.set_main_state(pause_main_event)
 

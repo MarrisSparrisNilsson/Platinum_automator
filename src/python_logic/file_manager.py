@@ -119,6 +119,7 @@ def save_hunt(hunt_id, pokemon_name, hunt_mode, encounters, is_practice, is_fini
 
             formatted_datetime = get_date("%Y-%m-%d %H:%M")
 
+            # Save Latest Hunt
             try:
                 data['latest_hunt']['id'] = hunt_id
                 data['latest_hunt']['pokemon_name'] = pokemon_name
@@ -235,6 +236,7 @@ def display_all_hunts():
 
 
 def display_hunt(hunt):
+    is_practice = hunt.get('is_practice')
     print(
         f"{'Id:':20} {hunt['id']}"
         f"\n{'Pokemon:':20} {hunt['pokemon_name']}"
@@ -245,7 +247,8 @@ def display_hunt(hunt):
         f"\n{'Encounters:':20} {hunt['encounters']}"
         # f"\n{'Encounters today:':20} {hunt['encounters_today']}"
         f"\n{'Hunt finished:':20} {hunt['finished']}"
-        "\n---------------------------------------------------------"
+        f"\n{'Is practice hunt:':20} {is_practice if True else False}"
+        f"\n---------------------------------------------------------"
     )
 
 
