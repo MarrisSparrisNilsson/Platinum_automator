@@ -2,8 +2,8 @@ import threading
 import keyboard
 
 import detection
+from src.python_logic.encounter_methods import Soft_Reset, Flee
 from state_manager import HuntStateManager, PauseStateManager, ShutdownStateManager
-import encounter_methods
 
 
 def pokeradar_hunt():
@@ -31,19 +31,19 @@ def pokeradar_hunt():
 
 
 def fishing_hunt(search_encounter_func, search_args):
-    detection.encounter_detection(search_encounter_func, end_encounter_func=encounter_methods.flee_encounter, search_args=search_args)
+    detection.encounter_detection(search_encounter_func, end_encounter_func=Flee.flee_encounter, search_args=search_args)
 
 
 def soft_reset_hunt():
     if not HuntStateManager.get_instance().get_was_hunted_today():
-        encounter_methods.save_in_game()
+        Soft_Reset.save_in_game()
     if detection.check_shutdown_state():
         return
-    detection.encounter_detection(search_encounter_func=encounter_methods.static_encounter, end_encounter_func=encounter_methods.soft_reset)
+    detection.encounter_detection(search_encounter_func=Soft_Reset.static_encounter, end_encounter_func=Flee.soft_reset)
 
 
 def regular_hunt(search_encounter_func, search_args):
-    detection.encounter_detection(search_encounter_func, end_encounter_func=encounter_methods.flee_encounter, search_args=search_args)
+    detection.encounter_detection(search_encounter_func, end_encounter_func=Flee.flee_encounter, search_args=search_args)
 
 
 def watch_exit():

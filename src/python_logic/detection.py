@@ -274,15 +274,17 @@ def encounter_detection(search_encounter_func, end_encounter_func, search_args=N
 
 
 def set_window_focus():
-    WindowStateManager.get_instance().set_state()
-    window = WindowStateManager.get_instance().get_window()
-    print(f"{window}\n")
-    try:
-        window.activate()
-    except pywindow.PyGetWindowException:
-        print("Something went wrong when trying to activate the window")
-        window.minimize()
-        window.maximize()
-        window.restore()
+    with thread.Lock():
+        WindowStateManager.get_instance().set_state()
+        window = WindowStateManager.get_instance().get_window()
 
-    time.sleep(1)
+        print(f"{window}\n")
+        try:
+            window.activate()
+        except pywindow.PyGetWindowException:
+            print("Something went wrong when trying to activate the window")
+            window.minimize()
+            window.maximize()
+            window.restore()
+
+        time.sleep(1)
