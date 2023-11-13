@@ -40,12 +40,28 @@ def find_sparkles():
     x5 = int(window_width * 0.45654692931633833)
     y5 = int(window_height * 0.5684587813620071)
 
+    coords = [
+        (x1, y1),
+        (x2, y2),
+        (x3, y3),
+        (x4, y4),
+        (x5, y5)
+    ]
+
     # time.sleep(1)  # Seconds until Pokémon stands still
     shiny_p1 = pyautogui.pixel(x1, y1)
     shiny_p2 = pyautogui.pixel(x2, y2)
     shiny_p3 = pyautogui.pixel(x3, y3)
     shiny_p4 = pyautogui.pixel(x4, y4)
     shiny_p5 = pyautogui.pixel(x5, y5)
+
+    shiny_p = [
+        shiny_p1,
+        shiny_p2,
+        shiny_p3,
+        shiny_p4,
+        shiny_p5
+    ]
 
     duration = 0
     print("Searching for sparkles...🔎")
@@ -54,32 +70,26 @@ def find_sparkles():
         if ShutdownStateManager.get_instance().check_shutdown_state():
             return
 
-        if not pyautogui.pixelMatchesColor(x1, y1, shiny_p1):
-            #  print(f"P1: {pyautogui.pixel(x1, y1)}, {shiny_p1}")
-            pyautogui.moveTo(x1, y1)
-            return True
-        elif not pyautogui.pixelMatchesColor(x2, y2, shiny_p2):
-            #  print(f"P2: {pyautogui.pixel(x2, y2)}, {shiny_p2}")
-            pyautogui.moveTo(x2, y2)
-            return True
-        elif not pyautogui.pixelMatchesColor(x3, y3, shiny_p3):
-            #  print(f"P3: {pyautogui.pixel(x3, y3)}, {shiny_p3}")
-            pyautogui.moveTo(x3, y3)
-            return True
-        elif not pyautogui.pixelMatchesColor(x4, y4, shiny_p4):
-            #  print(f"P4: {pyautogui.pixel(x4, y4)}, {shiny_p4}")
-            pyautogui.moveTo(x4, y4)
-            return True
-        elif not pyautogui.pixelMatchesColor(x5, y5, shiny_p5):
-            #  print(f"P5: {pyautogui.pixel(x5, y5)}, {shiny_p5}")
-            pyautogui.moveTo(x5, y5)
-            return True
+        for i in range(len(shiny_p)):
+            x, y = coords[i]
+            if has_background_changed(x, y, shiny_p[i]):
+                return True
+
         end_time = time.time()
         duration = end_time - start_time
         # print(duration)
 
     print("No shiny this time...☹️")
     return False
+
+
+def has_background_changed(x, y, shiny_p):
+    if not pyautogui.pixelMatchesColor(x, y, shiny_p):
+        #  print(f"P: {pyautogui.pixel(x, y)}, {shiny_p}")
+        pyautogui.moveTo(x, y)
+        return True
+    else:
+        return False
 
 
 def find_exclamation_mark(cast, encounter):
@@ -97,10 +107,6 @@ def find_exclamation_mark(cast, encounter):
         exc_p_middle_down,
         exc_p_right
     ]
-
-    # for i in range(len(exc_points)):
-    #     x, y = exc_points[i]
-    #     print(f"{i + 1}: {x} {y}")
 
     DialogStateManager.get_instance().set_dialog_pixels()
 
@@ -154,16 +160,6 @@ def find_exclamation_mark(cast, encounter):
             return
 
 
-# def is_exclamation_mark(exc_p_left: (int, int), exc_p_middle_down: (int, int), exc_p_middle_up: (int, int), exc_p_right: (int, int)):
-#     if (pyautogui.pixelMatchesColor(exc_p_left[0], exc_p_left[1], (255, 66, 0)) or
-#             pyautogui.pixelMatchesColor(exc_p_middle_down[0], exc_p_middle_down[1], (255, 66, 0)) or
-#             pyautogui.pixelMatchesColor(exc_p_middle_up[0], exc_p_middle_up[1], (255, 66, 0)) or
-#             pyautogui.pixelMatchesColor(exc_p_right[0], exc_p_right[1], (255, 66, 0))):
-#         return True
-#     else:
-#         return False
-
-
 def is_exclamation_mark(x, y):
     return True if pyautogui.pixelMatchesColor(x, y, (255, 66, 0)) else False
 
@@ -188,6 +184,7 @@ def use_selected_item():
     return False if dialog_is_open() else True
 
 
+# TODO: Tesseract OCR
 # def find_pokemon():
 
 
@@ -269,18 +266,17 @@ def encounter_detection(search_encounter_func, end_encounter_func, search_args=N
             timeout = HuntStateManager.get_instance().get_encounter_timeout()
             print(f"Waiting: {timeout} seconds.")
 
-            time.sleep(timeout)  # Time of encounter intro (Legendary encounter)
-            # time.sleep(4)  # Time of encounter intro (Regular encounter)
+            time.sleep(timeout)  # Time of encounter intro
 
             if ShutdownStateManager.get_instance().check_shutdown_state():
                 return
 
             shiny_is_found = find_sparkles()
 
-            # window = WindowStateManager.get_instance()
-            # size = window.get_window_size()
-            # print(window)
-            # print("Before: ", size)
+            # TODO: Use Tesseract (OCR) to read encountered pokemon name and verify with HuntStateManager._pokemon_name
+            #       if true then increment current hunted pokemon encounters by one.
+            #       else increment "other encounters" by one.
+
             if shiny_is_found:
                 print("Congratulations! You found a shiny!✨")
                 HuntStateManager.get_instance().finish_hunt(is_finished=shiny_is_found)

@@ -47,7 +47,6 @@ def feebas_fishing(_):
 
     pause_main_event.clear()  # Set internal flag to false
     pause_main_state.set_main_state(pause_main_event)  # Pauses encounter detection
-    controls.select_in_game_menu_action(3)  # Use repel
 
     # Get the script's directory
     script_directory = os.path.dirname(os.path.abspath(__file__))
@@ -59,8 +58,22 @@ def feebas_fishing(_):
         tiles = content["path"]
 
         turn_dir = ''
-        start_pos = len(tiles) - 1
-        # start_pos = 0
+        # start_pos = len(tiles) - 1
+        # start_pos = 50
+        while True:
+            try:
+                time.sleep(1)
+                controls.switch_tab()
+                start_pos = int(input(f"Which tile do you wish to begin at? (0-{len(tiles) - 1}): "))
+                if start_pos > len(tiles) or start_pos < 0:
+                    raise ValueError
+                controls.switch_tab()
+                break
+            except ValueError:
+                print("Invalid input, try again.")
+
+        controls.select_in_game_menu_action(3)  # Use repel
+
         walk_num = 1
         encounters = 2  # Number of desired encounters
         for step in range(len(tiles)):
@@ -80,11 +93,11 @@ def feebas_fishing(_):
             if ShutdownStateManager.get_instance().check_shutdown_state():
                 return
 
-            print(f"\n{step}:")
             if step == 0:
                 controls.surf()
                 time.sleep(2.5)
             else:
+                print(f"\n{step}:")
                 # Block walking at some locations where only turning is desired.
                 if (not step == 3 and not step == 29 and not step == 93 and not step == 98 and
                         not step == 102 and not step == 103 and not step == 223 and
