@@ -2,15 +2,15 @@ import json.decoder
 import time
 import threading as thread
 import os
+
+import keyboard
 import pyautogui
 
-from state_manager import WindowStateManager, HuntStateManager
-import actions
-# import detection
-# import controls
-import file_manager
-from encounter_methods import Fishing, Regular
-from Enums import HuntMode, WalkTypes, FishingTypes
+from src.python_logic.state.state_manager import WindowStateManager, HuntStateManager
+from src.python_logic import actions, controls
+from src.python_logic import file_manager
+from src.python_logic.encounter_methods import Fishing, Regular
+from src.python_logic.Enums import HuntMode, WalkTypes, FishingTypes
 
 
 def print_start_menu():
@@ -105,7 +105,7 @@ def select_hunt():
 
             for item in x:
                 for k in item.keys():
-                    if k == res:
+                    if int(k) == res:
                         return file_manager.load_hunt(item[k])
             print("Invalid selection, try again.")
         except ValueError:
@@ -128,7 +128,7 @@ def display_actions_menu():
         "\nShiny hunting method:"
         "\n======================="
     )
-    # i = int
+
     for i in range(len(action_list)):
         print(f"{i + 1}: {action_list[i]}")
 
@@ -154,7 +154,8 @@ def load_action(hunt_mode):
     for mode in options:
         for k in mode.keys():
             if k == hunt_mode:
-                return thread.Thread(target=mode[k], daemon=True)
+                method, args = select_search_func(hunt_mode)
+                return thread.Thread(target=mode[k], args=[method, args], daemon=True)
 
 
 def select_action():
@@ -216,12 +217,12 @@ def select_search_func(hunt_mode):
                     "number": 1,
                     "description": f"{FishingTypes.REGULAR.value}",
                     "method": Fishing.fishing,
-                    "args": None
+                    "args": True  # Continue infinitely
                 },
                 {
                     "number": 2,
                     "description": f"{FishingTypes.FEEBAS.value}",
-                    "method": None,
+                    "method": Fishing.feebas_fishing,
                     "args": None
                 }
             ]
@@ -273,6 +274,12 @@ def select_search_func(hunt_mode):
 
 def test_function():
     print("Test function")
+    # file_manager.record_steps()
+    get_mouse_coordinates()
+    # time.sleep(3)
+    controls.activate_repel()
+
+    # file_manager
     # detection.find_exclamation_mark()
     # screenshot = pyautogui.screenshot(region=(start_x, start_y, end_x, end_y))
     # screenshot.save("../images/test/exclamation_area.png")
@@ -289,6 +296,7 @@ def get_mouse_coordinates():
 
     mouse = pyautogui.position()
     print(mouse)
+    WindowStateManager.get_instance().set_state()
     window_width, window_height = WindowStateManager.get_instance().get_window_size()
 
     pixel = pyautogui.pixel(mouse.x, mouse.y)

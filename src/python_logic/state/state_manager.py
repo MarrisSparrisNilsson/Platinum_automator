@@ -1,9 +1,10 @@
 import threading
 import uuid
-
+import pyautogui
 import pygetwindow as pywindow
-import file_manager
-from Enums import EncounterTimeout, HuntMode
+
+from src.python_logic import file_manager
+from src.python_logic.Enums import EncounterTimeout, HuntMode
 
 
 class ShutdownStateManager:
@@ -26,6 +27,13 @@ class ShutdownStateManager:
     def get_state(self):
         with ShutdownStateManager._lock:
             return self._state
+
+    def check_shutdown_state(self):
+        shutdown_event = self.get_state()
+        if shutdown_event is not None:
+            return True
+        else:
+            return False
 
 
 class PauseStateManager:
@@ -57,6 +65,20 @@ class PauseStateManager:
     def get_main_state(self):
         with PauseStateManager._lock:
             return self._main_state
+
+    def check_pause_state(self, pause_message: str, continue_message: str):
+        pause_event = self.get_state()
+        # If encounter is active
+        if pause_event is not None:
+            if not pause_event.is_set():
+                if len(pause_message) > 0:
+                    print(pause_message)
+                pause_event.wait()  # Wait for encounter to finish
+
+                if len(continue_message) > 0 and not ShutdownStateManager.get_instance().check_shutdown_state():
+                    print(continue_message + "\n")
+                return True
+        return False
 
 
 class WindowStateManager:
@@ -113,6 +135,7 @@ class HuntStateManager:
     _is_practice: bool = False
     _was_hunted_today: bool = False
     _encounter_timeout = 0
+    _facing_direction = None
     _lock = threading.Lock()
 
     @staticmethod
@@ -147,6 +170,14 @@ class HuntStateManager:
         with HuntStateManager._lock:
             return self._was_hunted_today
 
+    def set_facing_direction(self, _facing_direction):
+        with HuntStateManager._lock:
+            self._facing_direction = _facing_direction
+
+    def get_facing_direction(self):
+        with HuntStateManager._lock:
+            return self._facing_direction
+
     def get_encounters(self):
         with HuntStateManager._lock:
             return self._encounters
@@ -162,3 +193,34 @@ class HuntStateManager:
     def finish_hunt(self, is_finished=False):
         with HuntStateManager._lock:
             file_manager.save_hunt(self._hunt_id, self._pokemon_name, self._hunt_mode, self._encounters, self._is_practice, is_finished)
+
+
+class DialogStateManager:
+    _instance = None
+    _start_pixel = (0, 0, 0)
+    _dialog_point1: (int, int) = (0, 0)
+    _dialog_point2: (int, int) = (0, 0)
+    _lock = threading.Lock()
+
+    @staticmethod
+    def get_instance():
+        if DialogStateManager._instance is None:
+            with DialogStateManager._lock:
+                if DialogStateManager._instance is None:
+                    DialogStateManager._instance = DialogStateManager()
+        return DialogStateManager._instance
+
+    def set_dialog_pixels(self):
+        with DialogStateManager._lock:
+            window_width, window_height = WindowStateManager.get_instance().get_window_size()
+            dialog_p1 = (int(window_width * 0.032474226804123714), int(window_height * 0.802570093457944))
+            dialog_p2 = (int(window_width * 0.4747422680412371), int(window_height * 0.9217289719626168))
+
+            start_p = pyautogui.pixel(dialog_p2[0], dialog_p2[1])
+            self._start_pixel = start_p
+            self._dialog_point1 = dialog_p1
+            self._dialog_point2 = dialog_p2
+
+    def get_dialog_pixels(self):
+        with DialogStateManager._lock:
+            return self._start_pixel, self._dialog_point1, self._dialog_point2

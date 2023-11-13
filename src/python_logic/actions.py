@@ -1,9 +1,9 @@
 import threading
 import keyboard
 
-import detection
+from src.python_logic import detection, controls
 from src.python_logic.encounter_methods import Soft_Reset, Flee
-from state_manager import HuntStateManager, PauseStateManager, ShutdownStateManager
+from src.python_logic.state.state_manager import HuntStateManager, PauseStateManager, ShutdownStateManager
 
 
 def pokeradar_hunt():
@@ -36,8 +36,8 @@ def fishing_hunt(search_encounter_func, search_args):
 
 def soft_reset_hunt():
     if not HuntStateManager.get_instance().get_was_hunted_today():
-        Soft_Reset.save_in_game()
-    if detection.check_shutdown_state():
+        controls.select_in_game_menu_action(5)
+    if ShutdownStateManager.get_instance().check_shutdown_state():
         return
     detection.encounter_detection(search_encounter_func=Soft_Reset.static_encounter, end_encounter_func=Flee.soft_reset)
 
@@ -58,3 +58,4 @@ def watch_exit():
     if pause_main_event is not None:
         pause_main_event.set()  # Signal main pause event to get out of wait state
     HuntStateManager.get_instance().finish_hunt()
+    controls.clear_movement()
