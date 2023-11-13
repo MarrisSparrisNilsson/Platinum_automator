@@ -2,10 +2,10 @@
 import threading as thread
 
 # Local modules
-import controls
-import actions
-import detection
-import helpers
+from src.python_logic import controls
+from src.python_logic import actions
+from src.python_logic import detection
+from src.python_logic import helpers
 
 
 def main():

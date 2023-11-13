@@ -5,8 +5,8 @@ import time
 import math
 import threading as thread
 
-import controls
-from state_manager import ShutdownStateManager, PauseStateManager, WindowStateManager, HuntStateManager
+from src.python_logic import controls
+from src.python_logic.state.state_manager import ShutdownStateManager, PauseStateManager, WindowStateManager, HuntStateManager, DialogStateManager
 
 
 def find_pause_and_resume():
@@ -18,6 +18,8 @@ def find_pause_and_resume():
             pyautogui.click(res)
     except OSError:
         print("Incorrect image source.")
+    except pyautogui.ImageNotFoundException:
+        print("The game is up and running!")
 
 
 def find_sparkles():
@@ -49,7 +51,7 @@ def find_sparkles():
     print("Searching for sparkles...🔎")
     start_time = time.time()
     while duration < 2.2:  # Sparkles duration
-        if check_shutdown_state():
+        if ShutdownStateManager.get_instance().check_shutdown_state():
             return
 
         if not pyautogui.pixelMatchesColor(x1, y1, shiny_p1):
@@ -80,18 +82,34 @@ def find_sparkles():
     return False
 
 
-def find_exclamation_mark(cast):
+def find_exclamation_mark(cast, encounter):
     window_width, window_height = WindowStateManager.get_instance().get_window_size()
 
-    exc_p_left = (int(window_width * 0.23608247422680412), int(window_height * 0.40771028037383180))
-    exc_p_middle_down = (int(window_width * 0.24690721649484537), int(window_height * 0.42757009345794394))
     exc_p_middle_up = (int(window_width * 0.24690721649484537), int(window_height * 0.40303738317757010))
+    exc_p_left = (int(window_width * 0.23608247422680412) + 1, int(window_height * 0.40771028037383180))
+    # exc_p_surf_left = (int(window_width * 0.2381443298969072), int(window_height * 0.40186915887850466))
+    exc_p_middle_down = (int(window_width * 0.24690721649484537), int(window_height * 0.42757009345794394))
     exc_p_right = (int(window_width * 0.25721649484536080), int(window_height * 0.40537383177570090))
 
-    dialog_p1 = (int(window_width * 0.032474226804123714), int(window_height * 0.802570093457944))
-    dialog_p2 = (int(window_width * 0.4747422680412371), int(window_height * 0.9217289719626168))
+    exc_points = [
+        exc_p_middle_up,
+        exc_p_left,
+        exc_p_middle_down,
+        exc_p_right
+    ]
 
-    start_p = pyautogui.pixel(dialog_p2[0], dialog_p2[1])
+    # for i in range(len(exc_points)):
+    #     x, y = exc_points[i]
+    #     print(f"{i + 1}: {x} {y}")
+
+    DialogStateManager.get_instance().set_dialog_pixels()
+
+    move_dirs = ['w', 'a', 's', 'd']
+    direction = HuntStateManager.get_instance().get_facing_direction()
+    if direction is not None:
+        i = move_dirs.index(direction)
+        x, y = exc_points[i]
+        pyautogui.moveTo(x, y)
 
     while True:
         pause_event = PauseStateManager.get_instance().get_state()
@@ -99,19 +117,28 @@ def find_exclamation_mark(cast):
             if not pause_event.is_set():
                 break
 
-        if check_shutdown_state():
+        if ShutdownStateManager.get_instance().check_shutdown_state():
             return
 
         # Pixels matching the red exclamation mark
-        exclamation_mark_found = is_exclamation_mark(exc_p_left, exc_p_middle_down, exc_p_middle_up, exc_p_right)
+        exclamation_mark_found = False
+        if direction is None:
+            for p in range(len(exc_points)):
+                x, y = exc_points[p]
+                exclamation_mark_found = is_exclamation_mark(x, y)
+                if exclamation_mark_found:
+                    break
+        else:
+            exclamation_mark_found = is_exclamation_mark(x, y)
 
         no_fish = False
         if not exclamation_mark_found:
-            no_fish = dialog_is_open(dialog_p1, dialog_p2, start_p)
+            no_fish = dialog_is_open()
 
         if exclamation_mark_found:
             print("Exclamation found❗")
             cast[0] = 0
+            encounter[0] += 1
             for i in range(5):
                 pyautogui.keyDown('e')
                 time.sleep(0.05)
@@ -127,17 +154,22 @@ def find_exclamation_mark(cast):
             return
 
 
-def is_exclamation_mark(exc_p_left: (int, int), exc_p_middle_down: (int, int), exc_p_middle_up: (int, int), exc_p_right: (int, int)):
-    if (pyautogui.pixelMatchesColor(exc_p_left[0], exc_p_left[1], (255, 66, 0)) or
-            pyautogui.pixelMatchesColor(exc_p_middle_down[0], exc_p_middle_down[1], (255, 66, 0)) or
-            pyautogui.pixelMatchesColor(exc_p_middle_up[0], exc_p_middle_up[1], (255, 66, 0)) or
-            pyautogui.pixelMatchesColor(exc_p_right[0], exc_p_right[1], (255, 66, 0))):
-        return True
-    else:
-        return False
+# def is_exclamation_mark(exc_p_left: (int, int), exc_p_middle_down: (int, int), exc_p_middle_up: (int, int), exc_p_right: (int, int)):
+#     if (pyautogui.pixelMatchesColor(exc_p_left[0], exc_p_left[1], (255, 66, 0)) or
+#             pyautogui.pixelMatchesColor(exc_p_middle_down[0], exc_p_middle_down[1], (255, 66, 0)) or
+#             pyautogui.pixelMatchesColor(exc_p_middle_up[0], exc_p_middle_up[1], (255, 66, 0)) or
+#             pyautogui.pixelMatchesColor(exc_p_right[0], exc_p_right[1], (255, 66, 0))):
+#         return True
+#     else:
+#         return False
 
 
-def dialog_is_open(dialog_p1, dialog_p2, start_p):
+def is_exclamation_mark(x, y):
+    return True if pyautogui.pixelMatchesColor(x, y, (255, 66, 0)) else False
+
+
+def dialog_is_open():
+    start_p, dialog_p1, dialog_p2 = DialogStateManager.get_instance().get_dialog_pixels()
     if (pyautogui.pixelMatchesColor(dialog_p1[0], dialog_p1[1], (255, 255, 255)) and
             not pyautogui.pixelMatchesColor(dialog_p2[0], dialog_p2[1], start_p)):
         return True
@@ -145,27 +177,18 @@ def dialog_is_open(dialog_p1, dialog_p2, start_p):
         return False
 
 
-def check_shutdown_state():
-    shutdown_event = ShutdownStateManager.get_instance().get_state()
-    if shutdown_event is not None:
-        return True
-    else:
-        return False
+def use_selected_item():
+    DialogStateManager.get_instance().set_dialog_pixels()
+
+    pyautogui.keyDown('b')
+    pyautogui.keyUp('b')
+
+    time.sleep(0.5)
+
+    return False if dialog_is_open() else True
 
 
-def check_pause_state(pause_message: str, continue_message: str):
-    pause_event = PauseStateManager.get_instance().get_state()
-    # If encounter is active
-    if pause_event is not None:
-        if not pause_event.is_set():
-            if len(pause_message) > 0:
-                print(pause_message)
-            pause_event.wait()  # Wait for encounter to finish
-
-            if len(continue_message) > 0 and not check_shutdown_state():
-                print(continue_message + "\n")
-            return True
-    return False
+# def find_pokemon():
 
 
 def get_encounter_pixels():
@@ -233,7 +256,7 @@ def encounter_detection(search_encounter_func, end_encounter_func, search_args=N
 
     while not shiny_is_found:
 
-        if check_shutdown_state():
+        if ShutdownStateManager.get_instance().check_shutdown_state():
             return
 
         is_encounter = encounter_started(p1, p2)
@@ -249,11 +272,15 @@ def encounter_detection(search_encounter_func, end_encounter_func, search_args=N
             time.sleep(timeout)  # Time of encounter intro (Legendary encounter)
             # time.sleep(4)  # Time of encounter intro (Regular encounter)
 
-            if check_shutdown_state():
+            if ShutdownStateManager.get_instance().check_shutdown_state():
                 return
 
             shiny_is_found = find_sparkles()
 
+            # window = WindowStateManager.get_instance()
+            # size = window.get_window_size()
+            # print(window)
+            # print("Before: ", size)
             if shiny_is_found:
                 print("Congratulations! You found a shiny!✨")
                 HuntStateManager.get_instance().finish_hunt(is_finished=shiny_is_found)
@@ -282,6 +309,7 @@ def set_window_focus():
         try:
             window.activate()
         except pywindow.PyGetWindowException:
+            controls.switch_tab()
             print("Something went wrong when trying to activate the window")
             window.minimize()
             window.maximize()

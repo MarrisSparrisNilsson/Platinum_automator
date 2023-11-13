@@ -2,16 +2,17 @@ import time
 import keyboard
 import random
 
-from src.python_logic import detection
+from src.python_logic import controls
+from src.python_logic.state.state_manager import PauseStateManager, ShutdownStateManager
 
 
 def walk_random(_):
     last_dir = 10  # Starts as a value with no direction representation
 
     while True:
-        detection.check_pause_state("Walking is paused.", "Walking now continues:")
+        PauseStateManager.get_instance().check_pause_state("Walking is paused.", "Walking now continues:")
 
-        if detection.check_shutdown_state():
+        if ShutdownStateManager.get_instance().check_shutdown_state():
             return
 
         random_dir = random.randint(0, 3)
@@ -21,30 +22,7 @@ def walk_random(_):
         last_dir = random_dir
 
         random_steps = random.randint(1, 4)
-        move(direction_int=random_dir, steps=random_steps)
-
-
-def move(direction_int, steps=1):
-    if detection.check_shutdown_state():
-        return
-
-    move_dirs = ['a', 'w', 'd', 's']
-    print(f"{steps} step(s): {move_dirs[direction_int]} ({direction_int})")
-    keyboard.press(move_dirs[direction_int])
-    # start = time.time()
-    if steps == 0:
-        time.sleep(0.05)
-    else:
-        time.sleep(0.27 * steps)
-
-    keyboard.release(move_dirs[direction_int])
-
-    if steps == 0:
-        time.sleep(0.5)
-    else:
-        time.sleep(0.1)
-    # end = time.time()
-    # print(f"Step active for: {end - start}s")
+        controls.move(direction=random_dir, steps=random_steps)
 
 
 def lets_try_spinning(steps):
@@ -52,11 +30,11 @@ def lets_try_spinning(steps):
 
     while True:
         for direction_int in range(4):
-            detection.check_pause_state("Spinning is paused.", "Spinning now continues:")
-            if detection.check_shutdown_state():
+            PauseStateManager.get_instance().check_pause_state("Spinning is paused.", "Spinning now continues:")
+            if ShutdownStateManager.get_instance().check_shutdown_state():
                 return
 
-            move(direction_int, steps)
+            controls.move(direction_int, steps)
 
 
 def walk_straight_down(steps=1):

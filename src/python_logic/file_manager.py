@@ -1,6 +1,8 @@
 import json
 # import uuid
 import os
+import time
+import keyboard
 from datetime import datetime
 
 
@@ -258,3 +260,31 @@ def get_date(time_format):
 
     # Format the datetime as "YYYY-MM-DD HH:MM"
     return current_datetime.strftime(time_format)
+
+
+def record_steps():
+    start_time = time.time()
+    while True:
+        key = ''
+        end_time = time.time()
+        duration = end_time - start_time
+
+        if duration > 0.2:
+            if keyboard.is_pressed('w'):
+                key = 'w'
+            elif keyboard.is_pressed('a'):
+                key = 'a'
+            elif keyboard.is_pressed('s'):
+                key = 's'
+            elif keyboard.is_pressed('d'):
+                key = 'd'
+
+        if not key == '':
+            start_time = time.time()
+            print(f"{key} was pressed")
+            with open("../resources/feebas.json", "r+") as f:
+                data = json.load(f)
+                data["path"].append(key)
+
+                f.seek(0)
+                json.dump(data, f, indent=2)

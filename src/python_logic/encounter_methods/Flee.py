@@ -3,34 +3,27 @@ import sys
 import keyboard
 import pyautogui
 
-from src.python_logic import detection, controls
-from ..state_manager import WindowStateManager
+from src.python_logic import controls
+from src.python_logic.state.state_manager import WindowStateManager, ShutdownStateManager
 
 
 def flee_encounter():
     x, y = controls.run_btn_coords()
 
     while True:
-        if detection.check_shutdown_state():
+        if ShutdownStateManager.get_instance().check_shutdown_state():
             return
 
         time.sleep(0.1)
         if pyautogui.pixelMatchesColor(x, y, (41, 148, 206)):  # Blue run button
             controls.click_coord(x, y)
-            # w, h = WindowStateManager.get_instance().get_window_size()
-            size = WindowStateManager.get_instance().get_window_size()
-            window = WindowStateManager.get_instance().get_window()
-            print(window)
-            print(size)
-            w, h = size
-            pyautogui.moveTo(int(w / 4), int(h / 2))
-            # time.sleep(2.5)
+            w, h = WindowStateManager.get_instance().get_window_size()
             start_time = time.time()
             duration = 0
-            while pyautogui.pixelMatchesColor(int(w / 4), int(h / 2), (0, 0, 0)):
+            # While no black screen detected
+            while not pyautogui.pixelMatchesColor(int(w / 4), int(h / 2), (0, 0, 0)) and not pyautogui.pixelMatchesColor(int(w - (w / 4)), int(h / 2), (0, 0, 0)):
                 end_time = time.time()
                 duration = end_time - start_time
-                # if pyautogui.pixelMatchesColor(int(w / 4), int(h / 2), (0, 0, 0)):  # Black screen
 
                 if duration > 6:
                     break
@@ -40,6 +33,7 @@ def flee_encounter():
             else:
                 print("Encounter ended. Search continues...")
                 time.sleep(1.2)
+                break
 
 
 def soft_reset():
