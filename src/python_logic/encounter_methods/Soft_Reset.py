@@ -1,10 +1,11 @@
 import threading
-import pyautogui
+# import pyautogui
 import time
 
 from src.python_logic import controls
 from src.python_logic.encounter_methods.Flee import soft_reset
-from src.python_logic.state.state_manager import WindowStateManager, PauseStateManager, ShutdownStateManager
+from src.python_logic.states.Pause import PauseStateManager
+from src.python_logic.states.Shutdown import ShutdownStateManager
 
 
 def static_encounter(_):

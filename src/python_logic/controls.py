@@ -4,7 +4,8 @@ import keyboard
 # import keyboard
 import pyautogui
 
-from src.python_logic.state.state_manager import WindowStateManager, ShutdownStateManager
+from src.python_logic.states.Window import WindowStateManager
+from src.python_logic.states.Shutdown import ShutdownStateManager
 
 
 def clear_movement():

@@ -6,9 +6,11 @@ from src.python_logic import controls
 from src.python_logic import actions
 from src.python_logic import detection
 from src.python_logic import helpers
+from src.python_logic.states.GameView import WindowStateManager
 
 
 def main():
+    WindowStateManager.get_instance().set_state()
     print("\n### Welcome to the Platinum automator ###")
     controls.console_focus()
     while True:
@@ -24,7 +26,6 @@ def main():
                 detection.find_pause_and_resume()
                 action_thread.start()
                 action_thread.join()
-
                 controls.clear_movement()  # Stop moving
 
             except AttributeError:
