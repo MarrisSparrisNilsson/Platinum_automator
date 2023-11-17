@@ -54,15 +54,20 @@ def feebas_fishing(_):
     # Get the script's directory
     script_directory = os.path.dirname(os.path.abspath(__file__))
     # Construct the file path
-    file_path = os.path.join(script_directory, "../../resources/feebas.json")
+    feebas_resource_path = os.path.join(script_directory, "../../resources/feebas.json")
+    feebas_data_path = os.path.join(script_directory, "../../data/feebas.json")
     try:
+        tiles = None
         # Open the file
-        with (open(file_path, "r+") as f):
+        with (open(feebas_resource_path, "r") as f):
+            file = json.load(f)
+            tiles = file["path"]
+
+        with (open(feebas_data_path, "r+") as f):
             data = json.load(f)
 
-            tiles = data["path"]
             found_date = data['found_date']
-            latest_step = data['latest_step']
+            fish_at_pos = data['latest_step']
             todays_date = file_manager.get_date("%Y-%m-%d")
             if not found_date == todays_date:
                 found_date = ""
@@ -73,30 +78,30 @@ def feebas_fishing(_):
 
             turn_dir = ''
 
-            start_pos = 0
+            walk_to_pos = 0
             controls.switch_tab()
-            if not latest_step == 0:
+            if not fish_at_pos == 0:
                 while True:
                     try:
                         time.sleep(0.5)
-                        ans = input(f"Are you at step {latest_step} and wish to continue from there? (y/n): ")
+                        ans = input(f"Are you at step {fish_at_pos} and wish to continue from there? (y/n): ")
                         if ans == 'y':
-                            start_pos = latest_step
+                            walk_to_pos = fish_at_pos
                             break
                         elif ans == 'n':
-                            latest_step = 0
+                            fish_at_pos = 0
                             break
                         else:
                             raise ValueError
                     except ValueError:
                         print("Invalid input, try again.")
 
-            if found_date == "" and latest_step == 0:
+            if found_date == "" and fish_at_pos == 0:
                 while True:
                     try:
                         time.sleep(0.5)
-                        start_pos = int(input(f"Which tile do you wish to begin at? (0-{len(tiles) - 1}): "))
-                        if start_pos > len(tiles) or start_pos < 0:
+                        walk_to_pos = int(input(f"Which tile do you wish to begin at? (0-{len(tiles) - 1}): "))
+                        if walk_to_pos < 0 or len(tiles) < walk_to_pos:
                             raise ValueError
                         break
                     except ValueError:
@@ -107,14 +112,14 @@ def feebas_fishing(_):
 
             walk_num = 1
             encounters = 2  # Number of desired encounters
-            for step in range(latest_step + 1, len(tiles)):
+            for step in range(0 if fish_at_pos == 0 else fish_at_pos + 1, len(tiles)):
 
                 walk_dir = tiles[step]
                 if step + 1 < len(tiles):
                     turn_dir = tiles[step + 1]
                     HuntStateManager.get_instance().set_facing_direction(walk_dir)
 
-                if step >= start_pos:
+                if step >= walk_to_pos:
                     print()
                     pause_main_event.set()  # Set internal flag to true
                     pause_main_state.set_main_state(pause_main_event)  # Resumes encounter detection

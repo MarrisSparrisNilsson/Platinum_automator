@@ -154,7 +154,6 @@ def save_hunt(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounters, t
                     "finished": is_finished,
                     "total_encounters": total_encounters,
                     "target_pokemon_encounters": target_pokemon_encounters,
-
                     "is_practice": is_practice
                 }
                 data['latest_hunt'] = x

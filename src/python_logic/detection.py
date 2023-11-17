@@ -331,7 +331,8 @@ def was_target_pokemon_found():
     # (window.left + 9, int(window.height * 0.20327102803738317), int(window.width * 0.12474226804123711), int(window.height * (0.28085981308411217 - 0.20327102803738317))))
     window = WindowStateManager.get_instance().get_window()
 
-    pyautogui.screenshot("../images/pokemon_name.png", region=(
+    pokemon_name_img_path = "../images/local/pokemon_name.png"
+    pyautogui.screenshot(pokemon_name_img_path, region=(
         window.left + 9, int(window.height * 0.20327102803738317), int(window.width * 0.12474226804123711), int(window.height * (0.28085981308411217 - 0.20327102803738317))))
 
     pokemon_name = HuntStateManager.get_instance().get_hunted_pokemon_name()
@@ -340,7 +341,7 @@ def was_target_pokemon_found():
     largest_match_count = 0
     for i in range(len(reading_configs)):
         matching_chars = 0
-        reading = pytesseract.image_to_string("../images/pokemon_name.png", config=reading_configs[i])
+        reading = pytesseract.image_to_string(pokemon_name_img_path, config=reading_configs[i])
         if reading == pokemon_name:
             return True
         # print(reading)
