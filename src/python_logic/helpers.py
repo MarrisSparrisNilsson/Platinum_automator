@@ -3,14 +3,36 @@ import time
 import threading as thread
 import os
 
-import keyboard
+# import keyboard
 import pyautogui
 
-from src.python_logic.state.state_manager import WindowStateManager, HuntStateManager
-from src.python_logic import actions, controls
+from src.python_logic.states.Window import WindowStateManager
+from src.python_logic.states.Hunt import HuntStateManager
+from src.python_logic import actions, controls, detection
 from src.python_logic import file_manager
-from src.python_logic.encounter_methods import Fishing, Regular
-from src.python_logic.Enums import HuntMode, WalkTypes, FishingTypes
+
+from src.python_logic.Enums import HuntMode
+
+
+def test_function():
+    # for i in range(10):
+    # print(f"Progress: {i}/9")
+    # print('\r', end=f"Progress: {i}/9")
+    # time.sleep(0.3)
+    print("\nTest function")
+    for i in range(530):
+        print(i)
+    # WindowStateManager.get_instance().set_state()
+    # file_manager.record_steps()
+    # get_mouse_coordinates()
+    # time.sleep(3)
+    # controls.activate_repel()
+    # detection.was_target_pokemon_found()
+
+    # file_manager
+    # detection.find_exclamation_mark()
+    # screenshot = pyautogui.screenshot(region=(start_x, start_y, end_x, end_y))
+    # screenshot.save("../images/test/exclamation_area.png")
 
 
 def print_start_menu():
@@ -44,7 +66,9 @@ def select_menu_option():
                         hunt_id = hunt['id']
                         pokemon_name = hunt['pokemon_name']
                         hunt_mode = hunt['hunt_mode']
-                        encounters = hunt['encounters']
+                        hunt_method = hunt['hunt_method']
+                        total_encounters = hunt['total_encounters']
+                        target_pokemon_encounters = hunt['target_pokemon_encounters']
                         try:
                             is_practice = hunt['is_practice']
                         except KeyError:
@@ -53,9 +77,9 @@ def select_menu_option():
                         date_match: int = str(hunt['last_time_hunted_date']).find(file_manager.get_date("%Y-%m-%d"))
                         if date_match != -1:
                             HuntStateManager.get_instance().set_was_hunted_today(True)
-                        HuntStateManager.get_instance().set_hunt_state(hunt_id, pokemon_name, hunt_mode, encounters, is_practice)
+                        HuntStateManager.get_instance().set_hunt_state(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounters, target_pokemon_encounters, is_practice)
 
-                        return load_action(hunt_mode)
+                        return load_action(hunt_mode, hunt_method)
                 case 2:
                     hunt = select_hunt()
                     if hunt is None:
@@ -64,10 +88,16 @@ def select_menu_option():
                     hunt_id = hunt['id']
                     pokemon_name = hunt['pokemon_name']
                     hunt_mode = hunt['hunt_mode']
-                    encounters = hunt['encounters']
-                    HuntStateManager.get_instance().set_hunt_state(hunt_id, pokemon_name, hunt_mode, encounters)
+                    hunt_method = hunt['hunt_method']
+                    total_encounters = hunt['total_encounters']
+                    target_pokemon_encounters = hunt['target_pokemon_encounters']
+                    try:
+                        is_practice = hunt['is_practice']
+                    except KeyError:
+                        is_practice = False
+                    HuntStateManager.get_instance().set_hunt_state(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounters, target_pokemon_encounters, is_practice)
 
-                    return load_action(hunt_mode)
+                    return load_action(hunt_mode, hunt_method)
                 case 3 | 4:
                     pokemon_name = input("Which Pokémon are you hunting?: ")
                     if option == 3:
@@ -87,12 +117,14 @@ def select_menu_option():
             print("End of file.")
         except json.decoder.JSONDecodeError:
             print("No save data available.")
-        except TypeError:
-            print("No save data available.")
-        except KeyError:
-            print("No save data available.")
+        # except TypeError:
+        #     print("No save data available.")
+        # except KeyError:
+        #     print("No save data available.")
         except ValueError:
             pass
+        except FileExistsError:
+            print("No save data available.")
 
 
 def select_hunt():
@@ -140,22 +172,24 @@ def display_actions_menu():
           "\n0: Quit")
 
 
-def load_action(hunt_mode):
-    options = [
-        {f"{HuntMode.POKERADAR.value}": None},
-        {f"{HuntMode.FISHING.value}": actions.fishing_hunt},
-        {f"{HuntMode.FOSSIL.value}": None},
-        {f"{HuntMode.SAFARI_ZONE.value}": None},
-        {f"{HuntMode.SOFT_RESET.value}": actions.soft_reset_hunt},
-        {f"{HuntMode.EGG.value}": None},
-        {f"{HuntMode.REGULAR.value}": actions.regular_hunt}
-    ]
+def load_action(hunt_mode, hunt_method):
+    action = actions.action_types[hunt_mode]['action']
+    method = None
+    args = None
+    method_name = ""
 
-    for mode in options:
-        for k in mode.keys():
-            if k == hunt_mode:
-                method, args = select_search_func(hunt_mode)
-                return thread.Thread(target=mode[k], args=[method, args], daemon=True)
+    if actions.action_types[hunt_mode]['method_required']:
+        for method_obj in actions.action_types[hunt_mode]['methods']:
+            if method_obj['method_name'] == hunt_method:
+                method = method_obj["method"]
+                args = method_obj["args"]
+                method_name = method_obj["method_name"]
+
+        if method is None:
+            method, args, method_name = select_search_func(hunt_mode)
+
+    HuntStateManager.get_instance().set_hunt_mode(hunt_mode, method_name)
+    return thread.Thread(target=action, args=[method, args], daemon=True)
 
 
 def select_action():
@@ -174,8 +208,8 @@ def select_action():
                     # print(f"{HuntMode.POKERADAR.value} hunt coming soon.")
                     return None
                 case 2:
-                    method, args = select_search_func(HuntMode.FISHING.value)
-                    HuntStateManager.get_instance().set_hunt_mode(HuntMode.FISHING.value)
+                    method, args, method_name = select_search_func(HuntMode.FISHING.value)
+                    HuntStateManager.get_instance().set_hunt_mode(HuntMode.FISHING.value, method_name)
 
                     return thread.Thread(target=actions.fishing_hunt, args=[method, args], daemon=True)
                 case 3:
@@ -195,8 +229,8 @@ def select_action():
                     # print(f"{HuntMode.EGG.value} hunt coming soon.")
                     return None
                 case 7:
-                    method, args = select_search_func(HuntMode.REGULAR.value)
-                    HuntStateManager.get_instance().set_hunt_mode(HuntMode.REGULAR.value)
+                    method, args, method_name = select_search_func(HuntMode.REGULAR.value)
+                    HuntStateManager.get_instance().set_hunt_mode(HuntMode.REGULAR.value, method_name)
 
                     return thread.Thread(target=actions.regular_hunt, args=[method, args], daemon=True)
 
@@ -209,80 +243,29 @@ def select_action():
 
 
 def select_search_func(hunt_mode):
-    match hunt_mode:
-        # case HuntMode.POKERADAR.value:
-        case HuntMode.FISHING.value:
-            fishing_methods = [
-                {
-                    "number": 1,
-                    "description": f"{FishingTypes.REGULAR.value}",
-                    "method": Fishing.fishing,
-                    "args": True  # Continue infinitely
-                },
-                {
-                    "number": 2,
-                    "description": f"{FishingTypes.FEEBAS.value}",
-                    "method": Fishing.feebas_fishing,
-                    "args": None
-                }
-            ]
-            search_methods = fishing_methods
-
-        # case HuntMode.FOSSIL.value:
-        # case HuntMode.SAFARI_ZONE.value:
-        # case HuntMode.SOFT_RESET.value:
-        # case HuntMode.EGG.value:
-        case HuntMode.REGULAR.value:
-            walk_methods = [
-                {
-                    "number": 1,
-                    "description": f"{WalkTypes.RANDOM.value}",
-                    "method": Regular.walk_random,
-                    "args": None
-                },
-                {
-                    "number": 2,
-                    "description": f"{WalkTypes.CIRCLES.value}",
-                    "method": Regular.lets_try_spinning,
-                    "args": 1
-                }
-            ]
-            search_methods = walk_methods
-        case _:
-            raise ValueError
-
     while True:
         try:
             num = 0
-            print("Please select search method:")
-            for option in search_methods:
+            print("Please select any of the search methods:")
+            methods = actions.action_types[hunt_mode]['methods']
+            for method in methods:
                 num += 1
-                print(f"{option['number']}: {option['description']}")
+                print(f"{method['number']}: {method['method_name']}")
 
-            ans = int(input(f"Select option (1-{num}): "))
+            ans = int(input(f"Select an option (1-{num}): "))
 
-            method = search_methods[ans - 1]['method']
-            args = search_methods[ans - 1]['args']
+            method = methods[ans - 1]['method']
+            args = methods[ans - 1]['args']
+            method_name = methods[ans - 1]['method_name']
 
             if method is None:
                 print("This method is currently unavailable, try again.\n")
             else:
-                return method, args
+                return method, args, method_name
         except IndexError:
             print("Invalid option.\n")
-
-
-def test_function():
-    print("Test function")
-    # file_manager.record_steps()
-    get_mouse_coordinates()
-    # time.sleep(3)
-    controls.activate_repel()
-
-    # file_manager
-    # detection.find_exclamation_mark()
-    # screenshot = pyautogui.screenshot(region=(start_x, start_y, end_x, end_y))
-    # screenshot.save("../images/test/exclamation_area.png")
+        except ValueError:
+            print("Invalid option.\n")
 
 
 def get_mouse_coordinates():

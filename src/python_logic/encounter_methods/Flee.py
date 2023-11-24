@@ -4,7 +4,8 @@ import keyboard
 import pyautogui
 
 from src.python_logic import controls
-from src.python_logic.state.state_manager import WindowStateManager, ShutdownStateManager
+from src.python_logic.states.GameView import WindowStateManager
+from src.python_logic.states.Shutdown import ShutdownStateManager
 
 
 def flee_encounter():
@@ -31,7 +32,7 @@ def flee_encounter():
                 print("Error: Unable to escape for some reason...")
                 sys.exit(0)
             else:
-                print("Encounter ended. Search continues...")
+                print("Encounter ended.")
                 time.sleep(1.2)
                 break
 

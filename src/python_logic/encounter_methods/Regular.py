@@ -3,7 +3,8 @@ import keyboard
 import random
 
 from src.python_logic import controls
-from src.python_logic.state.state_manager import PauseStateManager, ShutdownStateManager
+from src.python_logic.states.Shutdown import ShutdownStateManager
+from src.python_logic.states.Pause import PauseStateManager
 
 
 def walk_random(_):
