@@ -31,9 +31,7 @@ def fishing(args):
 
 
 def feebas_fishing(_):
-    # TODO: Detect Feebas and mark spot.
-
-    # Walk i steps and turn towards i+1, then fish twice.
+    # Walk "i" steps and turn towards i+1, then fish twice.
     # Array[0] is start point where you fish and then use surf.
 
     # Steps:
@@ -56,8 +54,8 @@ def feebas_fishing(_):
     # Construct the file path
     feebas_resource_path = os.path.join(script_directory, "../../resources/feebas.json")
     feebas_data_path = os.path.join(script_directory, "../../data/feebas.json")
+    todays_date = file_manager.get_date("%Y-%m-%d")
     try:
-        tiles = None
         # Open the file
         with (open(feebas_resource_path, "r") as f):
             file = json.load(f)
@@ -66,50 +64,27 @@ def feebas_fishing(_):
         with (open(feebas_data_path, "r+") as f):
             data = json.load(f)
 
-            found_date = data['found_date']
             fish_at_pos = data['latest_step']
-            todays_date = file_manager.get_date("%Y-%m-%d")
+            found_date = data['found_date']
+            was_found_today = True
+            found_at = 0
             if not found_date == todays_date:
-                found_date = ""
-                data['location'] = 0
+                was_found_today = False
+                data['found_at'] = 0
                 data['found_date'] = ""
                 f.seek(0)
                 json.dump(data, f, indent=2)
-
-            turn_dir = ''
-
-            walk_to_pos = 0
-            controls.switch_tab()
-            if not fish_at_pos == 0:
-                while True:
-                    try:
-                        time.sleep(0.5)
-                        ans = input(f"Are you at step {fish_at_pos} and wish to continue from there? (y/n): ")
-                        if ans == 'y':
-                            walk_to_pos = fish_at_pos
-                            break
-                        elif ans == 'n':
-                            fish_at_pos = 0
-                            break
-                        else:
-                            raise ValueError
-                    except ValueError:
-                        print("Invalid input, try again.")
-
-            if found_date == "" and fish_at_pos == 0:
-                while True:
-                    try:
-                        time.sleep(0.5)
-                        walk_to_pos = int(input(f"Which tile do you wish to begin at? (0-{len(tiles) - 1}): "))
-                        if walk_to_pos < 0 or len(tiles) < walk_to_pos:
-                            raise ValueError
-                        break
-                    except ValueError:
-                        print("Invalid input, try again.")
+            else:
+                found_at = data['found_at']
+                print(f"FEEBAS was last seen at step {found_at}!")
 
             controls.switch_tab()
+            walk_to_pos, fish_at_pos = hunt_configuration(was_found_today, fish_at_pos, tiles)
+            controls.switch_tab()
+
             controls.select_in_game_menu_action(3)  # Use repel
 
+            turn_dir = ''
             walk_num = 1
             encounters = 2  # Number of desired encounters
             for step in range(0 if fish_at_pos == 0 else fish_at_pos + 1, len(tiles)):
@@ -118,6 +93,9 @@ def feebas_fishing(_):
                 if step + 1 < len(tiles):
                     turn_dir = tiles[step + 1]
                     HuntStateManager.get_instance().set_facing_direction(walk_dir)
+
+                if step - 1 == found_at and was_found_today:
+                    break
 
                 if step >= walk_to_pos:
                     print()
@@ -165,7 +143,7 @@ def feebas_fishing(_):
                 if not turn_dir == walk_dir:
                     controls.move(turn_dir, 0)
 
-            data['location'] = step
+            data['found_at'] = step - 1
             data['found_date'] = todays_date
             f.seek(0)
             json.dump(data, f, indent=2)
@@ -174,9 +152,18 @@ def feebas_fishing(_):
         print("Something went wrong when accessing data from resource.")
     except json.decoder.JSONDecodeError:
         print("Something wrong with resource file.")
+        exit(-1)
 
+    pause_main_event.set()  # Set internal flag to true
+    pause_main_state.set_main_state(pause_main_event)  # Resumes encounter detection
     # Feebas has been found
-    fishing(True)
+    while True:
+        if not todays_date == file_manager.get_date("%Y-%m-%d"):
+            print("\nTime is past midnight🌙"
+                  "\nGo back to start position and try again.")
+            break
+        else:
+            fishing(1)
 
 
 def take_step(step):
@@ -187,3 +174,37 @@ def take_step(step):
         return False
     else:
         return True
+
+
+def hunt_configuration(was_found_today, fish_at_pos, tiles):
+    walk_to_pos = 0
+    fap = fish_at_pos
+    if not fish_at_pos == 0:
+        while True:
+            try:
+                time.sleep(0.5)
+                ans = input(f"Are you at step {fap} and wish to continue from there? (y/n): ")
+                if ans == 'y':
+                    walk_to_pos = fap
+                    break
+                elif ans == 'n':
+                    fap = 0
+                    print("(Assuming you are at step 0)")
+                    break
+                else:
+                    raise ValueError
+            except ValueError:
+                print("Invalid input, try again.")
+
+    if not was_found_today and fap == 0:
+        while True:
+            try:
+                time.sleep(0.5)
+                walk_to_pos = int(input(f"Which tile do you wish to begin at? (0-{len(tiles) - 1}): "))
+                if walk_to_pos < 0 or len(tiles) < walk_to_pos:
+                    raise ValueError
+                break
+            except ValueError:
+                print("Invalid input, try again.")
+
+    return walk_to_pos, fap

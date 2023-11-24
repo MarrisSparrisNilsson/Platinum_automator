@@ -140,7 +140,7 @@ def save_hunt(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounters, t
                     data['latest_hunt']['end_date'] = formatted_datetime
                 data['latest_hunt']['finished'] = is_finished
                 data['latest_hunt']['total_encounters'] = total_encounters
-                data['latest_hunt']['target_pokemon_encounters'] = target_pokemon_encounters,
+                data['latest_hunt']['target_pokemon_encounters'] = target_pokemon_encounters
                 data['latest_hunt']['is_practice'] = is_practice
             except KeyError:
                 x = {
@@ -168,7 +168,7 @@ def save_hunt(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounters, t
                             entry['end_date'] = formatted_datetime
                         entry['finished'] = is_finished
                         entry['total_encounters'] = total_encounters
-                        entry['target_pokemon_encounters'] = target_pokemon_encounters,
+                        entry['target_pokemon_encounters'] = target_pokemon_encounters
                         break
 
                 if match_found:
@@ -201,9 +201,9 @@ def display_current_hunts():
 
         print(
             "\nActive Pokémon hunts:"
-            "\n==================================================================="
-            "\n#      Pokémon         Start Date        Hunt Mode      Encounters"
-            "\n==================================================================="
+            "\n========================================================================================"
+            "\n#      Pokémon         Start Date        Hunt Mode      Encounters     Target Encounters"
+            "\n========================================================================================"
         )
 
         i = 1
@@ -217,7 +217,7 @@ def display_current_hunts():
                 })
 
                 print(f"{i:<6} {entry['pokemon_name']:12} {entry['start_date']:20}"
-                      f" {entry['hunt_mode']:14} {entry['total_encounters']:<10}")
+                      f" {entry['hunt_mode']:14} {entry['total_encounters']:<14} {entry['target_pokemon_encounters']:<17}")
                 i += 1
             real_index += 1
 
