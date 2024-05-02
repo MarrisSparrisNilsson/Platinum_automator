@@ -227,7 +227,9 @@ def select_action():
                 case 6:
                     # print(f"Beginning {HuntMode.EGG.value} hunt!")
                     # print(f"{HuntMode.EGG.value} hunt coming soon.")
-                    return None
+                    HuntStateManager.get_instance().set_hunt_mode(HuntMode.EGG.value)
+                    return thread.Thread(target=actions.egg_hunt, daemon=True)
+                    # return None
                 case 7:
                     method, args, method_name = select_search_func(HuntMode.REGULAR.value)
                     HuntStateManager.get_instance().set_hunt_mode(HuntMode.REGULAR.value, method_name)

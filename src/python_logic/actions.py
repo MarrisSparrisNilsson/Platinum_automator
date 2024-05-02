@@ -2,12 +2,11 @@ import threading
 import keyboard
 
 from src.python_logic import detection, controls
-from src.python_logic.encounter_methods import Soft_Reset, Flee
+from src.python_logic.encounter_methods import Soft_Reset, Flee, Fishing, Regular, Egg
 from src.python_logic.states.Shutdown import ShutdownStateManager
 from src.python_logic.states.Pause import PauseStateManager
 from src.python_logic.states.Hunt import HuntStateManager
 from src.python_logic.Enums import HuntMode, WalkTypes, FishingTypes
-from src.python_logic.encounter_methods import Fishing, Regular
 
 
 def pokeradar_hunt():
@@ -38,7 +37,13 @@ def fishing_hunt(search_encounter_func, search_args):
     detection.encounter_detection(search_encounter_func, end_encounter_func=Flee.flee_encounter, search_args=search_args)
 
 
-def soft_reset_hunt():
+def egg_hunt(_a, _b):
+    Egg.hatch_egg()
+
+    # detection.encounter_detection(search_encounter_func, end_encounter_func=Flee.flee_encounter, search_args=search_args)
+
+
+def soft_reset_hunt(_a, _b):
     hunt_mode = HuntStateManager.get_instance().get_hunt_mode()
     print(f"Beginning {hunt_mode} hunt!")
     if not HuntStateManager.get_instance().get_was_hunted_today():
@@ -103,8 +108,8 @@ action_types = {
         "method_required": False,
     },
     f"{HuntMode.EGG.value}": {
-        "action": None,
-        "method_required": True,
+        "action": egg_hunt,
+        "method_required": False,
     },
     f"{HuntMode.REGULAR.value}": {
         "action": regular_hunt,

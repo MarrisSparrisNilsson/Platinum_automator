@@ -31,13 +31,15 @@ def fishing(args):
 
 
 def feebas_fishing(_):
-    # Walk "i" steps and turn towards i+1, then fish twice.
-    # Array[0] is start point where you fish and then use surf.
+    """
+    Walk "i" steps and turn towards i+1, then fish twice.
+    Array[0] is start point where you fish and then use surf.
 
-    # Steps:
-    # 1: Fish x2
-    # 2: Take step, (Array[i])
-    # 3: Turn towards next step if Array[i] != Array[i+1]
+    Steps:
+    1: Fish x2
+    2: Take step, (Array[i])
+    3: Turn towards next step if Array[i] != Array[i+1]
+    """
 
     # Map goes through every fishable water tile
     # Steps are determined by direction and edge of a tile that the path crosses.

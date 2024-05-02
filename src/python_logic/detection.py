@@ -90,9 +90,10 @@ def find_sparkles():
     return False
 
 
-def has_background_changed(x, y, shiny_p):
-    if not pyautogui.pixelMatchesColor(x, y, shiny_p):
-        #  print(f"P: {pyautogui.pixel(x, y)}, {shiny_p}")
+def has_background_changed(x, y, pixel):
+    pyautogui.moveTo(x, y)
+    if not pyautogui.pixelMatchesColor(x, y, pixel):
+        #  print(f"P: {pyautogui.pixel(x, y)}, {pixel}")
         pyautogui.moveTo(x, y)
         return True
     else:
