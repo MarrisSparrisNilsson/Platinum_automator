@@ -79,7 +79,7 @@ def find_sparkles():
 
         for i in range(len(shiny_p)):
             x, y = coords[i]
-            if has_background_changed(x, y, shiny_p[i]):
+            if controls.has_background_changed(x, y, shiny_p[i]):
                 return True
 
         end_time = time.time()
@@ -88,15 +88,6 @@ def find_sparkles():
 
     print("No shiny this time...☹️")
     return False
-
-
-def has_background_changed(x, y, shiny_p):
-    if not pyautogui.pixelMatchesColor(x, y, shiny_p):
-        #  print(f"P: {pyautogui.pixel(x, y)}, {shiny_p}")
-        pyautogui.moveTo(x, y)
-        return True
-    else:
-        return False
 
 
 def find_exclamation_mark(cast, encounter):
@@ -175,7 +166,7 @@ def find_exclamation_mark(cast, encounter):
 
 
 def is_exclamation_mark(x, y):
-    return True if pyautogui.pixelMatchesColor(x, y, (255, 66, 0)) else False
+    return True if (pyautogui.pixelMatchesColor(x, y, (255, 66, 0)) or pyautogui.pixelMatchesColor(x, y, (255, 165, 140))) else False
 
 
 def dialog_is_open():
@@ -285,7 +276,7 @@ def encounter_detection(search_encounter_func, end_encounter_func, search_args=N
                 target_encounters = HuntStateManager.get_instance().get_target_pokemon_encounters()
                 print(f"{pokemon} #{target_encounters}!")
 
-            if shiny_is_found:
+            if shiny_is_found and not True:
                 print(f"Congratulations! You found a shiny {f'{pokemon}' if result else ''}!✨")
                 HuntStateManager.get_instance().finish_hunt(is_finished=shiny_is_found)
                 time.sleep(1)

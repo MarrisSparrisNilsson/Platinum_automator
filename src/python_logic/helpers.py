@@ -24,7 +24,7 @@ def test_function():
         print(i)
     # WindowStateManager.get_instance().set_state()
     # file_manager.record_steps()
-    # get_mouse_coordinates()
+    get_mouse_coordinates()
     # time.sleep(3)
     # controls.activate_repel()
     # detection.was_target_pokemon_found()
