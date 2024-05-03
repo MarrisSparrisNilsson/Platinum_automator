@@ -10,7 +10,6 @@ from src.python_logic.states.GameView import WindowStateManager
 
 
 def main():
-    WindowStateManager.get_instance().set_state()
     print("\n### Welcome to the Platinum automator ###")
     controls.console_focus()
     while True:
@@ -34,8 +33,9 @@ def main():
 
 if __name__ == '__main__':
     try:
-        main()
-        # helpers.test_function()
+        WindowStateManager.get_instance().set_state()
+        # main()
+        helpers.test_function()
 
     except KeyboardInterrupt:
         print("\nSession ended.")

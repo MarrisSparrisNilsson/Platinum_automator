@@ -48,18 +48,18 @@ def right():
     pyautogui.keyUp('d')
 
 
-def open_bag():
+def x_button():
     # keyboard.press('x')
     pyautogui.keyDown('x')
     pyautogui.keyUp('x')
 
 
-def a_key():
+def a_button():
     pyautogui.keyDown('e')
     pyautogui.keyUp('e')
 
 
-def b_key():
+def b_button():
     pyautogui.keyDown('space')
     pyautogui.keyUp('space')
 
@@ -79,7 +79,7 @@ def console_focus():
 def surf():
     for i in range(5):
         time.sleep(0.5)
-        a_key()
+        a_button()
         # print("A")
 
 
@@ -137,7 +137,7 @@ def move(direction, steps=1):
 
 
 def select_in_game_menu_action(menu_num, option=1):
-    open_bag()
+    x_button()
 
     # Menu start x: W * 0.3082474226804124
     # Menu start y: H * 0.10163551401869159
@@ -160,7 +160,7 @@ def select_in_game_menu_action(menu_num, option=1):
             return
 
         if pyautogui.pixelMatchesColor(menu_p[0], menu_p[1], (255, 107, 16)):
-            a_key()
+            a_button()
             time.sleep(1)
             match menu_num:
                 case 3:
@@ -187,7 +187,7 @@ def save_in_game():
         if ShutdownStateManager.get_instance().check_shutdown_state():
             return True
 
-        a_key()
+        a_button()
         time.sleep(0.5)
 
         if pyautogui.pixelMatchesColor(save_box_p[0], save_box_p[1], start_save_box):
@@ -204,11 +204,11 @@ def activate_repel():
             if match:
                 for i in range(3):
                     time.sleep(0.2)
-                    a_key()
+                    a_button()
 
                 # Close bag and menu
                 for i in range(5):
-                    b_key()
+                    b_button()
                     time.sleep(0.5)
                 return True
         except pyautogui.ImageNotFoundException:

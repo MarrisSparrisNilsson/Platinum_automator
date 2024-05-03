@@ -168,7 +168,7 @@ def find_exclamation_mark(cast, encounter):
             return
         elif no_fish:
             time.sleep(0.3)
-            controls.b_key()
+            controls.b_button()
             cast[0] += 1
             print('\r', end=f"No fish this time. ({cast[0]})")
             return
@@ -244,6 +244,10 @@ def encounter_started(pixel_coord_one, pixel_coord_two):
 
 
 def encounter_detection(search_encounter_func, end_encounter_func, search_args=None):
+    if not callable(search_encounter_func) and not callable(end_encounter_func):
+        print("Both Encounter functions were not provided.")
+        exit(-1)
+
     p1, p2 = get_encounter_pixels()
 
     pause_state = PauseStateManager.get_instance()

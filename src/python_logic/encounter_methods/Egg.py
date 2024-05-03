@@ -1,10 +1,10 @@
 import time
-import sys
 import keyboard
 import pyautogui
 
 from src.python_logic import controls, detection
-from src.python_logic.states.GameView import WindowStateManager
+from src.python_logic.states.GameView import GameViewStateManager
+from src.python_logic.states.Window import WindowStateManager
 from src.python_logic.states.Shutdown import ShutdownStateManager
 
 
@@ -42,9 +42,9 @@ def hatch_egg():
             keyboard.release('w')
             keyboard.release('s')
             print("Egg is hatching!")
-            controls.a_key()
+            controls.a_button()
             time.sleep(2)
-            controls.a_key()
+            controls.a_button()
             print("Breeder mode ending...")
             return
 
@@ -61,6 +61,24 @@ def hatch_egg():
                 #                 previous_direction = True
                 keyboard.release('s')
                 keyboard.press('w')
+
+
+def is_two_pokemon_inserted():
+    w, h = WindowStateManager.get_instance().get_window_size()
+    pokemon_coord1 = (int(w * 0.6108374384236454), int(h * 0.7206840390879479))
+    pokemon_coord2 = (int(w * 0.8171544479860909), int(h * 0.7320846905537459))
+
+    colors = GameViewStateManager.get_instance().get_poketch_colors()
+
+    print("Checking status...")
+    if pyautogui.pixelMatchesColor(pokemon_coord1[0], pokemon_coord1[1], colors[1]):
+        print("Both pokemon are missing!")
+        return False
+
+    if pyautogui.pixelMatchesColor(pokemon_coord2[0], pokemon_coord2[1], colors[1]):
+        print("Second pokemon is missing!")
+        return False
+    return True
 
 
 def get_egg():

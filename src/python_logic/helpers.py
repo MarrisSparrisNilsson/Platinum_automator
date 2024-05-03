@@ -3,6 +3,7 @@ import time
 import threading as thread
 import os
 
+import keyboard
 # import keyboard
 import pyautogui
 
@@ -10,7 +11,7 @@ from src.python_logic.states.Window import WindowStateManager
 from src.python_logic.states.Hunt import HuntStateManager
 from src.python_logic import actions, controls, detection
 from src.python_logic import file_manager
-
+from src.python_logic.encounter_methods import Egg
 from src.python_logic.Enums import HuntMode
 
 
@@ -19,12 +20,10 @@ def test_function():
     # print(f"Progress: {i}/9")
     # print('\r', end=f"Progress: {i}/9")
     # time.sleep(0.3)
-    print("\nTest function")
-    for i in range(530):
-        print(i)
     # WindowStateManager.get_instance().set_state()
     # file_manager.record_steps()
-    # get_mouse_coordinates()
+    test_operation(Egg.is_two_pokemon_inserted, "see day care status", "Pixel capture ended.")
+    # test_operation(capture_pixel_info, "get mouse coordinates")
     # time.sleep(3)
     # controls.activate_repel()
     # detection.was_target_pokemon_found()
@@ -270,21 +269,41 @@ def select_search_func(hunt_mode):
             print("Invalid option.\n")
 
 
-def get_mouse_coordinates():
-    print("Mouse coordinates in:")
+def test_operation(perform_func, intro_message="N/A", end_message="N/A"):
+    if not callable(perform_func):
+        print("No perform func was given.")
+        exit(-1)
 
-    time.sleep(1)
-    seconds = 3
-    for i in range(seconds):
-        print(f"{seconds - i}")
-        time.sleep(1)
+    pixel_key = 'k'
+    seconds = 2
+    while True:
+        print(f"In {seconds} seconds, Press {pixel_key} to {intro_message} when ready.")
+        for i in range(seconds):
+            print(f"{seconds - i}")
+            time.sleep(1)
+        controls.switch_tab()
 
+        keyboard.wait(pixel_key)
+
+        # ==========================================================
+        perform_func()
+        # ==========================================================
+
+        controls.switch_tab()
+        res = input("Press Enter to repeat or -1 to quit: ")
+        print(res)
+        if res == "-1":
+            print(end_message)
+            break
+
+
+def capture_pixel_info():
     mouse = pyautogui.position()
     print(mouse)
     WindowStateManager.get_instance().set_state()
     window_width, window_height = WindowStateManager.get_instance().get_window_size()
 
-    pixel = pyautogui.pixel(mouse.x, mouse.y)
+    pixel = pyautogui.pixel(int(mouse.x), int(mouse.y))
     print(f"Pixel rbg: {pixel}")
 
     percent_w = mouse.x / window_width

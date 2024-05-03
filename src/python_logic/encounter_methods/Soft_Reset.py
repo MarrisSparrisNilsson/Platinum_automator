@@ -28,7 +28,7 @@ def static_encounter(_):
                 return
 
             time.sleep(0.3)
-            controls.a_key()
+            controls.a_button()
             end_time = time.time()
             duration = end_time - start_time
 
@@ -45,4 +45,4 @@ def static_encounter(_):
                 return
 
             time.sleep(0.5)
-            controls.a_key()
+            controls.a_button()

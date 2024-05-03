@@ -137,7 +137,7 @@ def feebas_fishing(_):
                             pause_main_event.clear()  # Set internal flag to false
                             pause_main_state.set_main_state(pause_main_event)  # Pauses encounter detection
                             time.sleep(0.1)
-                            controls.a_key()
+                            controls.a_button()
                             controls.select_in_game_menu_action(3)
                             pause_main_event.set()  # Set internal flag to true
                             pause_main_state.set_main_state(pause_main_event)  # Resumes encounter detection
