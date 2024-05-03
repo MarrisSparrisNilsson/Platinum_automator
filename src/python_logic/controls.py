@@ -163,7 +163,7 @@ def select_in_game_menu_action(menu_num, option=1):
             a_button()
             time.sleep(1)
             match menu_num:
-                case 3:
+                case 3:  # Bag menu
                     if option == 1:
                         is_done = activate_repel()
                 case 5:
@@ -197,10 +197,25 @@ def save_in_game():
 
 def activate_repel():
     # pyautogui.screenshot("../images/test_max_repel.png", region=(10, 690, 110, 120))
+    w, h = WindowStateManager.get_instance().get_window_size()
+    is_searching_bag_menu = False
+    p1 = int(0.02422680412371134 * w)
+    p2 = int(0.5467289719626168 * h)
+    while not is_searching_bag_menu:
+        if pyautogui.pixelMatchesColor(p1, p2, (214, 82, 82)):
+            is_searching_bag_menu = True
+        else:
+            left()
+            time.sleep(0.3)
+
+    x = int(w * 0.034536082474226806)
+    y = int(h * 0.8761682242990654)
+
+    direction_changed = False
     while True:
         try:
             time.sleep(0.1)
-            match = pyautogui.locateCenterOnScreen("../images/max_repel.png", region=(10, 690, 110, 120), confidence=0.9)
+            match = pyautogui.locateCenterOnScreen("../images/max_repel.png", region=(10, 690, 110, 120), confidence=0.95)
             if match:
                 for i in range(3):
                     time.sleep(0.2)
@@ -211,7 +226,26 @@ def activate_repel():
                     b_button()
                     time.sleep(0.5)
                 return True
+
         except pyautogui.ImageNotFoundException:
             if ShutdownStateManager.get_instance().get_state():
                 return
-            down()
+
+            start_p = pyautogui.pixel(x, y)
+
+            if direction_changed:
+                up()
+            else:
+                down()
+
+            if not has_background_changed(x, y, start_p):
+                direction_changed = True
+
+
+def has_background_changed(x, y, pixel):
+    if not pyautogui.pixelMatchesColor(x, y, pixel):
+        #  print(f"P: {pyautogui.pixel(x, y)}, {shiny_p}")
+        pyautogui.moveTo(x, y)
+        return True
+    else:
+        return False

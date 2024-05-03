@@ -168,7 +168,7 @@ def find_exclamation_mark(cast, encounter):
             return
         elif no_fish:
             time.sleep(0.3)
-            controls.b_button()
+            controls.b_key()
             cast[0] += 1
             print('\r', end=f"No fish this time. ({cast[0]})")
             return
