@@ -4,6 +4,15 @@ import pyautogui
 from src.python_logic.states.Window import WindowStateManager
 
 
+# Get the pixels
+def get_pixel_coords(x_float, y_float):
+    window_width, window_height = WindowStateManager.get_instance().get_window_size()
+    x_coord = int(window_width * x_float)
+    y_coord = int(window_height * y_float)
+
+    return x_coord, y_coord
+
+
 class GameViewStateManager:
     _instance = None
     _start_pixel = (0, 0, 0)

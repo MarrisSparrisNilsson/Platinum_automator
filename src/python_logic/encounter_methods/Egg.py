@@ -81,6 +81,7 @@ def is_two_pokemon_inserted():
     return True
 
 
+# In Solaceon town we bike up and down and while refreshing the Poketch to see when an egg has appeared
 def get_egg():
     w, h = WindowStateManager.get_instance().get_window_size()
     x = w * 1 / 8

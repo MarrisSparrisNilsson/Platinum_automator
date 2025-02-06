@@ -3,11 +3,12 @@ import json
 import os
 import time
 
-from src.python_logic import detection, controls, file_manager
+from src.python_logic import detection, controls, file_manager, in_game_menu_controls
 from src.python_logic.states.GameView import GameViewStateManager
 from src.python_logic.states.Shutdown import ShutdownStateManager
 from src.python_logic.states.Pause import PauseStateManager
 from src.python_logic.states.Hunt import HuntStateManager
+from src.python_logic.Enums import InGameMenuSlots, UtilityItems
 
 
 def fishing(args):
@@ -84,7 +85,7 @@ def feebas_fishing(_):
             walk_to_pos, fish_at_pos = hunt_configuration(was_found_today, fish_at_pos, tiles)
             controls.switch_tab()
 
-            controls.select_in_game_menu_action(3)  # Use repel
+            in_game_menu_controls.select_in_game_menu_action(InGameMenuSlots.BAG, UtilityItems.MAX_REPEL)  # Use repel
 
             turn_dir = ''
             walk_num = 1
@@ -138,7 +139,7 @@ def feebas_fishing(_):
                             pause_main_state.set_main_state(pause_main_event)  # Pauses encounter detection
                             time.sleep(0.1)
                             controls.a_button()
-                            controls.select_in_game_menu_action(3)
+                            in_game_menu_controls.select_in_game_menu_action(InGameMenuSlots.BAG, UtilityItems.MAX_REPEL)
                             pause_main_event.set()  # Set internal flag to true
                             pause_main_state.set_main_state(pause_main_event)  # Resumes encounter detection
 
