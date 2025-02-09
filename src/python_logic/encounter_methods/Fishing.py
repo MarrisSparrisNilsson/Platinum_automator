@@ -64,6 +64,7 @@ def feebas_fishing(_):
     tiles = read_tiles(feebas_resource_path)
     has_contents = file_manager.verify_file(feebas_data_path)
     print(has_contents)
+    # TODO: Fix buggy resource file handling...
     try:
         with (open(feebas_data_path, "r+") as f):
             data = json.load(f)
