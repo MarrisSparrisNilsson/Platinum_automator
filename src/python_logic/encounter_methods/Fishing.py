@@ -31,7 +31,9 @@ def fishing(args):
 
 
 def feebas_fishing(_):
-    # Walk "i" steps and turn towards i+1, then fish twice.
+    # TODO: Detect Feebas and mark spot.
+
+    # Walk i steps and turn towards i+1, then fish twice.
     # Array[0] is start point where you fish and then use surf.
 
     # Steps:

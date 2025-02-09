@@ -124,7 +124,7 @@ def find_exclamation_mark(cast, encounter):
         move_dirs = ['w', 'a', 's', 'd']
         i = move_dirs.index(direction)
         x, y = exc_points[i]
-        # pyautogui.moveTo(x, y)
+        pyautogui.moveTo(x, y)
     except ValueError:
         pass
 
@@ -143,7 +143,6 @@ def find_exclamation_mark(cast, encounter):
             for p in range(len(exc_points)):
                 x, y = exc_points[p]
                 exclamation_mark_found = is_exclamation_mark(x, y)
-                # pyautogui.moveTo(x, y)
                 if exclamation_mark_found:
                     break
         else:
@@ -276,17 +275,19 @@ def encounter_detection(search_encounter_func, end_encounter_func, search_args=N
 
             shiny_is_found = find_sparkles()
 
+            # TODO: Use Tesseract (OCR) to read encountered pokemon name and verify with HuntStateManager._pokemon_name
+            #       if true then increment current hunted pokemon encounters by one.
             pokemon = HuntStateManager.get_instance().get_hunted_pokemon_name()
 
             result = was_target_pokemon_found()
-            if result:
+            if result and not shiny_is_found:
                 HuntStateManager.get_instance().set_target_pokemon_found()
                 HuntStateManager.get_instance().increment_target_encounters()
                 target_encounters = HuntStateManager.get_instance().get_target_pokemon_encounters()
                 print(f"{pokemon} #{target_encounters}!")
 
             if shiny_is_found:
-                print(f"Congratulations! You found a shiny {f'{pokemon}' if result else ''}!✨")
+                print(f"Congratulations! You found a shiny {f' {pokemon}' if result else ''}!✨")
                 HuntStateManager.get_instance().finish_hunt(is_finished=shiny_is_found)
                 time.sleep(1)
 
@@ -304,6 +305,7 @@ def encounter_detection(search_encounter_func, end_encounter_func, search_args=N
                 pause_state.set_state(pause_event)
 
 
+# TODO: Tesseract OCR
 '''
 Tesseract Page Segmentation Modes (PSM):
     0 = Orientation and script detection (OSD) only.
@@ -351,7 +353,7 @@ def was_target_pokemon_found():
         if matching_chars > largest_match_count:
             largest_match_count = matching_chars
 
-    # If 50% of the words (that are in order) match, we confirm we found the target Pokémon
+    # If 50% of the words that are in order match, we confirm we found the target Pokémon
     return True if largest_match_count / len(pokemon_name) >= 0.5 else False
 
     # img = cv2.imread("../images/pokemon_name.png")
