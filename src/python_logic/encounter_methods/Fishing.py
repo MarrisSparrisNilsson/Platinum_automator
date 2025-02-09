@@ -52,20 +52,21 @@ def feebas_fishing(_):
     # Get the script's directory
     script_directory = os.path.dirname(os.path.abspath(__file__))
     # Construct the file path
-    feebas_resource_path = os.path.join(script_directory, "../../resources/feebas.json")
-    feebas_data_path = os.path.join(script_directory, "../../data/feebas.json")
-    todays_date = file_manager.get_date("%Y-%m-%d")
-    try:
-        # Open the file
-        with (open(feebas_resource_path, "r") as f):
-            file = json.load(f)
-            tiles = file["path"]
+    feebas_resource_path = os.path.abspath(os.path.join(script_directory, "..", "..", "resources/feebas.json"))
+    feebas_data_path = os.path.abspath(os.path.join(script_directory, "..", "..", "data/feebas.json"))
+    # print(feebas_data_path)
+    # print(feebas_resource_path)
 
+    todays_date = file_manager.get_date("%Y-%m-%d")
+    tiles = read_tiles(feebas_resource_path)
+    has_contents = file_manager.verify_file(feebas_data_path)
+    print(has_contents)
+    try:
         with (open(feebas_data_path, "r+") as f):
             data = json.load(f)
 
-            fish_at_pos = data['latest_step']
-            found_date = data['found_date']
+            fish_at_pos = data['latest_step'] if has_contents else 0
+            found_date = data['found_date'] if has_contents else ""
             was_found_today = True
             found_at = 0
             if not found_date == todays_date:
@@ -151,7 +152,7 @@ def feebas_fishing(_):
     except KeyError:
         print("Something went wrong when accessing data from resource.")
     except json.decoder.JSONDecodeError:
-        print("Something wrong with resource file.")
+        print("Something wrong with data file.")
         exit(-1)
 
     pause_main_event.set()  # Set internal flag to true
@@ -164,6 +165,18 @@ def feebas_fishing(_):
             break
         else:
             fishing(1)
+
+
+def read_tiles(feebas_resource_path):
+    try:
+        # Open the file
+        with (open(feebas_resource_path, "r") as f):
+            file = json.load(f)
+            tiles = file["path"]
+            return tiles
+    except json.decoder.JSONDecodeError:
+        print("Something wrong with resource file.")
+        exit(-1)
 
 
 def take_step(step):

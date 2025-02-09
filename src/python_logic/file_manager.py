@@ -294,3 +294,21 @@ def record_steps():
 
                 f.seek(0)
                 json.dump(data, f, indent=2)
+
+
+def verify_file(full_file_path):
+    # Ensure the file exists before checking its content
+    if not os.path.exists(full_file_path) or os.stat(full_file_path).st_size == 0:
+        with open(full_file_path, "w") as file:
+            json.dump({}, file)  # Initialize with an empty dictionary
+            return False
+        print("File initialized with default JSON structure.")
+
+    else:
+        return True
+    #
+    # # Check if the file is empty
+    # elif os.stat(full_file_path).st_size == 0:
+    #     with open(full_file_path, "w") as file:
+    #         json.dump({}, file)
+    #     print("Empty file detected. Initialized with empty JSON.")
