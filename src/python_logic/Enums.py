@@ -6,6 +6,39 @@ class EncounterTimeout(Enum):
     LEGENDARY = 3
 
 
+class UtilityItems(Enum):
+    NULL = "NULL"
+    REPEL = "REPEL"
+    SUPER_REPEL = "SUPER_REPEL"
+    MAX_REPEL = "MAX_REPEL"
+    BIKE = "BIKE"
+    POKERADAR = "POKERADAR"
+    OLD_ROD = "OLD_ROD"
+    GOOD_ROD = "GOOD_ROD"
+    SUPER_ROD = "SUPER_ROD"
+
+
+class InGameMenuSlots(Enum):
+    POKEDEX = 0
+    POKEMON = 1
+    BAG = 2
+    TRAINER_CARD = 3
+    SAVE = 4
+    OPTIONS = 5
+    EXIT = 6
+
+
+class BagSlots(Enum):
+    ITEMS = 0
+    MEDICINE = 1
+    POKE_BALLS = 2
+    TM = 3
+    BERRIES = 4
+    MAIL = 5
+    BATTLE_ITEMS = 6
+    KEY_ITEMS = 7
+
+
 class HuntMode(Enum):
     REGULAR = "Regular"
     POKERADAR = "Pokeradar"

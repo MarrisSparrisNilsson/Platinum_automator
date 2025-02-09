@@ -90,9 +90,10 @@ def find_sparkles():
     return False
 
 
-def has_background_changed(x, y, shiny_p):
-    if not pyautogui.pixelMatchesColor(x, y, shiny_p):
-        #  print(f"P: {pyautogui.pixel(x, y)}, {shiny_p}")
+def has_background_changed(x, y, pixel):
+    pyautogui.moveTo(x, y)
+    if not pyautogui.pixelMatchesColor(x, y, pixel):
+        #  print(f"P: {pyautogui.pixel(x, y)}, {pixel}")
         pyautogui.moveTo(x, y)
         return True
     else:
@@ -242,6 +243,10 @@ def encounter_started(pixel_coord_one, pixel_coord_two):
 
 
 def encounter_detection(search_encounter_func, end_encounter_func, search_args=None):
+    if not callable(search_encounter_func) and not callable(end_encounter_func):
+        print("Both Encounter functions were not provided.")
+        exit(-1)
+
     p1, p2 = get_encounter_pixels()
 
     pause_state = PauseStateManager.get_instance()

@@ -48,18 +48,18 @@ def right():
     pyautogui.keyUp('d')
 
 
-def open_bag():
+def x_button():
     # keyboard.press('x')
     pyautogui.keyDown('x')
     pyautogui.keyUp('x')
 
 
-def a_key():
+def a_button():
     pyautogui.keyDown('e')
     pyautogui.keyUp('e')
 
 
-def b_key():
+def b_button():
     pyautogui.keyDown('space')
     pyautogui.keyUp('space')
 
@@ -79,7 +79,7 @@ def console_focus():
 def surf():
     for i in range(5):
         time.sleep(0.5)
-        a_key()
+        a_button()
         # print("A")
 
 
@@ -120,7 +120,7 @@ def move(direction, steps=1):
     keyboard.press(key)
     # start = time.time()
 
-    if steps == 0:
+    if steps == 0:  # Bey-blade
         time.sleep(0.05)  # Turn time
     else:
         # time.sleep(0.27 * steps)  # Walk time
@@ -134,84 +134,3 @@ def move(direction, steps=1):
     time.sleep(0.5)  # Don't touch
     # end = time.time()
     # print(f"Step active for: {end - start}s")
-
-
-def select_in_game_menu_action(menu_num, option=1):
-    open_bag()
-
-    # Menu start x: W * 0.3082474226804124
-    # Menu start y: H * 0.10163551401869159
-
-    # Menu end y: H * 0.9392523364485982
-
-    # Menu Y: H * (0.24065420560747663 - 0.12967289719626168)
-
-    window_width, window_height = WindowStateManager.get_instance().get_window_size()
-    menu_p = (int(window_width * 0.3077319587628866), int(window_height * (0.18574766355140188 + ((menu_num - 1) * (0.24065420560747663 - 0.12967289719626168)))))
-    # menu_p = (int(window_width * 0.3077319587628866), int(window_height * 0.6285046728971962))
-    # save_box_p = (int(window_width * 0.12061855670103093), int(window_height * 0.32710280373831774))
-    # start_save_box = pyautogui.pixel(save_box_p[0], save_box_p[1])
-    pyautogui.moveTo(menu_p)
-
-    is_done = False
-    while not is_done:
-        time.sleep(0.1)
-        if ShutdownStateManager.get_instance().check_shutdown_state():
-            return
-
-        if pyautogui.pixelMatchesColor(menu_p[0], menu_p[1], (255, 107, 16)):
-            a_key()
-            time.sleep(1)
-            match menu_num:
-                case 3:
-                    if option == 1:
-                        is_done = activate_repel()
-                case 5:
-                    is_done = save_in_game()
-                case _:
-                    is_done = True
-
-        else:
-            if menu_num > 4:
-                up()
-            else:
-                down()
-    # time.sleep(0.5)
-
-
-def save_in_game():
-    window_width, window_height = WindowStateManager.get_instance().get_window_size()
-    save_box_p = (int(window_width * 0.12061855670103093), int(window_height * 0.32710280373831774))
-    start_save_box = pyautogui.pixel(save_box_p[0], save_box_p[1])
-    while True:
-        if ShutdownStateManager.get_instance().check_shutdown_state():
-            return True
-
-        a_key()
-        time.sleep(0.5)
-
-        if pyautogui.pixelMatchesColor(save_box_p[0], save_box_p[1], start_save_box):
-            print("Game is saved!")
-            return True
-
-
-def activate_repel():
-    # pyautogui.screenshot("../images/test_max_repel.png", region=(10, 690, 110, 120))
-    while True:
-        try:
-            time.sleep(0.1)
-            match = pyautogui.locateCenterOnScreen("../images/max_repel.png", region=(10, 690, 110, 120), confidence=0.9)
-            if match:
-                for i in range(3):
-                    time.sleep(0.2)
-                    a_key()
-
-                # Close bag and menu
-                for i in range(5):
-                    b_key()
-                    time.sleep(0.5)
-                return True
-        except pyautogui.ImageNotFoundException:
-            if ShutdownStateManager.get_instance().get_state():
-                return
-            down()
