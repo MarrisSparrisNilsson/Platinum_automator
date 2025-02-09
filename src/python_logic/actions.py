@@ -1,13 +1,15 @@
 import threading
+import threading as thread
+
 import keyboard
 
-from src.python_logic import detection, controls
-from src.python_logic.encounter_methods import Soft_Reset, Flee
+from src.python_logic import detection, controls, in_game_menu_controls
+from src.python_logic.cli_ui import select_search_func
+from src.python_logic.encounter_methods import Soft_Reset, Flee, Fishing, Regular, Egg
 from src.python_logic.states.Shutdown import ShutdownStateManager
 from src.python_logic.states.Pause import PauseStateManager
 from src.python_logic.states.Hunt import HuntStateManager
-from src.python_logic.Enums import HuntMode, WalkTypes, FishingTypes
-from src.python_logic.encounter_methods import Fishing, Regular
+from src.python_logic.Enums import HuntMode, WalkTypes, FishingTypes, InGameMenuSlots
 
 
 def pokeradar_hunt():
@@ -38,11 +40,17 @@ def fishing_hunt(search_encounter_func, search_args):
     detection.encounter_detection(search_encounter_func, end_encounter_func=Flee.flee_encounter, search_args=search_args)
 
 
-def soft_reset_hunt():
+def egg_hunt(_a, _b):
+    Egg.hatch_egg()
+
+    # detection.encounter_detection(search_encounter_func, end_encounter_func=Flee.flee_encounter, search_args=search_args)
+
+
+def soft_reset_hunt(_a, _b):
     hunt_mode = HuntStateManager.get_instance().get_hunt_mode()
     print(f"Beginning {hunt_mode} hunt!")
     if not HuntStateManager.get_instance().get_was_hunted_today():
-        controls.select_in_game_menu_action(5)
+        in_game_menu_controls.select_in_game_menu_action(InGameMenuSlots.SAVE)
     if ShutdownStateManager.get_instance().check_shutdown_state():
         return
     detection.encounter_detection(search_encounter_func=Soft_Reset.static_encounter, end_encounter_func=Flee.soft_reset)
@@ -103,8 +111,8 @@ action_types = {
         "method_required": False,
     },
     f"{HuntMode.EGG.value}": {
-        "action": None,
-        "method_required": True,
+        "action": egg_hunt,
+        "method_required": False,
     },
     f"{HuntMode.REGULAR.value}": {
         "action": regular_hunt,
@@ -125,3 +133,23 @@ action_types = {
         ]
     }
 }
+
+
+def load_action(hunt_mode, hunt_method):
+    action = action_types[hunt_mode]['action']
+    method = None
+    args = None
+    method_name = ""
+
+    if action_types[hunt_mode]['method_required']:
+        for method_obj in action_types[hunt_mode]['methods']:
+            if method_obj['method_name'] == hunt_method:
+                method = method_obj["method"]
+                args = method_obj["args"]
+                method_name = method_obj["method_name"]
+
+        if method is None:
+            method, args, method_name = select_search_func(hunt_mode)
+
+    HuntStateManager.get_instance().set_hunt_mode(hunt_mode, method_name)
+    return thread.Thread(target=action, args=[method, args], daemon=True)

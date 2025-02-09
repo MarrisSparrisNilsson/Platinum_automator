@@ -2,19 +2,15 @@
 import threading as thread
 
 # Local modules
-from src.python_logic import controls
-from src.python_logic import actions
-from src.python_logic import detection
-from src.python_logic import helpers
+from src.python_logic import controls, actions, detection, helpers, cli_ui
 from src.python_logic.states.GameView import WindowStateManager
 
 
 def main():
-    WindowStateManager.get_instance().set_state()
     print("\n### Welcome to the Platinum automator ###")
     controls.console_focus()
     while True:
-        action_thread = helpers.select_menu_option()
+        action_thread = cli_ui.select_menu_option()
         if action_thread is None:
             print("This action is currently unavailable❌")
         else:
@@ -34,8 +30,9 @@ def main():
 
 if __name__ == '__main__':
     try:
-        main()
-        # helpers.test_function()
+        WindowStateManager.get_instance().set_state()
+        # main()
+        helpers.test_function()
 
     except KeyboardInterrupt:
         print("\nSession ended.")
