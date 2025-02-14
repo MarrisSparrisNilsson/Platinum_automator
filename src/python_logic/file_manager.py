@@ -301,9 +301,8 @@ def verify_file(full_file_path):
     if not os.path.exists(full_file_path) or os.stat(full_file_path).st_size == 0:
         with open(full_file_path, "w") as file:
             json.dump({}, file)  # Initialize with an empty dictionary
+            print("File initialized with default JSON structure.")
             return False
-        print("File initialized with default JSON structure.")
-
     else:
         return True
     #

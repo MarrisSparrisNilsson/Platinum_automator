@@ -18,7 +18,8 @@ def test_function():
     # file_manager.record_steps()
     # test_operation(Egg.is_two_pokemon_inserted, "see pokemon Day-Care slot status", "Pixel capture ended.", run_once=False)
 
-    print("hello", UtilityItems.MAX_REPEL.value.lower())
+    controls.switch_tab()
+    # print("hello", UtilityItems.MAX_REPEL.value.lower())
 
     #
     # if False:

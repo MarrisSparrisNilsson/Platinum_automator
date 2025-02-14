@@ -31,8 +31,8 @@ def main():
 if __name__ == '__main__':
     try:
         WindowStateManager.get_instance().set_state()
-        main()
-        # helpers.test_function()
+        # main()
+        helpers.test_function()
 
     except KeyboardInterrupt:
         print("\nSession ended.")
