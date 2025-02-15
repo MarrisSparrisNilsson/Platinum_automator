@@ -44,7 +44,7 @@ class PauseStateManager:
                     pause_main_event.wait()
                     if not ShutdownStateManager.get_instance().check_shutdown_state():
                         print("========================================"
-                              "\nEncounter detection: Resumes🟢"
+                              "\nEncounter detection: Resumes▶️"
                               "\n========================================\n")
             return False
 

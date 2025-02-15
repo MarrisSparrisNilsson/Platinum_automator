@@ -72,6 +72,7 @@ def feebas_fishing(_):
             found_date = data['found_date']
             was_found_today = True
             found_at = 0
+            # If Feebas has not been found today
             if not found_date == todays_date:
                 was_found_today = False
                 data['found_at'] = 0
@@ -80,7 +81,6 @@ def feebas_fishing(_):
                 json.dump(data, f, indent=2)
             else:
                 found_at = data['found_at']
-                print(f"FEEBAS was last seen at step {found_at}!")
 
             controls.switch_tab()
             walk_to_pos, fish_at_pos = hunt_configuration(was_found_today, fish_at_pos, tiles)
@@ -92,18 +92,19 @@ def feebas_fishing(_):
             turn_dir = ''
             walk_num = 1
             encounters = 2  # Number of desired encounters
-            for step in range(0 if fish_at_pos == 0 else fish_at_pos + 1, len(tiles)):
+            # for step in range(0 if fish_at_pos == 0 else fish_at_pos + 1, len(tiles)):
+            for step in range(len(tiles)):
 
                 walk_dir = tiles[step]
                 if step + 1 < len(tiles):
                     turn_dir = tiles[step + 1]
                     HuntStateManager.get_instance().set_facing_direction(walk_dir)
 
-                if step - 1 == found_at and was_found_today:
-                    break
-
-                if step >= walk_to_pos:
-                    print()
+                if step - 1 == walk_to_pos:
+                    print("\nFishing spot reached")
+                    if was_found_today:
+                        break
+                    # print()
                     pause_main_event.set()  # Set internal flag to true
                     pause_main_state.set_main_state(pause_main_event)  # Resumes encounter detection
                     fishing(encounters)
@@ -123,7 +124,8 @@ def feebas_fishing(_):
                     time.sleep(2.5)
                 else:
                     print("\r", end=f"Step: {step}")
-                    data['latest_step'] = step
+                    if not was_found_today:
+                        data['latest_step'] = step
                     f.seek(0)
                     json.dump(data, f, indent=2)
                     # Block walking at some locations where only turning is desired.
@@ -224,15 +226,25 @@ def take_step(step):
 def hunt_configuration(was_found_today, fish_at_pos, tiles):
     walk_to_pos = 0
     fap = fish_at_pos
+    if was_found_today:
+        print(f"❗FEEBAS was last seen at step {fish_at_pos}❗")
     if not fish_at_pos == 0:
         while True:
             try:
                 time.sleep(0.5)
+
                 ans = input(f"Are you at step {fap} and wish to continue from there? (y/n): ")
                 if ans == 'y':
                     walk_to_pos = fap
                     break
                 elif ans == 'n':
+                    if was_found_today:
+                        ans = input(f"Go from start position (0) to step {fap} and continue from there? (y/n): ")
+                        if ans == 'y':
+                            walk_to_pos = fap
+                            break
+                        elif not ans == 'n':
+                            raise ValueError
                     fap = 0
                     print("(Assuming you are at step 0)")
                     break
