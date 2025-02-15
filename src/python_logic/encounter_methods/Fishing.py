@@ -62,15 +62,14 @@ def feebas_fishing(_):
 
     todays_date = file_manager.get_date("%Y-%m-%d")
     tiles = read_tiles(feebas_resource_path)
-    has_contents = file_manager.verify_file(feebas_data_path)
-    print(has_contents)
+    verify_feebas_file(feebas_data_path)
     # TODO: Fix buggy resource file handling...
     try:
         with (open(feebas_data_path, "r+") as f):
             data = json.load(f)
 
-            fish_at_pos = data['latest_step'] if has_contents else 0
-            found_date = data['found_date'] if has_contents else ""
+            fish_at_pos = data['latest_step']
+            found_date = data['found_date']
             was_found_today = True
             found_at = 0
             if not found_date == todays_date:
@@ -87,7 +86,8 @@ def feebas_fishing(_):
             walk_to_pos, fish_at_pos = hunt_configuration(was_found_today, fish_at_pos, tiles)
             controls.switch_tab()
 
-            in_game_menu_controls.select_in_game_menu_action(InGameMenuSlots.BAG, UtilityItems.MAX_REPEL)  # Use repel
+            in_game_menu_controls.execute_inGame_menu_action(InGameMenuSlots.BAG, UtilityItems.GOOD_ROD)  # Register Good Rod
+            in_game_menu_controls.execute_inGame_menu_action(InGameMenuSlots.BAG, UtilityItems.MAX_REPEL)  # Use repel
 
             turn_dir = ''
             walk_num = 1
@@ -115,6 +115,7 @@ def feebas_fishing(_):
 
                 # If Feebas was found
                 if HuntStateManager.get_instance().get_target_pokemon_found():
+                    todays_date = file_manager.get_date("%Y-%m-%d")
                     break
 
                 if step == 0:
@@ -141,7 +142,7 @@ def feebas_fishing(_):
                             pause_main_state.set_main_state(pause_main_event)  # Pauses encounter detection
                             time.sleep(0.1)
                             controls.a_button()
-                            in_game_menu_controls.select_in_game_menu_action(InGameMenuSlots.BAG, UtilityItems.MAX_REPEL)
+                            in_game_menu_controls.execute_inGame_menu_action(InGameMenuSlots.BAG, UtilityItems.MAX_REPEL)
                             pause_main_event.set()  # Set internal flag to true
                             pause_main_state.set_main_state(pause_main_event)  # Resumes encounter detection
 
@@ -153,8 +154,8 @@ def feebas_fishing(_):
             f.seek(0)
             json.dump(data, f, indent=2)
 
-    except KeyError:
-        print("Something went wrong when accessing data from resource.")
+    # except KeyError:
+    #     print("Something went wrong when accessing data from resource.")
     except json.decoder.JSONDecodeError:
         print("Something wrong with data file.")
         exit(-1)
@@ -169,6 +170,33 @@ def feebas_fishing(_):
             break
         else:
             fishing(1)
+
+
+def verify_feebas_file(full_file_path):
+    default_data = {
+        "found_at": 0,
+        "found_date": "",
+        "latest_step": 0
+    }
+    # Ensure the file exists before checking its content
+    if not os.path.exists(full_file_path) or os.stat(full_file_path).st_size == 0:
+        with open(full_file_path, "w") as file:
+            json.dump(default_data, file)
+            print("File initialized with default structure.")
+    else:
+        with open(full_file_path, "r+") as file:
+            data = json.load(file)
+            missing = False
+            for key in default_data.keys():
+                if key not in data:
+                    missing = True
+                    break
+
+            if missing:
+                json.dump(default_data, file)
+                print("File initialized with default structure.")
+            else:
+                print("File contents OK")
 
 
 def read_tiles(feebas_resource_path):

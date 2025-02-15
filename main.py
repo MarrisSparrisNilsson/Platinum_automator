@@ -17,6 +17,7 @@ def main():
             shutdown_thread = thread.Thread(target=actions.watch_exit, daemon=True)
             input("Press ENTER to start!")
             try:
+                WindowStateManager.get_instance().set_state()
                 shutdown_thread.start()
                 detection.set_window_focus()
                 detection.find_pause_and_resume()
@@ -30,9 +31,8 @@ def main():
 
 if __name__ == '__main__':
     try:
-        WindowStateManager.get_instance().set_state()
-        # main()
-        helpers.test_function()
+        main()
+        # helpers.test_function()
 
     except KeyboardInterrupt:
         print("\nSession ended.")

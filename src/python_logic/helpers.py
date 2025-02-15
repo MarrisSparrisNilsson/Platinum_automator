@@ -2,7 +2,6 @@ import time
 import os
 
 import keyboard
-# import keyboard
 import pyautogui
 from src.python_logic.Enums import UtilityItems
 from src.python_logic.states.Window import WindowStateManager
@@ -10,19 +9,27 @@ from src.python_logic import controls
 
 
 def test_function():
+    # TODO: KEEP THIS
+    WindowStateManager.get_instance().set_state()
     # for i in range(10):
     # print(f"Progress: {i}/9")
     # print('\r', end=f"Progress: {i}/9")
     # time.sleep(0.3)
-    # WindowStateManager.get_instance().set_state()
     # file_manager.record_steps()
     # test_operation(Egg.is_two_pokemon_inserted, "see pokemon Day-Care slot status", "Pixel capture ended.", run_once=False)
 
-    controls.switch_tab()
-    # print("hello", UtilityItems.MAX_REPEL.value.lower())
+    # controls.switch_tab()
+    # capture_pixel_info()
+    print("hello", UtilityItems.MAX_REPEL.value.lower())
+    # w, _ = WindowStateManager.get_instance().get_window_size()
+    # x = 0.021443059982613734 * w
+    # bag_section_coord_x = 0.023471457548536655
+    # utility_item_slot_offset = 0.021443059982613734 * 7
+    # 330
 
+    # pin_point_location_on_screen((bag_section_coord_x + utility_item_slot_offset) * w, 440)
     #
-    # if False:
+    # if True:
     #     test_operation(capture_pixel_info, "get mouse coordinates", run_once=False)
     # else:
     #     w, h = WindowStateManager.get_instance().get_window_size()
@@ -44,6 +51,7 @@ def test_function():
 
 
 def pin_point_location_on_screen(x, y):
+    controls.switch_tab()
     print(x, y)
     pyautogui.moveTo(x, y)
 

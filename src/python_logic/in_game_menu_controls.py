@@ -30,7 +30,7 @@ utility_item_list = {
 }
 
 
-def select_in_game_menu_action(menu_num: InGameMenuSlots, utility_item: UtilityItems = UtilityItems.NULL):
+def execute_inGame_menu_action(menu_num: InGameMenuSlots, utility_item: UtilityItems = UtilityItems.NULL, register: bool = True):
     controls.x_button()
 
     find_menu_action(menu_num)
@@ -44,15 +44,37 @@ def select_in_game_menu_action(menu_num: InGameMenuSlots, utility_item: UtilityI
     match menu_num:
         case InGameMenuSlots.BAG:
             if utility_item is not UtilityItems.NULL:
-                print(utility_item.value)
                 utility_slot_value: int = utility_item_list[f"{utility_item.value}"]
                 search_bag_item(utility_slot_value, utility_item.value.lower())
+
                 if utility_item is UtilityItems.MAX_REPEL:
                     activate_repel()
+                elif utility_slot_value == BagSlots.KEY_ITEMS:
+                    register_key_item(register)
         case InGameMenuSlots.SAVE:
             save_in_game()
         case _:
             print("Input did not match any menu slots.")
+    # Close bag and menu
+    for i in range(5):
+        controls.b_button()
+        time.sleep(0.5)
+
+
+def register_key_item(register: bool = True):
+    if register:
+        w, h = WindowStateManager.get_instance().get_window_size()
+        x = int(0.43195876288659796 * w)
+        y = int(0.5070093457943925 * h)
+        if pyautogui.pixelMatchesColor(x, y, (247, 148, 123)):
+            print("Already registered")
+        else:
+            controls.a_button()
+            controls.down()
+            controls.a_button()
+    else:  # Use item
+        controls.a_button()
+        controls.a_button()
 
 
 def find_menu_action(menu_num: InGameMenuSlots):
@@ -114,12 +136,16 @@ def search_bag_item(utility_item_slot: int, utility_name: str):
 
     # Utility item slot coordinates (Could be: ITEMS, TM, POKE BALLS, KEY ITEMS etc.)
     bag_section_coord_x = 0.023471457548536655
-    bag_section_coord_y = 0.499185667752443
+    bag_section_coord_y = 0.514185667752443
     # This value will calculate the offset of the target item slot based on the value of utility_item_slot.
-    utility_item_slot_offset = int(0.021443059982613734 * utility_item_slot)
+    utility_item_slot_offset = 0.021443059982613734 * utility_item_slot
     x, y = get_pixel_coords(bag_section_coord_x + utility_item_slot_offset, bag_section_coord_y)
+    pyautogui.moveTo(x, y)
 
     while True:
+        if ShutdownStateManager.get_instance().get_state():
+            return
+
         if pyautogui.pixelMatchesColor(x, y, (255, 0, 0)):
             break  # Bag slot located
         else:
@@ -163,13 +189,10 @@ def search_bag_item(utility_item_slot: int, utility_name: str):
 
 def activate_repel():
     for i in range(3):
+        if ShutdownStateManager.get_instance().get_state():
+            return
         time.sleep(0.2)
         controls.a_button()
-
-    # Close bag and menu
-    for i in range(5):
-        controls.b_button()
-        time.sleep(0.5)
 
 
 def has_background_changed(x, y, pixel):

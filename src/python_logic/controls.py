@@ -92,7 +92,7 @@ def in_game_click():
 def switch_tab():
     pyautogui.hotkey("alt", "tab")
     # When recording with OBS, use this key to switch (show/hide) code/emulator scene
-    is_recording = True
+    is_recording = False
     if is_recording:
         pyautogui.keyDown('ScrollLock')
         pyautogui.keyUp('ScrollLock')

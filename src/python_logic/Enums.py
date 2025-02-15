@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import Enum, IntEnum
 
 
-class EncounterTimeout(Enum):
+class EncounterTimeout(IntEnum):
     REGULAR = 4
     LEGENDARY = 3
 
@@ -18,7 +18,7 @@ class UtilityItems(Enum):
     SUPER_ROD = "SUPER_ROD"
 
 
-class InGameMenuSlots(Enum):
+class InGameMenuSlots(IntEnum):
     POKEDEX = 0
     POKEMON = 1
     BAG = 2
@@ -28,7 +28,7 @@ class InGameMenuSlots(Enum):
     EXIT = 6
 
 
-class BagSlots(Enum):
+class BagSlots(IntEnum):
     ITEMS = 0
     MEDICINE = 1
     POKE_BALLS = 2

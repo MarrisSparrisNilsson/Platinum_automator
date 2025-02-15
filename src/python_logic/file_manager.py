@@ -264,9 +264,9 @@ def get_date(time_format):
     return current_datetime.strftime(time_format)
 
 
-def record_steps():
+def record_steps(file_name):
     start_time = time.time()
-    with open("../resources/feebas.json", "r+") as f:
+    with open(f"../resources/{file_name}.json", "r+") as f:
         data = json.load(f)
         data['location'] = 0
         json.dump(data, f, indent=2)
@@ -288,26 +288,9 @@ def record_steps():
         if not key == '':
             start_time = time.time()
             print(f"{key} was pressed")
-            with open("../resources/feebas.json", "r+") as f:
+            with open(f"../resources/{file_name}.json", "r+") as f:
                 data = json.load(f)
                 data["path"].append(key)
 
                 f.seek(0)
                 json.dump(data, f, indent=2)
-
-
-def verify_file(full_file_path):
-    # Ensure the file exists before checking its content
-    if not os.path.exists(full_file_path) or os.stat(full_file_path).st_size == 0:
-        with open(full_file_path, "w") as file:
-            json.dump({}, file)  # Initialize with an empty dictionary
-            print("File initialized with default JSON structure.")
-            return False
-    else:
-        return True
-    #
-    # # Check if the file is empty
-    # elif os.stat(full_file_path).st_size == 0:
-    #     with open(full_file_path, "w") as file:
-    #         json.dump({}, file)
-    #     print("Empty file detected. Initialized with empty JSON.")

@@ -50,7 +50,7 @@ def soft_reset_hunt(_a, _b):
     hunt_mode = HuntStateManager.get_instance().get_hunt_mode()
     print(f"Beginning {hunt_mode} hunt!")
     if not HuntStateManager.get_instance().get_was_hunted_today():
-        in_game_menu_controls.select_in_game_menu_action(InGameMenuSlots.SAVE)
+        in_game_menu_controls.execute_inGame_menu_action(InGameMenuSlots.SAVE)
     if ShutdownStateManager.get_instance().check_shutdown_state():
         return
     detection.encounter_detection(search_encounter_func=Soft_Reset.static_encounter, end_encounter_func=Flee.soft_reset)
