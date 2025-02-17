@@ -38,12 +38,12 @@ class PauseStateManager:
 
             if pause_main_event is not None:
                 if not pause_main_event.is_set():
-                    print("========================================"
+                    print("\n========================================"
                           "\nEncounter detection: Paused🔴"
-                          "\n========================================")
+                          "\n========================================\n")
                     pause_main_event.wait()
                     if not ShutdownStateManager.get_instance().check_shutdown_state():
-                        print("========================================"
+                        print("\n========================================"
                               "\nEncounter detection: Resumes▶️"
                               "\n========================================\n")
             return False

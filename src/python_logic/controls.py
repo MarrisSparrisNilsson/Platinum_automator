@@ -6,6 +6,7 @@ import pyautogui
 
 from src.python_logic.states.Window import WindowStateManager
 from src.python_logic.states.Shutdown import ShutdownStateManager
+from src.python_logic.states.Hunt import HuntStateManager
 
 
 def clear_movement():
@@ -48,18 +49,27 @@ def right():
     pyautogui.keyUp('d')
 
 
+def y_button():
+    print("Y")
+    pyautogui.keyDown('b')
+    pyautogui.keyUp('b')
+
+
 def x_button():
     # keyboard.press('x')
+    print("X")
     pyautogui.keyDown('x')
     pyautogui.keyUp('x')
 
 
 def a_button():
+    print("A")
     pyautogui.keyDown('e')
     pyautogui.keyUp('e')
 
 
 def b_button():
+    print("A")
     pyautogui.keyDown('space')
     pyautogui.keyUp('space')
 
@@ -77,7 +87,7 @@ def console_focus():
 
 
 def surf():
-    for i in range(5):
+    for i in range(7):
         time.sleep(0.5)
         a_button()
         # print("A")
@@ -119,7 +129,11 @@ def move(direction, steps=1):
     if direction is int:
         key = move_dirs[direction]
     else:
-        key = direction
+        if direction in move_dirs:
+            key = direction
+        else:
+            print("Invalid movement key")
+            exit(-1)
 
     # print(f"{steps} step(s): {key}")
     keyboard.press(key)
@@ -132,7 +146,7 @@ def move(direction, steps=1):
         time.sleep(0.1 * steps)  # Walk time
 
     keyboard.release(key)
-
+    HuntStateManager.get_instance().set_facing_direction(key)
     # if steps == 0:
     #     time.sleep(0.5)
     # else:

@@ -102,6 +102,6 @@ class HuntStateManager:
         with HuntStateManager._lock:
             self._target_pokemon_encounters += 1
 
-    def finish_hunt(self, is_finished=False):
+    def save_hunt(self, is_finished=False):
         with HuntStateManager._lock:
             file_manager.save_hunt(self._hunt_id, self._pokemon_name, self._hunt_mode, self._hunt_method, self._total_encounters, self._target_pokemon_encounters, self._is_practice, is_finished)

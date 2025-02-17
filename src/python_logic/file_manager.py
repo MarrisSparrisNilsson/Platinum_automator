@@ -180,7 +180,7 @@ def save_hunt(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounters, t
             else:
                 f.seek(0)
                 json.dump(data, f, indent=2)
-    print("Hunt was saved!\n")
+    # print("Hunt was saved!\n")
 
 
 # def delete_data_entry():

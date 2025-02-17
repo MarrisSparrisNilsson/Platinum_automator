@@ -190,8 +190,7 @@ def dialog_is_open():
 def use_selected_item():
     GameViewStateManager.get_instance().set_dialog_pixels()
 
-    pyautogui.keyDown('b')
-    pyautogui.keyUp('b')
+    controls.y_button()
 
     time.sleep(0.5)
 
@@ -291,9 +290,12 @@ def encounter_detection(search_encounter_func, end_encounter_func, search_args=N
                 target_encounters = HuntStateManager.get_instance().get_target_pokemon_encounters()
                 print(f"{pokemon} #{target_encounters}!")
 
+            # Save after each encounter
+            HuntStateManager.get_instance().save_hunt()
+
             if shiny_is_found:
-                print(f"Congratulations! You found a shiny {f' {pokemon}' if result else ''}!✨")
-                HuntStateManager.get_instance().finish_hunt(is_finished=shiny_is_found)
+                print(f"Congratulations! You found a shiny{f' {pokemon}' if result else ''}!✨")
+                HuntStateManager.get_instance().save_hunt(is_finished=True if result else False)
                 time.sleep(1)
 
                 on_off = False

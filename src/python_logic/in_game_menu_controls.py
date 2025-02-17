@@ -102,7 +102,7 @@ def find_menu_action(menu_num: InGameMenuSlots):
             return
 
         if pyautogui.pixelMatchesColor(menu_p[0], menu_p[1], (255, 107, 16)):
-            print("Menu action found.")
+            # print("Menu action found.")
             break
         else:
             # Choose the fastest scroll action
@@ -164,7 +164,7 @@ def search_bag_item(utility_item_slot: int, utility_name: str):
             # FIXME: INVESTIGATE IF WORD RECOGNITION IS A BETTER SUITE FOR THIS FUNCTION
             match = pyautogui.locateCenterOnScreen(f"../images/utility_items/{utility_name}.png", region=(10, 690, 110, 120), confidence=0.95)
             if match:  # Utility item found
-                print("Item was found.")
+                # print("Item was found.")
                 return
 
         except pyautogui.ImageNotFoundException:
