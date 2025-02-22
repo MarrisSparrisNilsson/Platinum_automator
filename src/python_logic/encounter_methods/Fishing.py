@@ -126,7 +126,7 @@ def feebas_fishing(_):
                     time.sleep(2.5)
                 else:
                     '''
-                    condition 1: Start fishing if current position index is grater or equal to assigned position 
+                    condition 1: Start fishing if current position index is greater or equal to assigned position 
                                  and NOT assigned to walk anywhere (walk_to_pos=False)                             
                     condition 2: Skip fishing as long as current position is less than assigned start position
                     '''
@@ -148,9 +148,16 @@ def feebas_fishing(_):
                         fishing(encounters)
                         time.sleep(5)
 
+                        PauseStateManager.get_instance().check_pause_state("Fishing is paused▶️", "Fishing and walking now continues🎣🪝")
+
+                        # If Feebas was found
+                        if HuntStateManager.get_instance().get_target_pokemon_found():
+                            todays_date = file_manager.get_date("%Y-%m-%d")
+                            was_found_today = True
+                            break
+
                     # =================================================================
 
-                    PauseStateManager.get_instance().check_pause_state("Fishing is paused▶️", "Fishing and walking now continues🎣🪝")
                     if ShutdownStateManager.get_instance().check_shutdown_state():
                         return
 
@@ -169,7 +176,7 @@ def feebas_fishing(_):
                     # time.sleep(0.15)
                     time.sleep(0.1)
                     if detection.dialog_is_open():
-                        print("\nHello")
+                        # print("\nHello")
                         # PauseStateManager.get_instance().check_main_pause_state()
                         if pause_main_event is not None:
                             if pause_main_event.is_set():
@@ -190,16 +197,6 @@ def feebas_fishing(_):
                     if not turn_dir == walk_dir:
                         controls.move(turn_dir, 0)  # Turn
                     # =================================================================
-
-                PauseStateManager.get_instance().check_pause_state("Fishing is paused▶️", "Fishing and walking now continues🎣🪝")
-                if ShutdownStateManager.get_instance().check_shutdown_state():
-                    return
-
-                # If Feebas was found
-                if HuntStateManager.get_instance().get_target_pokemon_found():
-                    todays_date = file_manager.get_date("%Y-%m-%d")
-                    was_found_today = True
-                    break
 
             if was_found_today:
                 data['found_at'] = tile - 1
