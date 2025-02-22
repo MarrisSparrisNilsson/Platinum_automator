@@ -71,6 +71,8 @@ def watch_exit():
     pause_main_event = PauseStateManager.get_instance().get_main_pause_state()
     if pause_main_event is not None:
         pause_main_event.set()  # Signal main pause event to get out of wait states
+        PauseStateManager.get_instance().set_main_state(pause_main_event)
+
     HuntStateManager.get_instance().save_hunt()
     controls.clear_movement()
 

@@ -4,6 +4,7 @@ import os
 import keyboard
 import pyautogui
 from src.python_logic.Enums import UtilityItems
+from src.python_logic.states.GameView import GameViewStateManager
 from src.python_logic.states.Window import WindowStateManager
 from src.python_logic import controls
 
@@ -11,6 +12,17 @@ from src.python_logic import controls
 def test_function():
     # TODO: KEEP THIS
     WindowStateManager.get_instance().set_state()
+
+    controls.switch_tab()
+    time.sleep(1)
+    GameViewStateManager.get_instance().set_dialog_pixels()
+    start_p, dialog_p1, dialog_p2 = GameViewStateManager.get_instance().get_dialog_pixels()
+    # controls.switch_tab()
+    time.sleep(2)
+    print(start_p)
+    time.sleep(2)
+    capture_pixel_info(dialog_p2[0], dialog_p2[1])
+
     # for i in range(10):
     # print(f"Progress: {i}/9")
     # print('\r', end=f"Progress: {i}/9")
@@ -20,7 +32,7 @@ def test_function():
 
     # controls.switch_tab()
     # capture_pixel_info()
-    print("hello", UtilityItems.MAX_REPEL.value.lower())
+    # print("hello", UtilityItems.MAX_REPEL.value.lower())
     # w, _ = WindowStateManager.get_instance().get_window_size()
     # x = 0.021443059982613734 * w
     # bag_section_coord_x = 0.023471457548536655
@@ -86,18 +98,27 @@ def test_operation(perform_func, operation_string="N/A", end_message="N/A", args
             break
 
 
-def capture_pixel_info():
-    mouse = pyautogui.position()
-    print(mouse)
+def capture_pixel_info(x: int = 0, y: int = 0):
+    new_x = x
+    new_y = y
+    if new_x and new_y:
+        pixel = pyautogui.pixel(new_x, new_y)
+    else:
+        mouse = pyautogui.position()
+        print(mouse)
+        new_x = int(mouse.x)
+        new_y = int(mouse.y)
+        pixel = pyautogui.pixel(new_x, new_y)
+
     WindowStateManager.get_instance().set_state()
     window_width, window_height = WindowStateManager.get_instance().get_window_size()
 
-    pixel = pyautogui.pixel(int(mouse.x), int(mouse.y))
-    print(f"Pixel rbg: {pixel}")
+    print(f"Pixel RGB: {pixel}")
+    pyautogui.moveTo(new_x, new_y)
 
-    percent_w = mouse.x / window_width
+    percent_w = new_x / window_width
     print(f"W: {percent_w}")
-    percent_h = mouse.y / window_height
+    percent_h = new_y / window_height
     print(f"H: {percent_h}")
 
 

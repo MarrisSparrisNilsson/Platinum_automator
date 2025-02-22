@@ -4,6 +4,7 @@ import keyboard
 # import keyboard
 import pyautogui
 
+from src.python_logic.states.Pause import PauseStateManager
 from src.python_logic.states.Window import WindowStateManager
 from src.python_logic.states.Shutdown import ShutdownStateManager
 from src.python_logic.states.Hunt import HuntStateManager
@@ -50,7 +51,7 @@ def right():
 
 
 def y_button():
-    print("Y")
+    # print("Y")
     pyautogui.keyDown('b')
     pyautogui.keyUp('b')
 
@@ -63,13 +64,13 @@ def x_button():
 
 
 def a_button():
-    print("A")
+    # print("A")
     pyautogui.keyDown('e')
     pyautogui.keyUp('e')
 
 
 def b_button():
-    print("A")
+    #     print("A")
     pyautogui.keyDown('space')
     pyautogui.keyUp('space')
 
@@ -122,6 +123,7 @@ def click_coord(x, y):
 
 
 def move(direction, steps=1):
+    PauseStateManager.get_instance().check_pause_state()  # Ensure moving has the green light without any pause messages
     if ShutdownStateManager.get_instance().check_shutdown_state():
         return
 
@@ -150,6 +152,7 @@ def move(direction, steps=1):
     # if steps == 0:
     #     time.sleep(0.5)
     # else:
-    time.sleep(0.5)  # Don't touch
+    time.sleep(0.2)  # Don't touch
+    # time.sleep(0.5)  # Don't touch
     # end = time.time()
     # print(f"Step active for: {end - start}s")
