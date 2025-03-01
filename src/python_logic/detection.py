@@ -1,4 +1,6 @@
 # import keyboard
+import threading
+
 import pygetwindow as pywindow
 import pytesseract
 import pyautogui
@@ -7,7 +9,8 @@ import time
 import math
 import threading as thread
 
-from src.python_logic import controls
+from src.python_logic import controls, in_game_menu_controls
+from src.python_logic.Enums import InGameMenuSlots, UtilityItems
 from src.python_logic.states.GameView import GameViewStateManager
 from src.python_logic.states.Window import WindowStateManager
 from src.python_logic.states.Shutdown import ShutdownStateManager
@@ -195,6 +198,27 @@ def use_selected_item():
     time.sleep(0.5)
 
     return False if dialog_is_open() else True
+
+
+def check_repel_status():
+    time.sleep(0.2)
+    if dialog_is_open():
+        pause_main_state = PauseStateManager.get_instance()
+        pause_main_event = pause_main_state.get_main_pause_state()
+
+        # Pause if not already paused
+        if pause_main_event is not None:
+            if pause_main_event.is_set():
+                pause_main_event.clear()  # Set internal flag to false
+                pause_main_state.set_main_state(pause_main_event)  # Pauses encounter detection
+        for i in range(3):
+            time.sleep(0.1)
+            controls.a_button()
+        # controls.switch_tab()
+        time.sleep(0.1)
+        in_game_menu_controls.execute_inGame_menu_action(InGameMenuSlots.BAG, UtilityItems.MAX_REPEL)
+        return True
+    return False
 
 
 def get_encounter_pixels():

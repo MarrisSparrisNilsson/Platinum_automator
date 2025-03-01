@@ -1,3 +1,4 @@
+import sys
 import time
 
 import keyboard
@@ -8,6 +9,8 @@ from src.python_logic.states.Pause import PauseStateManager
 from src.python_logic.states.Window import WindowStateManager
 from src.python_logic.states.Shutdown import ShutdownStateManager
 from src.python_logic.states.Hunt import HuntStateManager
+
+DEBUG_MODE = sys.gettrace() is not None
 
 
 def clear_movement():
@@ -123,9 +126,11 @@ def click_coord(x, y):
 
 
 def move(direction, steps=1):
+    switch_tab_DEBUG()
     PauseStateManager.get_instance().check_pause_state()  # Ensure moving has the green light without any pause messages
-    if ShutdownStateManager.get_instance().check_shutdown_state():
-        return
+    if steps == 0:  # Don't bother with turn movements
+        if ShutdownStateManager.get_instance().check_shutdown_state():
+            return
 
     move_dirs = ['a', 'w', 'd', 's']
     if direction is int:
@@ -156,3 +161,11 @@ def move(direction, steps=1):
     # time.sleep(0.5)  # Don't touch
     # end = time.time()
     # print(f"Step active for: {end - start}s")
+    switch_tab_DEBUG()
+
+
+def switch_tab_DEBUG():
+    if DEBUG_MODE:
+        print("Debug mode tab switch!")
+        switch_tab()
+        time.sleep(1)

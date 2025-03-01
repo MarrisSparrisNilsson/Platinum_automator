@@ -17,7 +17,6 @@ def fishing(args):
     while args is True or encounters[0] < args:  # args is bool or int
 
         PauseStateManager.get_instance().check_pause_state("Fishing is paused▶️", "Fishing now continues🎣🪝")
-
         if ShutdownStateManager.get_instance().check_shutdown_state():
             return
 
@@ -64,13 +63,12 @@ def feebas_fishing(_):
     tiles = read_tiles(feebas_resource_path)
     verify_feebas_file(feebas_data_path)
     # TODO: Fix buggy resource file handling...
+    time.sleep(0.2)  # Wait for pause_main_state print
     try:
         with (open(feebas_data_path, "r+") as f):
             data = json.load(f)
 
             found_date = data['found_date']
-            was_found_today = True
-            # found_at = 0
             # If Feebas has not been found today
             if not found_date == todays_date:
                 was_found_today = False
@@ -80,126 +78,167 @@ def feebas_fishing(_):
                 if not data['current_date'] == todays_date:
                     data['current_date'] = todays_date
                     data['latest_tile'] = 0
-                    print("\nTime is past midnight🌙"
+                    print("\nNew day has begun!"
                           "\nFarthest reached position has been set to 0")
                 f.seek(0)
                 json.dump(data, f, indent=2)
             else:
+                was_found_today = True
                 fish_at_pos = data['found_at']
                 print(f"FEEBAS was last seen at step {fish_at_pos}❗")
 
             controls.switch_tab()
-            walk_to_pos, fish_at_pos = hunt_configuration(was_found_today, fish_at_pos, tiles)
+            walk_to_pos, new_fish_at_pos = hunt_configuration(fish_at_pos, len(tiles))
             controls.switch_tab()
 
-            in_game_menu_controls.execute_inGame_menu_action(InGameMenuSlots.BAG, UtilityItems.MAX_REPEL)  # Use repel
-            in_game_menu_controls.execute_inGame_menu_action(InGameMenuSlots.BAG, UtilityItems.GOOD_ROD)  # Register Good Rod
+            # in_game_menu_controls.execute_inGame_menu_action(InGameMenuSlots.BAG, UtilityItems.MAX_REPEL)  # Use repel
+            # in_game_menu_controls.execute_inGame_menu_action(InGameMenuSlots.BAG, UtilityItems.GOOD_ROD)  # Register Good Rod
 
-            walk_num = 1
+            # walk_num = 1
             encounters = 2  # Number of desired encounters
-            walk_dir = tiles[0 if fish_at_pos == 0 and not walk_to_pos else fish_at_pos - 2]
-            HuntStateManager.get_instance().set_facing_direction(walk_dir)  # Set initial facing direction
+            # turn_dir = tiles[0 if fish_at_pos == 0 else fish_at_pos]
+            # turn_dir = tiles[0 if fish_at_pos == 0 and not walk_to_pos and not tiles[fish_at_pos + 1] == tiles[fish_at_pos] else fish_at_pos]
 
-            for tile in range(0 if fish_at_pos == 0 or walk_to_pos else fish_at_pos - 2, len(tiles)):
-                if not was_found_today and tile >= data['latest_tile'] and tile + 1 < len(tiles):
-                    data['latest_tile'] = tile + 1
+            # fish_at_pos == 0 or walk_to_pos
+            # edge_case = False
+            # if fish_at_pos == 0 and not walk_to_pos:
+            #     turn_dir = tiles[0]
+            #     # fish_at_pos = 0
+            # elif tiles[fish_at_pos] == tiles[fish_at_pos - 1] and not walk_to_pos:
+            #     turn_dir = tiles[fish_at_pos + 2]
+            #     edge_case = True
+            #     # fish_at_pos = fish_at_pos + 2
+            # else:
+            #     turn_dir = tiles[fish_at_pos]
+            # fish_at_pos = fish_at_pos + 1
+            # walk_dir = ''
+            go_to_new_start_pos = fish_at_pos < new_fish_at_pos
+            start_pos = 0 if new_fish_at_pos == 0 or walk_to_pos and not go_to_new_start_pos else fish_at_pos
+            init_turn_dir = tiles[start_pos]
+            # init_turn_dir = tiles[start_pos + 1 if ((start_pos + 1) < len(tiles)) else start_pos]
+            HuntStateManager.get_instance().set_facing_direction(init_turn_dir)  # Set initial facing direction
+            # - 1 if new_pos else tile
+            for tile in range(start_pos, len(tiles)):
+                if not was_found_today:
+                    data['latest_tile'] = tile
                 f.seek(0)
                 json.dump(data, f, indent=2)
 
                 # if walk_to_pos else tile - 1
-                print("\r", end=f"Fishing at tile: {tile}")
-                walk_dir = tiles[tile]
-                turn_dir = tiles[tile + 1 if ((tile + 1) < len(tiles)) else tile]
+                separator = '\n'
+                print("\r", end=f"Fishing at tile: {tile}{separator if not walk_to_pos else ''}")
+                # print()
                 # print("\nWalk dir:", walk_dir, "\nTurn dir:", turn_dir)
+
+                # =================================================================
+                '''
+                NOTE 1: Start fishing if current position index is greater or equal to assigned position 
+                             and therefore is NOT assigned to walk anywhere (walk_to_pos=False)                             
+                NOTE 2: Skip fishing as long as current position is less than assigned start position
+                '''
+                # if (tile >= new_fish_at_pos and not walk_to_pos and not tile == 0) or (tile > new_fish_at_pos):
+                # if new_tile >= new_fish_at_pos or not walk_to_pos:
+                if tile >= new_fish_at_pos:
+                    # When new_fish_at_pos is reached and is not start position
+                    if tile == new_fish_at_pos:
+                        walk_to_pos = False
+                        print("\nFishing spot reached")
+                        time.sleep(1)
+                    # print()
+
+                    # Continue static fishing when found_at location is reached
+                    if was_found_today:
+                        break
+
+                    pause_main_event.set()  # Set internal flag to true
+                    pause_main_state.set_main_state(pause_main_event)  # Resumes encounter detection
+                    time.sleep(1)
+                    fishing(encounters)
+                    time.sleep(3)
+                    PauseStateManager.get_instance().check_pause_state("Fishing is paused▶️", "Fishing and walking now continues🎣🪝")
+
+                    # If Feebas was found
+                    if HuntStateManager.get_instance().get_target_pokemon_found():
+                        todays_date = file_manager.get_date("%Y-%m-%d")
+                        was_found_today = True
+                        break
+
+                if ShutdownStateManager.get_instance().check_shutdown_state():
+                    return
+
+                # =================================================================
+
                 if tile == 0:
-                    if not walk_to_pos:
-                        pause_main_event.set()  # Set internal flag to true
-                        pause_main_state.set_main_state(pause_main_event)  # Resumes encounter detection
-                        fishing(encounters)
-                        time.sleep(5)
-                        PauseStateManager.get_instance().check_pause_state("Fishing is paused▶️", "Fishing and walking now continues🎣🪝")
-                        if ShutdownStateManager.get_instance().check_shutdown_state():
-                            return
+                    # if not walk_to_pos:
+                    #     pause_main_event.set()  # Set internal flag to true
+                    #     pause_main_state.set_main_state(pause_main_event)  # Resumes encounter detection
+                    #     fishing(encounters)
+                    #     time.sleep(5)
+                    #     PauseStateManager.get_instance().check_pause_state("Fishing is paused▶️", "Fishing and walking now continues🎣🪝")
+                    #     if ShutdownStateManager.get_instance().check_shutdown_state():
+                    #         return
 
                     # time.sleep(12)
                     controls.surf()
                     time.sleep(2.5)
                 else:
-                    '''
-                    condition 1: Start fishing if current position index is greater or equal to assigned position 
-                                 and NOT assigned to walk anywhere (walk_to_pos=False)                             
-                    condition 2: Skip fishing as long as current position is less than assigned start position
-                    '''
-                    # if (tile >= fish_at_pos and not walk_to_pos and not tile == 0) or (tile > fish_at_pos):
-                    if tile >= fish_at_pos:
-                        # When fish_at_pos is reached and is not start position
-                        if tile == fish_at_pos:
-                            walk_to_pos = False
-                            print("\nFishing spot reached")
-                            time.sleep(2)
-                        # Continue static fishing when found_at location is reached
-                        if was_found_today:
-                            break
-                        # print()
+                    # if new_fish_at_pos > 0:
+                    #     walk_dir = tiles[tile + 1 if not edge_case else tile + 2]
+                    #     turn_dir = tiles[tile + 2 if not edge_case else tile + 3]
+                    # else:
+                    # pos =
+                    # walk_dir = tiles[tile + 1 if new_pos else tile]
+                    # turn_dir = tiles[tile + 2 if (tile + 2) < len(tiles) and new_pos else tile + 1]
+                    # turn_dir = tiles[new_tile]
 
-                        pause_main_event.set()  # Set internal flag to true
-                        pause_main_state.set_main_state(pause_main_event)  # Resumes encounter detection
-                        time.sleep(1)
-                        fishing(encounters)
-                        time.sleep(5)
-
-                        PauseStateManager.get_instance().check_pause_state("Fishing is paused▶️", "Fishing and walking now continues🎣🪝")
-
-                        # If Feebas was found
-                        if HuntStateManager.get_instance().get_target_pokemon_found():
-                            todays_date = file_manager.get_date("%Y-%m-%d")
-                            was_found_today = True
-                            break
-
-                    # =================================================================
-
-                    if ShutdownStateManager.get_instance().check_shutdown_state():
-                        return
+                    # turn_dir = tiles[new_tile + 1]
 
                     # Block walking at some locations where only turning is desired.
+                    walk_dir = tiles[tile]
+                    turn_dir_count = tile + 1
+                    turn_dir = tiles[turn_dir_count if turn_dir_count < len(tiles) and go_to_new_start_pos else tile]
+                    # if tile == fish_at_pos:
                     if take_step(tile):
+                        # walk_dir = tiles[tile + 1 if (tile + 1) < len(tiles) else tile]
                         # print(f"Walk #{walk_num}: {walk_dir}")
                         # print(f"Turn: {turn_dir}")
+
                         controls.move(walk_dir, 1)  # Step
-                        walk_num += 1
-                        # time.sleep(0.15)
+
+                        # else:
+                    # elif take_step(tile):
+                    # walk_dir = tiles[tile]
+                    # turn_dir = tiles[tile + 1 if (tile + 1) < len(tiles) and new_pos else tile]
+                    # controls.move(walk_dir, 1)  # Step
+
+                    # else:
+                    #     walk_dir = tiles[tile]
+                    #     turn_dir = tiles[tile + 1 if (tile + 1) < len(tiles) and new_pos else tile]
+                    # walk_num += 1
+                    # time.sleep(0.15)
 
                     # else:
                     # print(f"Walk #{walk_num}: ")
                     # print(f"Turn: {turn_dir}")
                     # if walk_num % 50 <= 10 and tile >= 100:
                     # time.sleep(0.15)
-                    time.sleep(0.1)
-                    if detection.dialog_is_open():
-                        # print("\nHello")
-                        # PauseStateManager.get_instance().check_main_pause_state()
-                        if pause_main_event is not None:
-                            if pause_main_event.is_set():
-                                pause_main_event.clear()  # Set internal flag to false
-                                pause_main_state.set_main_state(pause_main_event)  # Pauses encounter detection
-                        for i in range(3):
-                            time.sleep(0.1)
-                            controls.a_button()
-                        # controls.switch_tab()
-                        time.sleep(0.1)
-                        in_game_menu_controls.execute_inGame_menu_action(InGameMenuSlots.BAG, UtilityItems.MAX_REPEL)
+
+                    # If a new repel was activated, and we should not continue walking
+                    if detection.check_repel_status():
                         if not walk_to_pos:
                             pause_main_event.set()  # Set internal flag to true
                             pause_main_state.set_main_state(pause_main_event)  # Resumes encounter detection
 
                     # Prevents double steps and overstepping
                     # print("\n", turn_dir, walk_dir, not turn_dir == walk_dir)
-                    if not turn_dir == walk_dir:
+                    if not take_step(tile) or not turn_dir == walk_dir:
                         controls.move(turn_dir, 0)  # Turn
+                        # init_turn_dir = None
                     # =================================================================
 
             if was_found_today:
                 data['found_at'] = tile - 1
+                # data['latest_tile'] = tile
                 data['found_date'] = todays_date
             f.seek(0)
             json.dump(data, f, indent=2)
@@ -222,15 +261,18 @@ def feebas_fishing(_):
                       "\nGo back to start position and try again.")
                 shutdown_event.clear()  # Reset the internal flag to false (Shutting down)
                 shutdown_state.set_state(shutdown_event)  # Updating state
-                break
+                return
             else:
                 fishing(1)
     else:
         shutdown_state = ShutdownStateManager.get_instance()
         shutdown_event = threading.Event()
-        print("At the end of the path with no Feebas found. Go back to start position and try again!")
+        print("\nAt the end of the path⛔\nNo Feebas found❌\nGo back to start position and try again!↩️")
         shutdown_event.clear()  # Reset the internal flag to false (Shutting down)
         shutdown_state.set_state(shutdown_event)  # Updating state
+        pause_main_event.set()  # Get out of lock
+        pause_main_state.set_main_state(pause_main_event)
+        return
 
 
 def verify_feebas_file(full_file_path):
@@ -281,54 +323,96 @@ def read_tiles(feebas_resource_path):
 
 
 def take_step(tile):
-    if (tile == 3 or tile == 29 or tile == 93 or tile == 98 or
-            tile == 102 or tile == 103 or tile == 223 or
-            tile == 324 or tile == 456 or tile == 458 or
-            tile == 484 or tile == 522 or tile == 528):
+    if (tile == 3 or tile == 29 or tile == 93 or
+            tile == 98 or tile == 102 or tile == 222 or
+            tile == 323 or tile == 455 or tile == 457 or
+            tile == 483 or tile == 521 or tile == 527):
         return False
     else:
         return True
 
 
-def hunt_configuration(was_found_today, fish_at_pos, tiles):
-    walk_to_pos = False
-    fap = fish_at_pos
-    if not fap == 0:
-        while True:
-            try:
-                time.sleep(0.5)
+def hunt_configuration(fish_at_pos, tot_tiles):
+    menu_options = hunt_configuration_menu(fish_at_pos, tot_tiles)
 
-                ans = input(f"Are you at tile {fap} and wish to continue from there? (y/n): ")
-                if ans == 'y':
+    while True:
+        print("Hunt Configuration:")
+        print(f"Last position: {fish_at_pos}")
+        for i in range(len(menu_options)):
+            print(f"{i + 1}. {menu_options[i]}")
+
+        try:
+            option = int(input("#: "))
+
+            # Correct and clean up option-selection for some values of fish_at_pos
+            if fish_at_pos == 0:
+                if option == 2 or option == 3:
+                    option = 4
+                if option == 3:
+                    option = 5
+            elif fish_at_pos == 529:
+                if option == 4:
+                    option = 5
+
+            match option:
+                case 1:
                     walk_to_pos = False
-                    break
-                elif ans == 'n':
-                    if was_found_today:
-                        ans = input(f"Go from start position (0) to tile {fap} and continue from there? (y/n): ")
-                        if ans == 'y':
-                            walk_to_pos = True
-                            break
-                        elif not ans == 'n':
-                            raise ValueError
                     fap = 0
-                    print("(Assuming you are at tile 0)")
-                    break
-                else:
-                    raise ValueError
-            except ValueError:
-                print("Invalid input, try again.")
-
-    if not was_found_today and fap == 0:
-        while True:
-            try:
-                time.sleep(0.5)
-                fap = int(input(f"Which tile do you wish to begin fishing at? (0-{len(tiles) - 1}): "))
-                if fap < 0 or len(tiles) < fap:
-                    raise ValueError
-                if fap > 0:
+                    return walk_to_pos, fap
+                case 2:
+                    walk_to_pos = False
+                    fap = fish_at_pos
+                    return walk_to_pos, fap
+                case 3:
                     walk_to_pos = True
-                break
-            except ValueError:
-                print("Invalid input, try again.")
+                    fap = fish_at_pos
+                    return walk_to_pos, fap
+                case 4:
+                    walk_to_pos = True
+                    while True:
+                        try:
+                            option = int(input(f"Pick a new start point to fish at ({fish_at_pos + 1}-{tot_tiles - 1}) or -1 to Exit: "))
+                            if option < fish_at_pos or option > tot_tiles - 1:  # Out of bounds
+                                raise ValueError
+                            elif option == -1:
+                                break
+                            else:
+                                fap = option
+                                return walk_to_pos, fap
+                        except ValueError:
+                            print("Invalid input, try again.")
+                case 5:
+                    exit(1)
+                case _:
+                    print("Invalid input, try again.")
+            print()
+        except ValueError:
+            print("Invalid input, try again.")
+        except UnicodeDecodeError:
+            exit(0)
 
-    return walk_to_pos, fap
+
+def hunt_configuration_menu(fish_at_pos, tot_tiles):
+    last_tile = f"Go from {fish_at_pos} to fish at <New_Pos>:({fish_at_pos + 1}-{tot_tiles - 1})"
+    if fish_at_pos > 0:
+        if fish_at_pos == 529:
+            menu_options = [
+                "Start fishing at tile 0",
+                f"Start fishing at tile {fish_at_pos}",
+                f"Go from 0 to fish at {fish_at_pos}",
+                "Quit"
+            ]
+        else:
+            menu_options = ["Start fishing at tile 0",
+                            f"Start fishing at tile {fish_at_pos}",
+                            f"Go from 0 to fish at {fish_at_pos}",
+                            last_tile,
+                            "Quit"]
+    else:
+        menu_options = [
+            "Start fishing at tile 0",
+            last_tile,
+            "Quit"
+        ]
+
+    return menu_options

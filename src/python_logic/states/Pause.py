@@ -29,8 +29,7 @@ class PauseStateManager:
             self._main_state = value
 
     def get_main_pause_state(self):
-        with PauseStateManager._lock:
-            return self._main_state
+        return self._main_state
 
     def check_main_pause_state(self):
         with PauseStateManager._lock:
