@@ -7,7 +7,7 @@ from src.python_logic.states.GameView import get_pixel_coords
 from src.python_logic import controls
 from src.python_logic.Enums import InGameMenuSlots, UtilityItems, BagSlots
 
-w, h = WindowStateManager.get_instance().get_window_size()
+# w, h = WindowStateManager.get_instance().get_window_size()
 
 # in_game_menu_pixels = {
 #     {
@@ -162,6 +162,7 @@ def search_bag_item(utility_item_slot: int, utility_name: str):
         try:
             time.sleep(0.1)
             # FIXME: INVESTIGATE IF WORD RECOGNITION IS A BETTER SUITE FOR THIS FUNCTION
+            # FIXME: Image region should be dynamic to window screen resolution
             match = pyautogui.locateCenterOnScreen(f"../images/utility_items/{utility_name}.png", region=(10, 690, 110, 120), confidence=0.95)
             if match:  # Utility item found
                 # print("Item was found.")

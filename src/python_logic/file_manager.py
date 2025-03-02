@@ -1,5 +1,4 @@
 import json
-# import uuid
 import os
 import time
 import keyboard
@@ -12,11 +11,7 @@ def is_file_empty(file_path):
 
 def create_data(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounters, target_pokemon_encounters, is_practice, is_finished):
     with open("../data/data.json", "w") as f:
-        # # Get the current datetime*
-        current_datetime = datetime.now()
-
-        # # Format the datetime as "YYYY-MM-DD HH:MM"
-        formatted_datetime = current_datetime.strftime('%Y-%m-%d %H:%M')
+        formatted_datetime = get_date('%Y-%m-%d %H:%M')
 
         end_date = formatted_datetime if is_finished else ""
 
@@ -62,7 +57,6 @@ def load_hunt(hunt_index: int):
     if not is_file_empty(file_path):
         with open(file_path, "r") as f:
             data = json.load(f)
-            # print(json.dumps(data, indent=2))
 
             hunt = data['hunt_data'][hunt_index]
             return hunt
@@ -87,12 +81,8 @@ def load_latest_hunt():
 def add_data_entry(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounters, target_pokemon_encounters, is_finished):
     with open("../data/data.json", "r+") as f:
         data = json.load(f)
-        # print(json.dumps(data, indent=2))
 
         formatted_datetime = get_date("%Y-%m-%d %H:%M")
-
-        # print("Current time:", formatted_datetime)
-
         end_date = formatted_datetime if is_finished else ""
 
         data['entries'] += 1
@@ -118,14 +108,11 @@ def add_data_entry(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounte
 def save_hunt(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounters, target_pokemon_encounters, is_practice, is_finished):
     data_file = "../data/data.json"
 
-    # print(is_file_empty(data_file))
-
     if is_file_empty(data_file):
         create_data(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounters, target_pokemon_encounters, is_practice, is_finished)
     else:
         with open(data_file, "r+") as f:
             data = json.load(f)
-            # print(json.dumps(data, indent=2))
 
             formatted_datetime = get_date("%Y-%m-%d %H:%M")
 
@@ -220,7 +207,6 @@ def display_current_hunts():
                       f" {entry['hunt_mode']:14} {entry['total_encounters']:<14} {entry['target_pokemon_encounters']:<17}")
                 i += 1
             real_index += 1
-
         return x
 
 

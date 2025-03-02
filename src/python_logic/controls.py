@@ -61,7 +61,7 @@ def y_button():
 
 def x_button():
     # keyboard.press('x')
-    print("X")
+    # print("X")
     pyautogui.keyDown('x')
     pyautogui.keyUp('x')
 

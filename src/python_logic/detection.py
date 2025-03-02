@@ -1,6 +1,3 @@
-# import keyboard
-import threading
-
 import pygetwindow as pywindow
 import pytesseract
 import pyautogui
@@ -143,6 +140,7 @@ def find_exclamation_mark(cast, encounter):
 
         # Pixels matching the red exclamation mark
         exclamation_mark_found = False
+        # Search in all the fishing directions if not specified
         if direction is None:
             for p in range(len(exc_points)):
                 x, y = exc_points[p]
@@ -151,10 +149,6 @@ def find_exclamation_mark(cast, encounter):
                     break
         else:
             exclamation_mark_found = is_exclamation_mark(x, y)
-
-        no_fish = False
-        if not exclamation_mark_found:
-            no_fish = dialog_is_open()
 
         if exclamation_mark_found:
             print("\nExclamation found❗")
@@ -168,7 +162,8 @@ def find_exclamation_mark(cast, encounter):
 
                 time.sleep(0.0001)
             return
-        elif no_fish:
+        # No fish on the hook
+        elif dialog_is_open():
             time.sleep(0.3)
             controls.b_button()
             cast[0] += 1
@@ -192,16 +187,16 @@ def dialog_is_open():
 
 def use_selected_item():
     GameViewStateManager.get_instance().set_dialog_pixels()
-
-    controls.y_button()
-
+    controls.b_button()  # Get out of potential dialog block
+    controls.y_button()  # Use registered item
     time.sleep(0.5)
 
+    # If dialog is shown immediately after using the item, assume it's not used in an appropriate location
     return False if dialog_is_open() else True
 
 
 def check_repel_status():
-    time.sleep(0.2)
+    # time.sleep(0.2)
     if dialog_is_open():
         pause_main_state = PauseStateManager.get_instance()
         pause_main_event = pause_main_state.get_main_pause_state()
@@ -214,7 +209,6 @@ def check_repel_status():
         for i in range(3):
             time.sleep(0.1)
             controls.a_button()
-        # controls.switch_tab()
         time.sleep(0.1)
         in_game_menu_controls.execute_inGame_menu_action(InGameMenuSlots.BAG, UtilityItems.MAX_REPEL)
         return True
@@ -251,7 +245,6 @@ def get_encounter_pixels():
 
 
 def encounter_started(pixel_coord_one, pixel_coord_two):
-    # print(f"Left_P: {pixel_coord_one}\nRight_P: {pixel_coord_two}")
     pixel_one_is_black = pyautogui.pixelMatchesColor(pixel_coord_one[0], pixel_coord_one[1], (0, 0, 0))
     pixel_two_is_black = pyautogui.pixelMatchesColor(pixel_coord_two[0], pixel_coord_two[1], (0, 0, 0))
 
@@ -303,8 +296,10 @@ def encounter_detection(search_encounter_func, end_encounter_func, search_args=N
 
             shiny_is_found = find_sparkles()
 
-            # TODO: Use Tesseract (OCR) to read encountered pokemon name and verify with HuntStateManager._pokemon_name
-            #       if true then increment current hunted pokemon encounters by one.
+            """
+            NOTE: Using Tesseract (OCR) to read encountered pokemon name and verify with HuntStateManager._pokemon_name
+                    if true then increment current hunted pokemon encounters by one.
+            """
             pokemon = HuntStateManager.get_instance().get_hunted_pokemon_name()
 
             result = was_target_pokemon_found()
