@@ -1,28 +1,44 @@
+from pathlib import Path
 import time
 import os
+import json
 
 import keyboard
 import pyautogui
 from src.python_logic.Enums import UtilityItems
+from src.python_logic.cli_ui import print_all_hunts, print_feebas_state
 from src.python_logic.states.GameView import GameViewStateManager
 from src.python_logic.states.Window import WindowStateManager
-from src.python_logic import controls
+from src.python_logic import controls, detection
+from src.database.models import Hunt
+from src.database.repositories.PokemonHuntRepository import create_hunt, get_all_hunts
+from src.database.repositories.FeebasRepository import init_feebas_tracking, get_feebas_state
 
 
-def test_function():
+def test_function(desmume_open=True):
     # TODO: KEEP THIS
-    WindowStateManager.get_instance().set_state()
+    if desmume_open:
+        WindowStateManager.get_instance().set_state()
 
-    controls.switch_tab()
-    time.sleep(1)
-    GameViewStateManager.get_instance().set_dialog_pixels()
-    start_p, dialog_p1, dialog_p2 = GameViewStateManager.get_instance().get_dialog_pixels()
-    # controls.switch_tab()
-    time.sleep(2)
-    print(start_p)
-    time.sleep(2)
-    capture_pixel_info(dialog_p2[0], dialog_p2[1])
+    # path = Path().cwd().parent.parent / "data/data.json"
+    # / "data/data.json")
+    # print(path)
+    # init_feebas_tracking()
+    print_feebas_state()
 
+    # print(get_all_hunts())
+    # print_all_hunts()
+    # with open(path) as f:
+    #     data = json.load(f)
+    #
+    # for hunt_data in data["hunt_data"]:
+    #     hunt = Hunt(**hunt_data)
+    #
+    #     create_hunt(hunt)
+    #
+    # print(get_all_hunts())
+
+    # detection.play_sound("Level-up.mp3")
     # for i in range(10):
     # print(f"Progress: {i}/9")
     # print('\r', end=f"Progress: {i}/9")
@@ -60,6 +76,18 @@ def test_function():
     # detection.find_exclamation_mark()
     # screenshot = pyautogui.screenshot(region=(start_x, start_y, end_x, end_y))
     # screenshot.save("../images/test/exclamation_area.png")
+
+
+def test_get_screen_pixels():
+    controls.switch_tab()
+    time.sleep(1)
+    GameViewStateManager.get_instance().set_dialog_pixels()
+    start_p, dialog_p1, dialog_p2 = GameViewStateManager.get_instance().get_dialog_pixels()
+    # controls.switch_tab()
+    time.sleep(2)
+    print(start_p)
+    time.sleep(2)
+    capture_pixel_info(dialog_p2[0], dialog_p2[1])
 
 
 def pin_point_location_on_screen(x, y):

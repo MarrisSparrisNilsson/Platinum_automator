@@ -73,7 +73,7 @@ def watch_exit():
         pause_main_event.set()  # Signal main pause event to get out of wait states
         PauseStateManager.get_instance().set_main_state(pause_main_event)
 
-    HuntStateManager.get_instance().save_hunt()
+    # HuntStateManager.get_instance().save_hunt()
     controls.clear_movement()
 
 
@@ -137,7 +137,7 @@ action_types = {
 }
 
 
-def load_action(hunt_mode, hunt_method):
+def load_action(hunt_mode, hunt_method) -> thread.Thread:
     action = action_types[hunt_mode]['action']
     method = None
     args = None

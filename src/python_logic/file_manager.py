@@ -5,12 +5,15 @@ import keyboard
 from datetime import datetime
 
 
+# from src.database.repositories import PokemonHuntRepository as hunt_db
+
+
 def is_file_empty(file_path):
     return os.path.getsize(file_path) == 0
 
 
 def create_data(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounters, target_pokemon_encounters, is_practice, is_finished):
-    with open("../data/data.json", "w") as f:
+    with open("../../data/data.json", "w") as f:
         formatted_datetime = get_date('%Y-%m-%d %H:%M')
 
         end_date = formatted_datetime if is_finished else ""
@@ -51,35 +54,35 @@ def create_data(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounters,
         json.dump(x, f, indent=2)
 
 
-def load_hunt(hunt_index: int):
-    file_path = "../data/data.json"
+# def load_hunt(hunt_id: str):
+#     file_path = "../../data/data.json"
+#
+#     if not is_file_empty(file_path):
+#         with open(file_path, "r") as f:
+#             data = json.load(f)
+#
+#             hunt = data['hunt_data'][hunt_index]
+#             return hunt
+#     else:
+#         raise FileExistsError
 
-    if not is_file_empty(file_path):
-        with open(file_path, "r") as f:
-            data = json.load(f)
 
-            hunt = data['hunt_data'][hunt_index]
-            return hunt
-    else:
-        raise FileExistsError
-
-
-def load_latest_hunt():
-    file_path = "../data/data.json"
-
-    if not is_file_empty(file_path):
-        with open(file_path, "r") as f:
-            data = json.load(f)
-            # print(json.dumps(data, indent=2))
-
-            hunt = data['latest_hunt']
-            return hunt
-    else:
-        raise FileExistsError
+# def load_latest_hunt():
+#     file_path = "../../data/data.json"
+#
+#     if not is_file_empty(file_path):
+#         with open(file_path, "r") as f:
+#             data = json.load(f)
+#             # print(json.dumps(data, indent=2))
+#
+#             hunt = data['latest_hunt']
+#             return hunt
+#     else:
+#         raise FileExistsError
 
 
 def add_data_entry(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounters, target_pokemon_encounters, is_finished):
-    with open("../data/data.json", "r+") as f:
+    with open("../../data/data.json", "r+") as f:
         data = json.load(f)
 
         formatted_datetime = get_date("%Y-%m-%d %H:%M")
@@ -106,7 +109,7 @@ def add_data_entry(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounte
 
 
 def save_hunt(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounters, target_pokemon_encounters, is_practice, is_finished):
-    data_file = "../data/data.json"
+    data_file = "../../data/data.json"
 
     if is_file_empty(data_file):
         create_data(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounters, target_pokemon_encounters, is_practice, is_finished)
@@ -178,71 +181,43 @@ def save_hunt(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounters, t
 #         print(data["hunt_data"]["counter"])
 
 
-def display_current_hunts():
-    file_path = "../data/data.json"
-
-    with open(file_path, "r") as f:
-        data = json.load(f)
-        if data['hunt_data'] is None:
-            raise json.decoder.JSONDecodeError
-
-        print(
-            "\nActive Pokémon hunts:"
-            "\n========================================================================================"
-            "\n#      Pokémon         Start Date        Hunt Mode      Encounters     Target Encounters"
-            "\n========================================================================================"
-        )
-
-        i = 1
-        real_index = 0
-        x = []
-
-        for entry in data["hunt_data"]:
-            if not entry['finished']:
-                x.append({
-                    f"{i}": real_index
-                })
-
-                print(f"{i:<6} {entry['pokemon_name']:12} {entry['start_date']:20}"
-                      f" {entry['hunt_mode']:14} {entry['total_encounters']:<14} {entry['target_pokemon_encounters']:<17}")
-                i += 1
-            real_index += 1
-        return x
-
-
-def display_all_hunts():
-    with open("../data/data.json", "r") as f:
-        data = json.load(f)
-        if data['hunt_data'] is None:
-            raise json.decoder.JSONDecodeError
-
-        print("\nPokémon hunt history:"
-              "\n=========================================================")
-        for entry in data["hunt_data"]:
-            display_hunt(entry)
+# def display_all_hunts():
+#     with open("../../data/data.json", "r") as f:
+#         data = json.load(f)
+#         if data['hunt_data'] is None:
+#             raise json.decoder.JSONDecodeError
+#
+#         print("\nPokémon hunt history:"
+#               "\n=========================================================")
+#         for entry in data["hunt_data"]:
+#             display_hunt(entry)
+#
+#
+# def display_hunt(hunt):
+#     try:
+#         is_practice = hunt.get('is_practice')
+#         print(
+#             f"{'Id:':20} {hunt['id']}"
+#             f"\n{'Pokemon:':20} {hunt['pokemon_name']}"
+#             f"\n{'Hunt type:':20} {hunt['hunt_mode']}"
+#             f"\n{'Start date:':20} {hunt['start_date']}"
+#             f"\n{'Last active date:':20} {hunt['last_time_hunted_date']}"
+#             f"\n{'End date:':20} {hunt['end_date']}"
+#             f"\n{'Total Encounters:':20} {hunt['total_encounters']}"
+#             f"\n{'Target Encounters:':20} {hunt['target_pokemon_encounters']}"
+#             f"\n{'Hunt finished:':20} {hunt['finished']}"
+#             f"\n{'Is practice hunt:':20} {is_practice}"
+#             f"\n---------------------------------------------------------"
+#         )
+#     except AttributeError:
+#         pass
 
 
-def display_hunt(hunt):
-    try:
-        is_practice = hunt.get('is_practice')
-        print(
-            f"{'Id:':20} {hunt['id']}"
-            f"\n{'Pokemon:':20} {hunt['pokemon_name']}"
-            f"\n{'Hunt type:':20} {hunt['hunt_mode']}"
-            f"\n{'Start date:':20} {hunt['start_date']}"
-            f"\n{'Last active date:':20} {hunt['last_time_hunted_date']}"
-            f"\n{'End date:':20} {hunt['end_date']}"
-            f"\n{'Total Encounters:':20} {hunt['total_encounters']}"
-            f"\n{'Target Encounters:':20} {hunt['target_pokemon_encounters']}"
-            f"\n{'Hunt finished:':20} {hunt['finished']}"
-            f"\n{'Is practice hunt:':20} {is_practice}"
-            f"\n---------------------------------------------------------"
-        )
-    except AttributeError:
-        pass
-
-
-def get_date(time_format):
+def get_date(time_format="%Y-%m-%d") -> str:
+    """
+    :param time_format: Format the datetime as "YYYY-MM-DD HH:MM" or "%Y-%m-%d %H:%M"
+    :return: Current local date string based on format
+    """
     # Get the current datetime
     current_datetime = datetime.now()
 
@@ -251,6 +226,10 @@ def get_date(time_format):
 
 
 def record_steps(file_name):
+    """
+    Helper function to track movement keys
+    :param file_name: Output file name of the tracked steps
+    """
     start_time = time.time()
     with open(f"../resources/{file_name}.json", "r+") as f:
         data = json.load(f)
