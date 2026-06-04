@@ -300,8 +300,6 @@ def encounter_detection(search_encounter_func, end_encounter_func, search_args=N
             if ShutdownStateManager.get_instance().check_shutdown_state():
                 return
 
-            shiny_is_found = find_sparkles()
-
             """
             NOTE: Using Tesseract (OCR) to read encountered pokemon name and verify with HuntStateManager._pokemon_name
                     if true then increment current hunted pokemon encounters by one.
@@ -317,6 +315,7 @@ def encounter_detection(search_encounter_func, end_encounter_func, search_args=N
 
             # Save after each encounter
             # HuntStateManager.get_instance().save_hunt()
+            shiny_is_found = find_sparkles()
 
             if shiny_is_found:
                 print(f"Congratulations! You found a shiny{f' {pokemon}' if target_found else ''}!✨")
@@ -417,15 +416,11 @@ def play_sound(sound_file_name: str, volume: float = 0.3):
 
     # Construct the file path
     sound_path = pathlib.Path(__file__).parent.parent / "assets/sfx" / sound_file_name
-    # print(sound_path)
 
     pygame.mixer.init()
     pygame.mixer.music.load(sound_path)
     pygame.mixer.music.set_volume(volume)
     pygame.mixer.music.play()
-
-    while pygame.mixer.music.get_busy():  # Keeps the script running while playing
-        pass
 
 
 def set_window_focus():

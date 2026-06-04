@@ -65,6 +65,7 @@ def increment_encounters(hunt_id: str, amount: int = 1):
         )
         total_encounters = hunt.total_encounters + amount
         hunt.total_encounters = total_encounters
+        hunt.last_time_hunted_date = get_date("%Y-%m-%d %H:%M")
 
         session.commit()
 

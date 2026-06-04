@@ -87,9 +87,7 @@ def select_menu_option() -> thread.Thread:
                     return action_thread
 
                 case 5:
-                    # file_manager.display_all_hunts()
                     print_all_hunts()
-                    input("Next (enter):")
                 case 6:
                     exit(0)
                 case _:
@@ -286,7 +284,8 @@ def print_all_hunts(hunt: Hunt = None, formatted: bool = True):
     else:
         with SessionLocal() as session:
             hunts = session.query(Hunt).all()
-            print("Entries:", len(hunts))
+            print("\nEntries:", len(hunts))
+            print("=========================================================")
             db_obj_print(hunts, formatted)
 
 
@@ -295,8 +294,8 @@ def db_obj_print(hunts: list[Hunt], formatted=True):
         if formatted:
             for k, v in to_dict(h).items():
                 formatted_key_name = str(k).replace("_", " ").title()
-                print(f"\n{f'{formatted_key_name}:':20} {v}")
-            print("\n---------------------------------------------------------")
+                print(f"{f'{formatted_key_name}:':26} {v}")
+            print("---------------------------------------------------------")
         else:
             print_db_obj(h)
 
