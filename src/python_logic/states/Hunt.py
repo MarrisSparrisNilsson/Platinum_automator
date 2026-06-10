@@ -13,8 +13,8 @@ class HuntStateManager:
     _pokemon_name: str = ""
     _hunt_mode: str = ""
     _hunt_method: str = ""
-    _total_encounters: int = 0
-    _target_pokemon_encounters: int = 0
+    # _total_encounters: int = 0
+    # _target_pokemon_encounters: int = 0
     # _finished: bool = False
     _is_practice: bool = False
 
@@ -33,16 +33,29 @@ class HuntStateManager:
                     HuntStateManager._instance = HuntStateManager()
         return HuntStateManager._instance
 
-    def set_hunt_state(self, hunt_id=str(uuid.uuid4()), pokemon_name="Unknown", hunt_mode="", hunt_method="", total_encounters=0, target_pokemon_encounters=0, is_practice=False):
+    def get_hunt_state(self):
+        with (HuntStateManager._lock):
+            return (self._hunt_id,
+                    self._pokemon_name,
+                    self._hunt_mode,
+                    self._hunt_method,
+                    self._is_practice
+                    )
+
+    def set_hunt_state(self, hunt_id=str(uuid.uuid4()), pokemon_name="Unknown", hunt_mode="", hunt_method="", is_practice=False):
         with (HuntStateManager._lock):
             self._hunt_id = hunt_id
             self._pokemon_name = str(pokemon_name).upper()
             self._hunt_mode = hunt_mode
             self._hunt_method = hunt_method
             self._encounter_timeout = EncounterTimeout.LEGENDARY.value if hunt_mode == HuntMode.SOFT_RESET.value else EncounterTimeout.REGULAR.value
-            self._total_encounters = total_encounters
-            self._target_pokemon_encounters = target_pokemon_encounters
+            # self._total_encounters = total_encounters
+            # self._target_pokemon_encounters = target_pokemon_encounters
             self._is_practice = is_practice
+
+    def get_hunt_id(self):
+        with HuntStateManager._lock:
+            return self._hunt_id
 
     def get_hunt_mode(self):
         with HuntStateManager._lock:
@@ -94,14 +107,14 @@ class HuntStateManager:
         with HuntStateManager._lock:
             return self._encounter_timeout
 
-    def increment_encounters(self):
-        with HuntStateManager._lock:
-            self._total_encounters += 1
+    # def increment_encounters(self):
+    #     with HuntStateManager._lock:
+    #         self._total_encounters += 1
+    #
+    # def increment_target_encounters(self):
+    #     with HuntStateManager._lock:
+    #         self._target_pokemon_encounters += 1
 
-    def increment_target_encounters(self):
-        with HuntStateManager._lock:
-            self._target_pokemon_encounters += 1
-
-    def finish_hunt(self, is_finished=False):
-        with HuntStateManager._lock:
-            file_manager.save_hunt(self._hunt_id, self._pokemon_name, self._hunt_mode, self._hunt_method, self._total_encounters, self._target_pokemon_encounters, self._is_practice, is_finished)
+    # def save_hunt(self, is_finished=False):
+    #     with HuntStateManager._lock:
+    #         file_manager.save_hunt(self._hunt_id, self._pokemon_name, self._hunt_mode, self._hunt_method, self._total_encounters, self._target_pokemon_encounters, self._is_practice, is_finished)

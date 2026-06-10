@@ -50,7 +50,7 @@ def soft_reset_hunt(_a, _b):
     hunt_mode = HuntStateManager.get_instance().get_hunt_mode()
     print(f"Beginning {hunt_mode} hunt!")
     if not HuntStateManager.get_instance().get_was_hunted_today():
-        in_game_menu_controls.select_in_game_menu_action(InGameMenuSlots.SAVE)
+        in_game_menu_controls.execute_inGame_menu_action(InGameMenuSlots.SAVE)
     if ShutdownStateManager.get_instance().check_shutdown_state():
         return
     detection.encounter_detection(search_encounter_func=Soft_Reset.static_encounter, end_encounter_func=Flee.soft_reset)
@@ -71,7 +71,9 @@ def watch_exit():
     pause_main_event = PauseStateManager.get_instance().get_main_pause_state()
     if pause_main_event is not None:
         pause_main_event.set()  # Signal main pause event to get out of wait states
-    HuntStateManager.get_instance().finish_hunt()
+        PauseStateManager.get_instance().set_main_state(pause_main_event)
+
+    # HuntStateManager.get_instance().save_hunt()
     controls.clear_movement()
 
 
@@ -135,7 +137,7 @@ action_types = {
 }
 
 
-def load_action(hunt_mode, hunt_method):
+def load_action(hunt_mode, hunt_method) -> thread.Thread:
     action = action_types[hunt_mode]['action']
     method = None
     args = None

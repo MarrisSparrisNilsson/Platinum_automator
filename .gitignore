@@ -241,4 +241,4 @@ fabric.properties
 ### Experiment folder
 */images/test
 */images/local
-*/data
+data

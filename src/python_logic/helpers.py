@@ -1,27 +1,63 @@
+from pathlib import Path
 import time
 import os
+import json
 
 import keyboard
-# import keyboard
 import pyautogui
 from src.python_logic.Enums import UtilityItems
+from src.python_logic.cli_ui import print_all_hunts, print_feebas_state
+from src.python_logic.states.GameView import GameViewStateManager
 from src.python_logic.states.Window import WindowStateManager
-from src.python_logic import controls
+from src.python_logic import controls, detection
+from src.database.models import Hunt
+from src.database.repositories.PokemonHuntRepository import create_hunt, get_all_hunts
+from src.database.repositories.FeebasRepository import init_feebas_tracking, get_feebas_state
 
 
-def test_function():
+def test_function(desmume_open=True):
+    # TODO: KEEP THIS
+    if desmume_open:
+        WindowStateManager.get_instance().set_state()
+
+    # path = Path().cwd().parent.parent / "data/data.json"
+    # / "data/data.json")
+    # print(path)
+    # init_feebas_tracking()
+    print_feebas_state()
+
+    # print(get_all_hunts())
+    # print_all_hunts()
+    # with open(path) as f:
+    #     data = json.load(f)
+    #
+    # for hunt_data in data["hunt_data"]:
+    #     hunt = Hunt(**hunt_data)
+    #
+    #     create_hunt(hunt)
+    #
+    # print(get_all_hunts())
+
+    # detection.play_sound("Level-up.mp3")
     # for i in range(10):
     # print(f"Progress: {i}/9")
     # print('\r', end=f"Progress: {i}/9")
     # time.sleep(0.3)
-    # WindowStateManager.get_instance().set_state()
     # file_manager.record_steps()
     # test_operation(Egg.is_two_pokemon_inserted, "see pokemon Day-Care slot status", "Pixel capture ended.", run_once=False)
 
-    print("hello", UtilityItems.MAX_REPEL.value.lower())
+    # controls.switch_tab()
+    # capture_pixel_info()
+    # print("hello", UtilityItems.MAX_REPEL.value.lower())
+    # w, _ = WindowStateManager.get_instance().get_window_size()
+    # x = 0.021443059982613734 * w
+    # bag_section_coord_x = 0.023471457548536655
+    # utility_item_slot_offset = 0.021443059982613734 * 7
+    # 330
 
+    # pin_point_location_on_screen((bag_section_coord_x + utility_item_slot_offset) * w, 440)
     #
-    # if False:
+    # if True:
     #     test_operation(capture_pixel_info, "get mouse coordinates", run_once=False)
     # else:
     #     w, h = WindowStateManager.get_instance().get_window_size()
@@ -42,7 +78,20 @@ def test_function():
     # screenshot.save("../images/test/exclamation_area.png")
 
 
+def test_get_screen_pixels():
+    controls.switch_tab()
+    time.sleep(1)
+    GameViewStateManager.get_instance().set_dialog_pixels()
+    start_p, dialog_p1, dialog_p2 = GameViewStateManager.get_instance().get_dialog_pixels()
+    # controls.switch_tab()
+    time.sleep(2)
+    print(start_p)
+    time.sleep(2)
+    capture_pixel_info(dialog_p2[0], dialog_p2[1])
+
+
 def pin_point_location_on_screen(x, y):
+    controls.switch_tab()
     print(x, y)
     pyautogui.moveTo(x, y)
 
@@ -77,18 +126,27 @@ def test_operation(perform_func, operation_string="N/A", end_message="N/A", args
             break
 
 
-def capture_pixel_info():
-    mouse = pyautogui.position()
-    print(mouse)
+def capture_pixel_info(x: int = 0, y: int = 0):
+    new_x = x
+    new_y = y
+    if new_x and new_y:
+        pixel = pyautogui.pixel(new_x, new_y)
+    else:
+        mouse = pyautogui.position()
+        print(mouse)
+        new_x = int(mouse.x)
+        new_y = int(mouse.y)
+        pixel = pyautogui.pixel(new_x, new_y)
+
     WindowStateManager.get_instance().set_state()
     window_width, window_height = WindowStateManager.get_instance().get_window_size()
 
-    pixel = pyautogui.pixel(int(mouse.x), int(mouse.y))
-    print(f"Pixel rbg: {pixel}")
+    print(f"Pixel RGB: {pixel}")
+    pyautogui.moveTo(new_x, new_y)
 
-    percent_w = mouse.x / window_width
+    percent_w = new_x / window_width
     print(f"W: {percent_w}")
-    percent_h = mouse.y / window_height
+    percent_h = new_y / window_height
     print(f"H: {percent_h}")
 
 

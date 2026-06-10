@@ -2,11 +2,19 @@
 import threading as thread
 
 # Local modules
-from src.python_logic import controls, actions, detection, helpers, cli_ui
+# from src.python_logic import helpers
+from src.python_logic import controls, actions, detection, cli_ui
 from src.python_logic.states.GameView import WindowStateManager
+
+from src.database.database import engine
+from src.database.models import Base
+
+
+# from src.python_logic.states.Hunt import HuntStateManager
 
 
 def main():
+    initialize_database()
     print("\n### Welcome to the Platinum automator ###")
     controls.console_focus()
     while True:
@@ -17,6 +25,7 @@ def main():
             shutdown_thread = thread.Thread(target=actions.watch_exit, daemon=True)
             input("Press ENTER to start!")
             try:
+                WindowStateManager.get_instance().set_state()
                 shutdown_thread.start()
                 detection.set_window_focus()
                 detection.find_pause_and_resume()
@@ -28,11 +37,16 @@ def main():
                 print("No action was provided")
 
 
+def initialize_database():
+    Base.metadata.create_all(engine)
+
+
 if __name__ == '__main__':
     try:
-        WindowStateManager.get_instance().set_state()
-        # main()
-        helpers.test_function()
+        # TODO: Refactor old JSON storage functions to new DB storage functions
+        main()
+        # initialize_database()
+        # helpers.test_function(False)
 
     except KeyboardInterrupt:
         print("\nSession ended.")

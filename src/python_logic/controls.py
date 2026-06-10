@@ -1,11 +1,16 @@
+import sys
 import time
 
 import keyboard
 # import keyboard
 import pyautogui
 
+from src.python_logic.states.Pause import PauseStateManager
 from src.python_logic.states.Window import WindowStateManager
 from src.python_logic.states.Shutdown import ShutdownStateManager
+from src.python_logic.states.Hunt import HuntStateManager
+
+DEBUG_MODE = sys.gettrace() is not None
 
 
 def clear_movement():
@@ -48,18 +53,27 @@ def right():
     pyautogui.keyUp('d')
 
 
+def y_button():
+    # print("Y")
+    pyautogui.keyDown('b')
+    pyautogui.keyUp('b')
+
+
 def x_button():
     # keyboard.press('x')
+    # print("X")
     pyautogui.keyDown('x')
     pyautogui.keyUp('x')
 
 
 def a_button():
+    # print("A")
     pyautogui.keyDown('e')
     pyautogui.keyUp('e')
 
 
 def b_button():
+    #     print("A")
     pyautogui.keyDown('space')
     pyautogui.keyUp('space')
 
@@ -77,7 +91,7 @@ def console_focus():
 
 
 def surf():
-    for i in range(5):
+    for i in range(7):
         time.sleep(0.5)
         a_button()
         # print("A")
@@ -91,6 +105,11 @@ def in_game_click():
 
 def switch_tab():
     pyautogui.hotkey("alt", "tab")
+    # When recording with OBS, use this key to switch (show/hide) code/emulator scene
+    is_recording = False
+    if is_recording:
+        pyautogui.keyDown('ScrollLock')
+        pyautogui.keyUp('ScrollLock')
 
 
 def run_btn_coords():
@@ -107,14 +126,21 @@ def click_coord(x, y):
 
 
 def move(direction, steps=1):
-    if ShutdownStateManager.get_instance().check_shutdown_state():
-        return
+    switch_tab_DEBUG()
+    PauseStateManager.get_instance().check_pause_state()  # Ensure moving has the green light without any pause messages
+    if steps == 0:  # Don't bother with turn movements
+        if ShutdownStateManager.get_instance().check_shutdown_state():
+            return
 
     move_dirs = ['a', 'w', 'd', 's']
     if direction is int:
         key = move_dirs[direction]
     else:
-        key = direction
+        if direction in move_dirs:
+            key = direction
+        else:
+            print("Invalid movement key")
+            exit(-1)
 
     # print(f"{steps} step(s): {key}")
     keyboard.press(key)
@@ -127,10 +153,19 @@ def move(direction, steps=1):
         time.sleep(0.1 * steps)  # Walk time
 
     keyboard.release(key)
-
+    HuntStateManager.get_instance().set_facing_direction(key)
     # if steps == 0:
     #     time.sleep(0.5)
     # else:
-    time.sleep(0.5)  # Don't touch
+    time.sleep(0.2)  # Don't touch
+    # time.sleep(0.5)  # Don't touch
     # end = time.time()
     # print(f"Step active for: {end - start}s")
+    switch_tab_DEBUG()
+
+
+def switch_tab_DEBUG():
+    if DEBUG_MODE:
+        print("Debug mode tab switch!")
+        switch_tab()
+        time.sleep(1)

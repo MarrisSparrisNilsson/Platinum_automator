@@ -1,13 +1,17 @@
-# import keyboard
+import pathlib
 import pygetwindow as pywindow
 import pytesseract
 import pyautogui
+import pygame
+
 # import cv2
 import time
 import math
 import threading as thread
 
-from src.python_logic import controls
+from src.database.repositories import PokemonHuntRepository as hunt_db
+from src.python_logic import controls, in_game_menu_controls
+from src.python_logic.Enums import InGameMenuSlots, UtilityItems
 from src.python_logic.states.GameView import GameViewStateManager
 from src.python_logic.states.Window import WindowStateManager
 from src.python_logic.states.Shutdown import ShutdownStateManager
@@ -125,7 +129,7 @@ def find_exclamation_mark(cast, encounter):
         move_dirs = ['w', 'a', 's', 'd']
         i = move_dirs.index(direction)
         x, y = exc_points[i]
-        # pyautogui.moveTo(x, y)
+        pyautogui.moveTo(x, y)
     except ValueError:
         pass
 
@@ -140,19 +144,15 @@ def find_exclamation_mark(cast, encounter):
 
         # Pixels matching the red exclamation mark
         exclamation_mark_found = False
+        # Search in all the fishing directions if not specified
         if direction is None:
             for p in range(len(exc_points)):
                 x, y = exc_points[p]
                 exclamation_mark_found = is_exclamation_mark(x, y)
-                # pyautogui.moveTo(x, y)
                 if exclamation_mark_found:
                     break
         else:
             exclamation_mark_found = is_exclamation_mark(x, y)
-
-        no_fish = False
-        if not exclamation_mark_found:
-            no_fish = dialog_is_open()
 
         if exclamation_mark_found:
             print("\nExclamation found❗")
@@ -166,9 +166,10 @@ def find_exclamation_mark(cast, encounter):
 
                 time.sleep(0.0001)
             return
-        elif no_fish:
+        # No fish on the hook
+        elif dialog_is_open():
             time.sleep(0.3)
-            controls.b_key()
+            controls.b_button()
             cast[0] += 1
             print('\r', end=f"No fish this time. ({cast[0]})")
             return
@@ -176,6 +177,7 @@ def find_exclamation_mark(cast, encounter):
 
 
 def is_exclamation_mark(x, y):
+    # TODO: Improve this function to capture/recognize the actual image of exclamation mark popup. Pixels could be inconsistent.
     return True if pyautogui.pixelMatchesColor(x, y, (255, 66, 0)) else False
 
 
@@ -190,13 +192,32 @@ def dialog_is_open():
 
 def use_selected_item():
     GameViewStateManager.get_instance().set_dialog_pixels()
-
-    pyautogui.keyDown('b')
-    pyautogui.keyUp('b')
-
+    controls.b_button()  # Get out of potential dialog block
+    controls.y_button()  # Use registered item
     time.sleep(0.5)
 
+    # If dialog is shown immediately after using the item, assume it's not used in an appropriate location
     return False if dialog_is_open() else True
+
+
+def check_repel_status():
+    # time.sleep(0.2)
+    if dialog_is_open():
+        pause_main_state = PauseStateManager.get_instance()
+        pause_main_event = pause_main_state.get_main_pause_state()
+
+        # Pause if not already paused
+        if pause_main_event is not None:
+            if pause_main_event.is_set():
+                pause_main_event.clear()  # Set internal flag to false
+                pause_main_state.set_main_state(pause_main_event)  # Pauses encounter detection
+        for i in range(3):
+            time.sleep(0.1)
+            controls.a_button()
+        time.sleep(0.1)
+        in_game_menu_controls.execute_inGame_menu_action(InGameMenuSlots.BAG, UtilityItems.MAX_REPEL)
+        return True
+    return False
 
 
 def get_encounter_pixels():
@@ -229,14 +250,14 @@ def get_encounter_pixels():
 
 
 def encounter_started(pixel_coord_one, pixel_coord_two):
-    # print(f"Left_P: {pixel_coord_one}\nRight_P: {pixel_coord_two}")
     pixel_one_is_black = pyautogui.pixelMatchesColor(pixel_coord_one[0], pixel_coord_one[1], (0, 0, 0))
     pixel_two_is_black = pyautogui.pixelMatchesColor(pixel_coord_two[0], pixel_coord_two[1], (0, 0, 0))
 
     time.sleep(0.1)
     if pixel_one_is_black and pixel_two_is_black:
-        HuntStateManager.get_instance().increment_encounters()
-        encounters = HuntStateManager.get_instance().get_total_encounters()
+        encounters = hunt_db.increment_encounters(HuntStateManager.get_instance().get_hunt_id())
+        # HuntStateManager.get_instance().increment_encounters()
+        # encounters = HuntStateManager.get_instance().get_total_encounters()
         print(f"\n\nEncounter #{encounters} started!👊💥")
         return True
     else:
@@ -279,20 +300,30 @@ def encounter_detection(search_encounter_func, end_encounter_func, search_args=N
             if ShutdownStateManager.get_instance().check_shutdown_state():
                 return
 
-            shiny_is_found = find_sparkles()
-
+            """
+            NOTE: Using Tesseract (OCR) to read encountered pokemon name and verify with HuntStateManager._pokemon_name
+                    if true then increment current hunted pokemon encounters by one.
+            """
             pokemon = HuntStateManager.get_instance().get_hunted_pokemon_name()
 
-            result = was_target_pokemon_found()
-            if result:
+            target_found = was_target_pokemon_found(pokemon)
+            if target_found and not shiny_is_found:
+                play_sound("Level-up.mp3")
                 HuntStateManager.get_instance().set_target_pokemon_found()
-                HuntStateManager.get_instance().increment_target_encounters()
-                target_encounters = HuntStateManager.get_instance().get_target_pokemon_encounters()
+                target_encounters = hunt_db.increment_target_encounters(HuntStateManager.get_instance().get_hunt_id())
                 print(f"{pokemon} #{target_encounters}!")
 
+            # Save after each encounter
+            # HuntStateManager.get_instance().save_hunt()
+            shiny_is_found = find_sparkles()
+
             if shiny_is_found:
-                print(f"Congratulations! You found a shiny {f'{pokemon}' if result else ''}!✨")
-                HuntStateManager.get_instance().finish_hunt(is_finished=shiny_is_found)
+                print(f"Congratulations! You found a shiny{f' {pokemon}' if target_found else ''}!✨")
+                play_sound("shiny-pokemon.mp3")
+                if target_found:
+                    play_sound("Congratulations.mp3")
+                    hunt_db.finish_hunt(HuntStateManager.get_instance().get_hunt_id())
+                # HuntStateManager.get_instance().save_hunt(is_finished=True if target_found else False)
                 time.sleep(1)
 
                 on_off = False
@@ -309,6 +340,7 @@ def encounter_detection(search_encounter_func, end_encounter_func, search_args=N
                 pause_state.set_state(pause_event)
 
 
+# TODO: Tesseract OCR
 '''
 Tesseract Page Segmentation Modes (PSM):
     0 = Orientation and script detection (OSD) only.
@@ -329,7 +361,7 @@ Tesseract Page Segmentation Modes (PSM):
 '''
 
 
-def was_target_pokemon_found():
+def was_target_pokemon_found(pokemon_name: str):
     # Pokémon name coordinates:
     # (window.left + 9, int(window.height * 0.20327102803738317), int(window.width * 0.12474226804123711), int(window.height * (0.28085981308411217 - 0.20327102803738317))))
     window = WindowStateManager.get_instance().get_window()
@@ -337,8 +369,6 @@ def was_target_pokemon_found():
     pokemon_name_img_path = "../images/local/pokemon_name.png"
     pyautogui.screenshot(pokemon_name_img_path, region=(
         window.left + 9, int(window.height * 0.20327102803738317), int(window.width * 0.12474226804123711), int(window.height * (0.28085981308411217 - 0.20327102803738317))))
-
-    pokemon_name = HuntStateManager.get_instance().get_hunted_pokemon_name()
 
     reading_configs = ["--psm 7", "--psm 8"]
     largest_match_count = 0
@@ -356,7 +386,7 @@ def was_target_pokemon_found():
         if matching_chars > largest_match_count:
             largest_match_count = matching_chars
 
-    # If 50% of the words (that are in order) match, we confirm we found the target Pokémon
+    # If 50% of the words that are in order match, we assume we found the target Pokémon
     return True if largest_match_count / len(pokemon_name) >= 0.5 else False
 
     # img = cv2.imread("../images/pokemon_name.png")
@@ -377,6 +407,20 @@ def was_target_pokemon_found():
     # pokemon_name = string
     # pokemon_name = pytesseract.image_to_string("../images/feebas_text.png", config=read_name_config)
     # print(pokemon_name)
+
+
+def play_sound(sound_file_name: str, volume: float = 0.3):
+    # sound_file_name = "Level_up.mp3"
+    if not sound_file_name.endswith(".mp3"):
+        sound_file_name = sound_file_name + ".mp3"
+
+    # Construct the file path
+    sound_path = pathlib.Path(__file__).parent.parent / "assets/sfx" / sound_file_name
+
+    pygame.mixer.init()
+    pygame.mixer.music.load(sound_path)
+    pygame.mixer.music.set_volume(volume)
+    pygame.mixer.music.play()
 
 
 def set_window_focus():
