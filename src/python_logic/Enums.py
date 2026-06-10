@@ -1,4 +1,4 @@
-from enum import Enum, IntEnum
+from enum import Enum, IntEnum, auto
 
 
 class EncounterTimeout(IntEnum):
@@ -59,3 +59,10 @@ class WalkTypes(Enum):
 class FishingTypes(Enum):
     REGULAR = "Regular fishing"
     FEEBAS = "Feebas hunt"
+
+
+class FeebasHuntConfig(Enum):
+    START = auto()
+    CURRENT_POS = auto()
+    START_TO_POS = auto()
+    POS_TO_NEW = auto()

@@ -11,7 +11,7 @@ from src.python_logic.states.GameView import GameViewStateManager
 from src.python_logic.states.Shutdown import ShutdownStateManager
 from src.python_logic.states.Pause import PauseStateManager
 from src.python_logic.states.Hunt import HuntStateManager
-from src.python_logic.Enums import InGameMenuSlots, UtilityItems
+from src.python_logic.Enums import InGameMenuSlots, UtilityItems, FeebasHuntConfig
 
 
 def fishing(args):
@@ -276,64 +276,192 @@ def take_step(tile):
         return True
 
 
-def hunt_configuration(fish_at_pos, tot_tiles):
-    menu_options = hunt_configuration_menu(fish_at_pos, tot_tiles)
+# def hunt_configuration(fish_at_pos, tot_tiles):
+#     menu_options: dict = hunt_configuration_menu(fish_at_pos, tot_tiles)
+#
+#     while True:
+#         print("Hunt Configuration:")
+#         print(f"Last position: {fish_at_pos}")
+#         for k, v in menu_options.items():
+#             if v:
+#                 print(f"{k.value}: {v}")
+#
+#         print("-1: Quit")
+#         try:
+#             option = int(input("#: "))
+#
+#             # Correct and clean up option-selection for some values of fish_at_pos
+#             if fish_at_pos == 0:
+#                 if option == FeebasHuntConfig.CURRENT_POS.value or option == FeebasHuntConfig.START_TO_POS.value:
+#                     option = FeebasHuntConfig.POS_TO_NEW.value
+#                 if option == FeebasHuntConfig.START_TO_POS.value:
+#                     option = -1
+#             elif fish_at_pos == 529:
+#                 if option == FeebasHuntConfig.POS_TO_NEW.value:
+#                     option = -1
+#
+#             match option:
+#                 case FeebasHuntConfig.START.value:
+#                     walk_to_pos = False
+#                     fap = 0
+#                     return walk_to_pos, fap
+#                 case FeebasHuntConfig.CURRENT_POS.value:
+#                     walk_to_pos = False
+#                     fap = fish_at_pos
+#                     return walk_to_pos, fap
+#                 case FeebasHuntConfig.START_TO_POS.value:
+#                     walk_to_pos = True
+#                     fap = fish_at_pos
+#                     return walk_to_pos, fap
+#                 case FeebasHuntConfig.POS_TO_NEW.value:
+#                     walk_to_pos = True
+#                     while True:
+#                         try:
+#                             option = int(input(f"Pick a new start point to fish at ({fish_at_pos + 1}-{tot_tiles - 1}) or -1 to Exit: "))
+#                             if option < fish_at_pos or option > tot_tiles - 1:  # Out of bounds
+#                                 raise ValueError
+#                             elif option == -1:
+#                                 break
+#                             else:
+#                                 fap = option
+#                                 return walk_to_pos, fap
+#                         except ValueError:
+#                             print("Invalid input, try again.")
+#                 case -1:
+#                     pause_main_state = PauseStateManager.get_instance()
+#                     pause_main_event = threading.Event()
+#                     shutdown_state = ShutdownStateManager.get_instance()
+#                     shutdown_event = threading.Event()
+#                     pause_main_event.set()  # Get out of lock
+#                     pause_main_state.set_main_state(pause_main_event)
+#                     shutdown_event.clear()  # Reset the internal flag to false (Shutting down)
+#                     shutdown_state.set_state(shutdown_event)  # Updating state
+#                     print("Shutting down")
+#                     exit(1)
+#                 case _:
+#                     print("Invalid input, try again.")
+#             print()
+#         except ValueError:
+#             print("Invalid input, try again.")
+#         except UnicodeDecodeError:
+#             print("Unicode Error")
+#             exit(0)
+
+
+def hunt_configuration(fish_at_pos: int, tot_tiles: int) -> (bool, int):
+    """
+
+    :param fish_at_pos: Current position on the tile path
+    :param tot_tiles:
+    :return: Walk_to_pos (bool), fish_at_pos (int)
+    """
+    menu_options = hunt_configuration_menu(
+        fish_at_pos,
+        tot_tiles
+    )
 
     while True:
-        print("Hunt Configuration:")
+
+        print("\nHunt Configuration:")
         print(f"Last position: {fish_at_pos}")
-        for i in range(len(menu_options)):
-            print(f"{i + 1}. {menu_options[i]}")
 
+        for i, (_, text) in enumerate(menu_options, start=1):
+            print(f"{i}: {text}")
+
+        print("-1: Quit")
+
+        selected = get_menu_choice(menu_options)
+
+        match selected:
+            case -1:
+                shutdown()
+
+            case FeebasHuntConfig.START:
+                return False, 0
+
+            case FeebasHuntConfig.CURRENT_POS:
+                return False, fish_at_pos
+
+            case FeebasHuntConfig.START_TO_POS:
+                return True, fish_at_pos
+
+            case FeebasHuntConfig.POS_TO_NEW:
+
+                new_pos = get_new_position(
+                    fish_at_pos,
+                    tot_tiles
+                )
+
+                if new_pos is not None:
+                    return True, new_pos
+
+            case _:
+                print("Invalid option.")
+
+
+def get_menu_choice(valid_options: list) -> int:
+    choice_map = {
+        i: option
+        for i, (option, _) in enumerate(valid_options, start=1)
+    }
+
+    while True:
         try:
-            option = int(input("#: "))
-
-            # Correct and clean up option-selection for some values of fish_at_pos
-            if fish_at_pos == 0:
-                if option == 2 or option == 3:
-                    option = 4
-                if option == 3:
-                    option = 5
-            elif fish_at_pos == 529:
-                if option == 4:
-                    option = 5
-
-            match option:
-                case 1:
-                    walk_to_pos = False
-                    fap = 0
-                    return walk_to_pos, fap
-                case 2:
-                    walk_to_pos = False
-                    fap = fish_at_pos
-                    return walk_to_pos, fap
-                case 3:
-                    walk_to_pos = True
-                    fap = fish_at_pos
-                    return walk_to_pos, fap
-                case 4:
-                    walk_to_pos = True
-                    while True:
-                        try:
-                            option = int(input(f"Pick a new start point to fish at ({fish_at_pos + 1}-{tot_tiles - 1}) or -1 to Exit: "))
-                            if option < fish_at_pos or option > tot_tiles - 1:  # Out of bounds
-                                raise ValueError
-                            elif option == -1:
-                                break
-                            else:
-                                fap = option
-                                return walk_to_pos, fap
-                        except ValueError:
-                            print("Invalid input, try again.")
-                case 5:
-                    exit(1)
-                case _:
-                    print("Invalid input, try again.")
-            print()
+            option = int(input("#: ").strip())
         except ValueError:
-            print("Invalid input, try again.")
-        except UnicodeDecodeError:
-            exit(0)
+            print("Please enter a number.")
+            continue
+
+        # Shutdown
+        if option == -1:
+            return -1
+
+        if option not in choice_map:
+            print("Invalid option.")
+            continue
+
+        selected = choice_map[option]
+        return selected
+
+
+def get_new_position(start_pos: int, total_tiles: int) -> int | None:
+    while True:
+        try:
+            option = int(
+                input(
+                    f"Pick a new start point "
+                    f"({start_pos + 1}-{total_tiles - 1}) "
+                    f"or -1 to cancel: "
+                )
+            )
+
+            if option == -1:
+                return None
+
+            if start_pos < option < total_tiles:
+                return option
+
+            print("Position out of range.")
+
+        except ValueError:
+            print("Please enter a valid number.")
+
+
+def shutdown():
+    pause_main_state = PauseStateManager.get_instance()
+    pause_main_event = threading.Event()
+
+    shutdown_state = ShutdownStateManager.get_instance()
+    shutdown_event = threading.Event()
+
+    pause_main_event.set()
+    shutdown_event.clear()
+
+    pause_main_state.set_main_state(pause_main_event)
+    shutdown_state.set_state(shutdown_event)
+
+    print("Shutting down")
+    raise SystemExit(0)
 
 
 def hunt_configuration_menu(fish_at_pos, tot_tiles):
@@ -341,26 +469,19 @@ def hunt_configuration_menu(fish_at_pos, tot_tiles):
     last_pos = tot_tiles - 1
     full_span = f"{next_pos} - {last_pos}"
     destination = f"{full_span if not next_pos == last_pos else next_pos}"
-    last_tile = f"Go from {fish_at_pos} to fish at <New_Pos>:({destination})"
+
+    current_pos = f"Start fishing at tile {fish_at_pos}"
+    start_to_tile_option = f"Go from 0 to fish at {fish_at_pos}"
+    select_new_tile_option = f"Go from {fish_at_pos} to fish at <New_Pos>:({destination})"
+
+    menu_options = [(FeebasHuntConfig.START, "Start fishing at tile 0")]
+
     if fish_at_pos > 0:
-        if fish_at_pos == 529:
-            menu_options = [
-                "Start fishing at tile 0",
-                f"Start fishing at tile {fish_at_pos}",
-                f"Go from 0 to fish at {fish_at_pos}",
-                "Quit"
-            ]
-        else:
-            menu_options = ["Start fishing at tile 0",
-                            f"Start fishing at tile {fish_at_pos}",
-                            f"Go from 0 to fish at {fish_at_pos}",
-                            last_tile,
-                            "Quit"]
-    else:
-        menu_options = [
-            "Start fishing at tile 0",
-            last_tile,
-            "Quit"
-        ]
+        menu_options.append((FeebasHuntConfig.CURRENT_POS, current_pos))
+
+        menu_options.append((FeebasHuntConfig.START_TO_POS, start_to_tile_option))
+
+    if fish_at_pos < tot_tiles - 1:
+        menu_options.append((FeebasHuntConfig.POS_TO_NEW, select_new_tile_option))
 
     return menu_options
