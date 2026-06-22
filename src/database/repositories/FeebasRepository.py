@@ -1,6 +1,6 @@
 from src.database.database import SessionLocal
 from src.database.models import Feebas
-from src.python_logic.file_manager import get_date
+from src.utils.helpers import get_date
 
 '''
 THIS FILE CONTAINS DATABASE CRUD OPERATIONS FOR FEEBAS HUNT TRACKING
@@ -49,11 +49,11 @@ def increment_tile_count_tracking(amount: int = 1):
         session.commit()
 
 
-def update_feebas_hunt_date():
-    with SessionLocal() as session:
-        feebas_state = session.get(Feebas, SINGLETON_ID)
-        feebas_state.current_date = get_date()
-        session.commit()
+# def update_feebas_hunt_date():
+#     with SessionLocal() as session:
+#         feebas_state = session.get(Feebas, SINGLETON_ID)
+#         feebas_state.current_date = get_date()
+#         session.commit()
 
 
 def update_feebas_found(tile: int):

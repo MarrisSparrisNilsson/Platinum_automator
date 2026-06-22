@@ -1,6 +1,6 @@
 from src.database.database import SessionLocal
 from src.database.models import Hunt
-from src.python_logic.file_manager import get_date
+from src.utils.helpers import get_date
 
 
 '''

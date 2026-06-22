@@ -1,13 +1,14 @@
 import pyautogui
 import time
 
-from src.python_logic.states.Window import WindowStateManager
-from src.python_logic.states.Shutdown import ShutdownStateManager
-from src.python_logic.states.GameView import get_pixel_coords
-from src.python_logic import controls
-from src.python_logic.Enums import InGameMenuSlots, UtilityItems, BagSlots
+from src.core.App import app_context
+from src.states.Shutdown import ShutdownStateManager
+from src.vision.game_ui_detector import get_pixel_coords, has_background_changed
+from src.core.Game import game_context
+from src.vision.game_ui_detector import dialog_is_open
+from src.automation import controls
+from src.core.enums import InGameMenuSlots, UtilityItems, BagSlots
 
-# w, h = WindowStateManager.get_instance().get_window_size()
 
 # in_game_menu_pixels = {
 #     {
@@ -63,7 +64,7 @@ def execute_inGame_menu_action(menu_num: InGameMenuSlots, utility_item: UtilityI
 
 def register_key_item(register: bool = True):
     if register:
-        w, h = WindowStateManager.get_instance().get_window_size()
+        (w, h) = app_context.window_size
         x = int(0.43195876288659796 * w)
         y = int(0.5070093457943925 * h)
         if pyautogui.pixelMatchesColor(x, y, (247, 148, 123)):
@@ -85,7 +86,7 @@ def find_menu_action(menu_num: InGameMenuSlots):
 
     # Menu Y: H * (0.24065420560747663 - 0.12967289719626168)
 
-    window_width, window_height = WindowStateManager.get_instance().get_window_size()
+    (window_width, window_height) = app_context.window_size
 
     # Pixel in the middle of the orange rectangle (on the height axis) of the top most menu.
     menu_p = (int(window_width * 0.3077319587628866), int(window_height * (0.18574766355140188 + (menu_num.value * (0.24065420560747663 - 0.12967289719626168)))))
@@ -113,7 +114,7 @@ def find_menu_action(menu_num: InGameMenuSlots):
 
 
 def save_in_game():
-    window_width, window_height = WindowStateManager.get_instance().get_window_size()
+    (window_width, window_height) = app_context.window_size
     save_box_p = (int(window_width * 0.12061855670103093), int(window_height * 0.32710280373831774))
     start_save_box = pyautogui.pixel(save_box_p[0], save_box_p[1])
     while True:
@@ -130,9 +131,6 @@ def save_in_game():
 
 def search_bag_item(utility_item_slot: int, utility_name: str):
     # pyautogui.screenshot("../images/test_max_repel.png", region=(10, 690, 110, 120))
-    # w, h = WindowStateManager.get_instance().get_window_size()
-    # p1 = int(0.02422680412371134 * w)
-    # p2 = int(0.5467289719626168 * h)
 
     # Utility item slot coordinates (Could be: ITEMS, TM, POKE BALLS, KEY ITEMS etc.)
     bag_section_coord_x = 0.023471457548536655
@@ -196,10 +194,11 @@ def activate_repel():
         controls.a_button()
 
 
-def has_background_changed(x, y, pixel):
-    if not pyautogui.pixelMatchesColor(x, y, pixel):
-        #  print(f"P: {pyautogui.pixel(x, y)}, {shiny_p}")
-        pyautogui.moveTo(x, y)
-        return True
-    else:
-        return False
+def use_registered_key_item():
+    game_context.set_dialog_pixels()
+    controls.b_button()  # Get out of potential dialog block
+    controls.y_button()  # Use registered item
+    time.sleep(0.5)
+
+    # If dialog is shown immediately after using the item, assume it's not used in an appropriate location
+    return False if dialog_is_open() else True

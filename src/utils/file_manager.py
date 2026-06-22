@@ -1,8 +1,7 @@
 import json
 import os
-import time
-import keyboard
-from datetime import datetime
+
+from src.utils.helpers import get_date
 
 
 # from src.database.repositories import PokemonHuntRepository as hunt_db
@@ -211,51 +210,3 @@ def save_hunt(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounters, t
 #         )
 #     except AttributeError:
 #         pass
-
-
-def get_date(time_format="%Y-%m-%d") -> str:
-    """
-    :param time_format: Format the datetime as "YYYY-MM-DD HH:MM" or "%Y-%m-%d %H:%M"
-    :return: Current local date string based on format
-    """
-    # Get the current datetime
-    current_datetime = datetime.now()
-
-    # Format the datetime as "YYYY-MM-DD HH:MM"
-    return current_datetime.strftime(time_format)
-
-
-def record_steps(file_name):
-    """
-    Helper function to track movement keys
-    :param file_name: Output file name of the tracked steps
-    """
-    start_time = time.time()
-    with open(f"../resources/{file_name}.json", "r+") as f:
-        data = json.load(f)
-        data['location'] = 0
-        json.dump(data, f, indent=2)
-    while True:
-        key = ''
-        end_time = time.time()
-        duration = end_time - start_time
-
-        if duration > 0.2:
-            if keyboard.is_pressed('w'):
-                key = 'w'
-            elif keyboard.is_pressed('a'):
-                key = 'a'
-            elif keyboard.is_pressed('s'):
-                key = 's'
-            elif keyboard.is_pressed('d'):
-                key = 'd'
-
-        if not key == '':
-            start_time = time.time()
-            print(f"{key} was pressed")
-            with open(f"../resources/{file_name}.json", "r+") as f:
-                data = json.load(f)
-                data["path"].append(key)
-
-                f.seek(0)
-                json.dump(data, f, indent=2)

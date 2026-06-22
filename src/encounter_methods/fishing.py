@@ -1,17 +1,19 @@
 import threading
 import json
-import os
 import time
 
 from pathlib import Path
 
+from src.utils.helpers import get_date
+from src.vision.game_ui_detector import check_repel_status
 from src.database.repositories import FeebasRepository as feebas_state
-from src.python_logic import detection, controls, file_manager, in_game_menu_controls
-from src.python_logic.states.GameView import GameViewStateManager
-from src.python_logic.states.Shutdown import ShutdownStateManager
-from src.python_logic.states.Pause import PauseStateManager
-from src.python_logic.states.Hunt import HuntStateManager
-from src.python_logic.Enums import InGameMenuSlots, UtilityItems, FeebasHuntConfig
+from src.automation import controls, in_game_menu_controls
+from src.vision import encounter_detector
+from src.core.Game import game_context
+from src.states.Shutdown import ShutdownStateManager
+from src.states.Pause import PauseStateManager
+from src.states.Hunt import HuntStateManager
+from src.core.enums import InGameMenuSlots, UtilityItems, FeebasHuntConfig
 
 
 def fishing(args):
@@ -23,8 +25,8 @@ def fishing(args):
         if ShutdownStateManager.get_instance().check_shutdown_state():
             return
 
-        if detection.use_selected_item():
-            detection.find_exclamation_mark(cast, encounters)
+        if in_game_menu_controls.use_registered_key_item():
+            encounter_detector.find_exclamation_mark(cast, encounters)
         else:
             shutdown_state = ShutdownStateManager.get_instance()
             shutdown_event = threading.Event()
@@ -46,31 +48,27 @@ def feebas_fishing(_):
 
     1: Fish x2
 
-    2: Take step, (Array[i])
+    2: Take step, (Path[i])
 
-    3: Turn towards next step if Array[i] != Array[i+1]
+    3: Turn towards next step if Path[i] != Path[i+1]
     """
 
     # Steps are determined by direction and edge of a tile that the path crosses.
     pause_main_event = threading.Event()
     pause_main_state = PauseStateManager.get_instance()
 
-    GameViewStateManager.get_instance().set_dialog_pixels()
+    game_context.set_dialog_pixels()
 
     pause_main_event.clear()  # Set internal flag to false (Pause)
-    pause_main_state.set_main_state(pause_main_event)  # Pauses encounter detection
+    pause_main_state.set_main_state(pause_main_event)  # Pauses encounter automation
 
     # Construct the file path
     feebas_resource_path = Path(__file__).parent.parent.parent / "resources/feebas.json"
-    # feebas_data_path = os.path.abspath(os.path.join(script_directory, "..", "..", "data/feebas.json"))
 
-    todays_date = file_manager.get_date("%Y-%m-%d")
+    todays_date = get_date("%Y-%m-%d")
     tiles = read_tiles(feebas_resource_path)
-    # verify_feebas_file(feebas_data_path)
-    # TODO: Fix buggy resource file handling...
     time.sleep(0.2)  # Wait for pause_main_state print
 
-    # try:
     feebas_info = feebas_state.get_feebas_state()
     found_date = feebas_info.found_date
     # If Feebas has not been found today (New day)
@@ -87,7 +85,7 @@ def feebas_fishing(_):
         print(f"FEEBAS was last seen at step {fish_at_pos}❗")
 
     controls.switch_tab()
-    walk_to_pos, new_fish_at_pos = hunt_configuration(fish_at_pos, len(tiles))
+    walk_to_pos, new_fish_at_pos = feebas_hunt_configuration(fish_at_pos, len(tiles))
     controls.switch_tab()
 
     in_game_menu_controls.execute_inGame_menu_action(InGameMenuSlots.BAG, UtilityItems.MAX_REPEL)  # Use repel
@@ -131,7 +129,7 @@ def feebas_fishing(_):
 
             # controls.switch_tab_DEBUG()
             pause_main_event.set()  # Set internal flag to true
-            pause_main_state.set_main_state(pause_main_event)  # Resumes encounter detection
+            pause_main_state.set_main_state(pause_main_event)  # Resumes encounter automation
             time.sleep(1)
             fishing(encounters)
             time.sleep(3)
@@ -161,9 +159,9 @@ def feebas_fishing(_):
                 controls.move(walk_dir, 1)  # Step
 
             # If a new repel was activated, and we should continue fishing instead of walking
-            if detection.check_repel_status() and not walk_to_pos:
+            if check_repel_status() and not walk_to_pos:
                 pause_main_event.set()  # Set internal flag to true
-                pause_main_state.set_main_state(pause_main_event)  # Resumes encounter detection
+                pause_main_state.set_main_state(pause_main_event)  # Resumes encounter automation
 
             # Prevents double steps and overstepping
             if not take_step(tile) or not turn_dir == walk_dir:
@@ -177,23 +175,12 @@ def feebas_fishing(_):
                 return
             # =================================================================
 
-    #         if was_found_today:
-    #             if data['found_at'] == 0:
-    #                 data['found_at'] = tile
-    #             data['found_date'] = todays_date
-    #         f.seek(0)
-    #         json.dump(data, f, indent=2)
-    #
-    # except json.decoder.JSONDecodeError:
-    #     print(f"Something went wrong with resource file: {feebas_resource_path}")
-    #     exit(-1)
-
     if was_found_today:
         pause_main_event.set()  # Set internal flag to true
-        pause_main_state.set_main_state(pause_main_event)  # Resumes encounter detection
+        pause_main_state.set_main_state(pause_main_event)  # Resumes encounter automation
         # Feebas has been found (keep fishing)
         while True:
-            if not todays_date == file_manager.get_date("%Y-%m-%d"):
+            if not todays_date == get_date("%Y-%m-%d"):
                 shutdown_state = ShutdownStateManager.get_instance()
                 shutdown_event = threading.Event()
                 print("\nTime is past midnight🌙"
@@ -212,41 +199,6 @@ def feebas_fishing(_):
         pause_main_event.set()  # Get out of lock
         pause_main_state.set_main_state(pause_main_event)
         return
-
-
-def verify_feebas_file(full_file_path):
-    default_data = {
-        "found_at": 0,
-        "latest_tile": 0,
-        "found_date": "",
-        "current_date": ""
-    }
-    # Ensure the file exists before checking its content
-    if not os.path.exists(full_file_path) or os.stat(full_file_path).st_size == 0:
-        with open(full_file_path, "w") as file:
-            file.seek(0)
-            json.dump(default_data, file, indent=2)
-            print("File initialized with default structure.")
-    else:
-        with open(full_file_path, "r+") as file:
-            try:
-                data = json.load(file)
-                missing = False
-                for key in default_data.keys():
-                    if key not in data:
-                        missing = True
-                        break
-
-                if missing:
-                    file.seek(0)
-                    json.dump(default_data, file, indent=2)
-                    print("File initialized with default structure.")
-                else:
-                    print("File contents OK")
-            except json.decoder.JSONDecodeError:
-                file.seek(0)
-                json.dump(default_data, file, indent=2)
-                print("File initialized with default structure.")
 
 
 def read_tiles(feebas_resource_path):
@@ -276,86 +228,15 @@ def take_step(tile):
         return True
 
 
-# def hunt_configuration(fish_at_pos, tot_tiles):
-#     menu_options: dict = hunt_configuration_menu(fish_at_pos, tot_tiles)
-#
-#     while True:
-#         print("Hunt Configuration:")
-#         print(f"Last position: {fish_at_pos}")
-#         for k, v in menu_options.items():
-#             if v:
-#                 print(f"{k.value}: {v}")
-#
-#         print("-1: Quit")
-#         try:
-#             option = int(input("#: "))
-#
-#             # Correct and clean up option-selection for some values of fish_at_pos
-#             if fish_at_pos == 0:
-#                 if option == FeebasHuntConfig.CURRENT_POS.value or option == FeebasHuntConfig.START_TO_POS.value:
-#                     option = FeebasHuntConfig.POS_TO_NEW.value
-#                 if option == FeebasHuntConfig.START_TO_POS.value:
-#                     option = -1
-#             elif fish_at_pos == 529:
-#                 if option == FeebasHuntConfig.POS_TO_NEW.value:
-#                     option = -1
-#
-#             match option:
-#                 case FeebasHuntConfig.START.value:
-#                     walk_to_pos = False
-#                     fap = 0
-#                     return walk_to_pos, fap
-#                 case FeebasHuntConfig.CURRENT_POS.value:
-#                     walk_to_pos = False
-#                     fap = fish_at_pos
-#                     return walk_to_pos, fap
-#                 case FeebasHuntConfig.START_TO_POS.value:
-#                     walk_to_pos = True
-#                     fap = fish_at_pos
-#                     return walk_to_pos, fap
-#                 case FeebasHuntConfig.POS_TO_NEW.value:
-#                     walk_to_pos = True
-#                     while True:
-#                         try:
-#                             option = int(input(f"Pick a new start point to fish at ({fish_at_pos + 1}-{tot_tiles - 1}) or -1 to Exit: "))
-#                             if option < fish_at_pos or option > tot_tiles - 1:  # Out of bounds
-#                                 raise ValueError
-#                             elif option == -1:
-#                                 break
-#                             else:
-#                                 fap = option
-#                                 return walk_to_pos, fap
-#                         except ValueError:
-#                             print("Invalid input, try again.")
-#                 case -1:
-#                     pause_main_state = PauseStateManager.get_instance()
-#                     pause_main_event = threading.Event()
-#                     shutdown_state = ShutdownStateManager.get_instance()
-#                     shutdown_event = threading.Event()
-#                     pause_main_event.set()  # Get out of lock
-#                     pause_main_state.set_main_state(pause_main_event)
-#                     shutdown_event.clear()  # Reset the internal flag to false (Shutting down)
-#                     shutdown_state.set_state(shutdown_event)  # Updating state
-#                     print("Shutting down")
-#                     exit(1)
-#                 case _:
-#                     print("Invalid input, try again.")
-#             print()
-#         except ValueError:
-#             print("Invalid input, try again.")
-#         except UnicodeDecodeError:
-#             print("Unicode Error")
-#             exit(0)
-
-
-def hunt_configuration(fish_at_pos: int, tot_tiles: int) -> (bool, int):
+def feebas_hunt_configuration(fish_at_pos: int, tot_tiles: int) -> (bool, int):
     """
+    Prints the hunt configuration options and returns hunt configurations based on user input.
 
     :param fish_at_pos: Current position on the tile path
-    :param tot_tiles:
+    :param tot_tiles: Total fish-able tiles in the pond
     :return: Walk_to_pos (bool), fish_at_pos (int)
     """
-    menu_options = hunt_configuration_menu(
+    menu_options = feebas_hunt_configuration_menu(
         fish_at_pos,
         tot_tiles
     )
@@ -464,7 +345,15 @@ def shutdown():
     raise SystemExit(0)
 
 
-def hunt_configuration_menu(fish_at_pos, tot_tiles):
+def feebas_hunt_configuration_menu(fish_at_pos, tot_tiles):
+    """
+    Function that formats menu options for Feebas fishing based on the current position.
+
+    :param fish_at_pos: Current tile position
+    :param tot_tiles: Total fish-able tiles in the pond
+    :return: List of menu options
+    """
+
     next_pos = fish_at_pos + 1
     last_pos = tot_tiles - 1
     full_span = f"{next_pos} - {last_pos}"
