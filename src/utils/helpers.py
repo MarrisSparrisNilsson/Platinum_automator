@@ -1,14 +1,17 @@
 import json
-import time
 import os
+import threading
+import time
 from datetime import datetime
 
 import keyboard
 import pyautogui
 
+from src.automation import controls
 from src.core.App import app_context
 from src.core.Game import game_context
-from src.automation import controls
+from src.states.Pause import PauseStateManager
+from src.states.Shutdown import ShutdownStateManager
 
 
 def test_get_screen_pixels():
@@ -36,7 +39,7 @@ def test_operation(perform_func, operation_string="N/A", end_message="N/A", args
         print("No perform func was given.")
         exit(-1)
 
-    pixel_key = 'k'
+    pixel_key = "k"
     seconds = 2
     while True:
         print(f"In {seconds} seconds, Press {pixel_key} to {operation_string} when ready.")
@@ -73,7 +76,7 @@ def capture_pixel_info(x: int = 0, y: int = 0):
 
     app_context.set_window_state()
 
-    (window_width, window_width) = app_context.window_size
+    window_width, window_width = app_context.window_size
 
     print(f"Pixel RGB: {pixel}")
     pyautogui.moveTo(new_x, new_y)
@@ -121,24 +124,24 @@ def record_steps(file_name):
     start_time = time.time()
     with open(f"../resources/{file_name}.json", "r+") as f:
         data = json.load(f)
-        data['location'] = 0
+        data["location"] = 0
         json.dump(data, f, indent=2)
     while True:
-        key = ''
+        key = ""
         end_time = time.time()
         duration = end_time - start_time
 
         if duration > 0.2:
-            if keyboard.is_pressed('w'):
-                key = 'w'
-            elif keyboard.is_pressed('a'):
-                key = 'a'
-            elif keyboard.is_pressed('s'):
-                key = 's'
-            elif keyboard.is_pressed('d'):
-                key = 'd'
+            if keyboard.is_pressed("w"):
+                key = "w"
+            elif keyboard.is_pressed("a"):
+                key = "a"
+            elif keyboard.is_pressed("s"):
+                key = "s"
+            elif keyboard.is_pressed("d"):
+                key = "d"
 
-        if not key == '':
+        if not key == "":
             start_time = time.time()
             print(f"{key} was pressed")
             with open(f"../resources/{file_name}.json", "r+") as f:
@@ -159,3 +162,33 @@ def get_date(time_format="%Y-%m-%d") -> str:
 
     # Format the datetime as "YYYY-MM-DD HH:MM"
     return current_datetime.strftime(time_format)
+
+
+def read_tiles(resource_path):
+    try:
+        # Open the file
+        with open(resource_path, "r") as f:
+            file = json.load(f)
+            tiles = file["path"]
+            return tiles
+    except json.decoder.JSONDecodeError:
+        print(f"Something went wrong with the resource file: {resource_path}")
+        exit(-1)
+
+
+def shutdown(shutdown_message="Shutting down"):
+    # TODO: REFACTOR INTO NEW IMPLEMENTATION WITH APP_CONTEXT STATES
+    pause_main_state = PauseStateManager.get_instance()
+    pause_main_event = threading.Event()
+
+    shutdown_state = ShutdownStateManager.get_instance()
+    shutdown_event = threading.Event()
+
+    pause_main_event.set()  # Get out of lock
+    shutdown_event.clear()  # Reset the internal flag to false (Shutting down)
+
+    pause_main_state.set_main_state(pause_main_event)
+    shutdown_state.set_state(shutdown_event)
+
+    print(shutdown_message)
+    raise SystemExit(0)

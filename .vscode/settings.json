@@ -1,0 +1,18 @@
+{
+	"python.envFile": "${workspaceFolder}/.env",
+	"python.terminal.executeInFileDir": false,
+	"python.terminal.useEnvFile": true,
+	"cSpell.words": [
+		"autoflush",
+		"automator",
+		"DESMUME",
+		"feebas",
+		"POKEDEX",
+		"POKERADAR",
+		"poketch",
+		"pyautogui",
+		"pygetwindow",
+		"pywindow",
+		"sessionmaker"
+	]
+}

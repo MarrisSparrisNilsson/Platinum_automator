@@ -1,7 +1,8 @@
 # core/application_context.py
 
-import time
 import threading
+import time
+
 import pygetwindow as pywindow
 
 
@@ -61,14 +62,8 @@ class ApplicationContext:
 
             if self.window:
 
-                current_size = (
-                    self.window.width,
-                    self.window.height
-                )
-                current_position = (
-                    self.window.left,
-                    self.window.top
-                )
+                current_size = (self.window.width, self.window.height)
+                current_position = (self.window.left, self.window.top)
 
                 if current_size != last_size:
                     with self._lock:

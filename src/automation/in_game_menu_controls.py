@@ -1,14 +1,18 @@
-import pyautogui
 import time
 
-from src.core.App import app_context
-from src.states.Shutdown import ShutdownStateManager
-from src.vision.game_ui_detector import get_pixel_coords, has_background_changed
-from src.core.Game import game_context
-from src.vision.game_ui_detector import dialog_is_open
-from src.automation import controls
-from src.core.enums import InGameMenuSlots, UtilityItems, BagSlots
+import pyautogui
 
+from src.automation import controls
+from src.core.App import app_context
+from src.core.enums import BagSlots, InGameMenuSlots, UtilityItems
+from src.core.Game import game_context
+from src.definitions import SRC_DIR
+from src.states.Shutdown import ShutdownStateManager
+from src.vision.game_ui_detector import (
+    dialog_is_open,
+    get_pixel_coords,
+    has_background_changed,
+)
 
 # in_game_menu_pixels = {
 #     {
@@ -64,7 +68,7 @@ def execute_inGame_menu_action(menu_num: InGameMenuSlots, utility_item: UtilityI
 
 def register_key_item(register: bool = True):
     if register:
-        (w, h) = app_context.window_size
+        w, h = app_context.window_size
         x = int(0.43195876288659796 * w)
         y = int(0.5070093457943925 * h)
         if pyautogui.pixelMatchesColor(x, y, (247, 148, 123)):
@@ -86,10 +90,13 @@ def find_menu_action(menu_num: InGameMenuSlots):
 
     # Menu Y: H * (0.24065420560747663 - 0.12967289719626168)
 
-    (window_width, window_height) = app_context.window_size
+    window_width, window_height = app_context.window_size
 
     # Pixel in the middle of the orange rectangle (on the height axis) of the top most menu.
-    menu_p = (int(window_width * 0.3077319587628866), int(window_height * (0.18574766355140188 + (menu_num.value * (0.24065420560747663 - 0.12967289719626168)))))
+    menu_p = (
+        int(window_width * 0.3077319587628866),
+        int(window_height * (0.18574766355140188 + (menu_num.value * (0.24065420560747663 - 0.12967289719626168)))),
+    )
 
     # menu_p = (int(window_width * 0.3077319587628866), int(window_height * 0.6285046728971962))
     # save_box_p = (int(window_width * 0.12061855670103093), int(window_height * 0.32710280373831774))
@@ -114,7 +121,7 @@ def find_menu_action(menu_num: InGameMenuSlots):
 
 
 def save_in_game():
-    (window_width, window_height) = app_context.window_size
+    window_width, window_height = app_context.window_size
     save_box_p = (int(window_width * 0.12061855670103093), int(window_height * 0.32710280373831774))
     start_save_box = pyautogui.pixel(save_box_p[0], save_box_p[1])
     while True:
@@ -155,13 +162,13 @@ def search_bag_item(utility_item_slot: int, utility_name: str):
     x1, y1 = get_pixel_coords(0.034536082474226806, 0.8761682242990654)
 
     direction_changed = False
-    bottom_reached = False
     while True:
         try:
             time.sleep(0.1)
             # FIXME: INVESTIGATE IF WORD RECOGNITION IS A BETTER SUITE FOR THIS FUNCTION
             # FIXME: Image region should be dynamic to window screen resolution
-            match = pyautogui.locateCenterOnScreen(f"../images/utility_items/{utility_name}.png", region=(10, 690, 110, 120), confidence=0.95)
+            utility_item_location = SRC_DIR / f"assets/images/utility_items/{utility_name}.png"
+            match = pyautogui.locateCenterOnScreen(str(utility_item_location), region=(10, 690, 110, 120), confidence=0.95)
             if match:  # Utility item found
                 # print("Item was found.")
                 return
@@ -177,13 +184,12 @@ def search_bag_item(utility_item_slot: int, utility_name: str):
             else:
                 controls.down()
 
-            # If the same item is showing, change scroll direction
+            # If the same item is showing, change scroll direction or terminate search
             if not has_background_changed(x1, y1, start_p):
-                direction_changed = True
-                if bottom_reached:
+                if direction_changed:
                     print("Could not find item.")
                     exit(2)
-                bottom_reached = True
+                direction_changed = True
 
 
 def activate_repel():

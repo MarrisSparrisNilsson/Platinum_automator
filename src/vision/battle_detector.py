@@ -4,11 +4,12 @@ import pyautogui
 import pytesseract
 
 from src.core.App import app_context
-from src.vision.game_ui_detector import has_background_changed
+from src.definitions import SRC_DIR
 from src.states.Shutdown import ShutdownStateManager
+from src.vision.game_ui_detector import has_background_changed
 
 # TODO: Tesseract OCR
-'''
+"""
 Tesseract Page Segmentation Modes (PSM):
     0 = Orientation and script automation (OSD) only.
     1 = Automatic page segmentation with OSD.
@@ -25,17 +26,30 @@ Tesseract Page Segmentation Modes (PSM):
    12 = Sparse text with OSD.
    13 = Raw line. Treat the image as a single text line,
          bypassing hacks that are Tesseract-specific.
-'''
+"""
 
 
 def was_target_pokemon_found(pokemon_name: str):
     # Pokémon name coordinates:
-    # (window.left + 9, int(window.height * 0.20327102803738317), int(window.width * 0.12474226804123711), int(window.height * (0.28085981308411217 - 0.20327102803738317))))
+    # (
+    #     window.left + 9,
+    #     int(window.height * 0.20327102803738317),
+    #     int(window.width * 0.12474226804123711),
+    #     int(window.height * (0.28085981308411217 - 0.20327102803738317))
+    # )
+
     window = app_context.window
 
-    pokemon_name_img_path = "../assets/images/local/pokemon_name.png"
-    pyautogui.screenshot(pokemon_name_img_path, region=(
-        window.left + 9, int(window.height * 0.20327102803738317), int(window.width * 0.12474226804123711), int(window.height * (0.28085981308411217 - 0.20327102803738317))))
+    pokemon_name_img_path = SRC_DIR / "assets/images/local/pokemon_name.png"
+    pyautogui.screenshot(
+        str(pokemon_name_img_path),
+        region=(
+            window.left + 9,
+            int(window.height * 0.20327102803738317),
+            int(window.width * 0.12474226804123711),
+            int(window.height * (0.28085981308411217 - 0.20327102803738317)),
+        ),
+    )
 
     reading_configs = ["--psm 7", "--psm 8"]
     largest_match_count = 0
@@ -77,7 +91,7 @@ def was_target_pokemon_found(pokemon_name: str):
 
 
 def find_sparkles():
-    (window_width, window_height) = app_context.window_size
+    window_width, window_height = app_context.window_size
 
     x1 = int(window_width * 0.2630359212050985)
     y1 = int(window_height * 0.27670250896057347)
@@ -94,13 +108,7 @@ def find_sparkles():
     x5 = int(window_width * 0.45654692931633833)
     y5 = int(window_height * 0.5684587813620071)
 
-    coords = [
-        (x1, y1),
-        (x2, y2),
-        (x3, y3),
-        (x4, y4),
-        (x5, y5)
-    ]
+    coords = [(x1, y1), (x2, y2), (x3, y3), (x4, y4), (x5, y5)]
 
     # time.sleep(1)  # Seconds until Pokémon stands still
     shiny_p1 = pyautogui.pixel(x1, y1)
@@ -109,13 +117,7 @@ def find_sparkles():
     shiny_p4 = pyautogui.pixel(x4, y4)
     shiny_p5 = pyautogui.pixel(x5, y5)
 
-    shiny_p = [
-        shiny_p1,
-        shiny_p2,
-        shiny_p3,
-        shiny_p4,
-        shiny_p5
-    ]
+    shiny_p = [shiny_p1, shiny_p2, shiny_p3, shiny_p4, shiny_p5]
 
     duration = 0
     print("Searching for sparkles...🔎")

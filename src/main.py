@@ -2,27 +2,22 @@
 import threading as thread
 
 # Local modules
-from src.window.focus import set_window_focus, find_pause_and_resume
-from src.UI.cli_ui import select_menu_option
 from src.automation import actions, controls
 from src.core.App import app_context
 from src.database.database import initialize_db
-
-
-# from src.sandbox import lab
+from src.sandbox import lab
+from src.UI.cli_ui import select_menu_option
+from src.window.focus import find_pause_and_resume, set_window_focus
 
 
 def main():
     initialize_db()
-    print("\n=============== Welcome to the Platinum automator ===============")
+    print("\n=============== Welcome to the Platinum-automator ===============")
     controls.console_focus()
 
     app_context.set_window_state()
 
-    window_monitor_thread = thread.Thread(
-        target=app_context.monitor_window,
-        daemon=True
-    )
+    window_monitor_thread = thread.Thread(target=app_context.monitor_window, daemon=True)
     window_monitor_thread.start()
 
     while True:
@@ -45,11 +40,13 @@ def main():
             print("No action was provided")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         # TODO: Refactor old JSON storage functions to new DB storage functions
-        main()
-        # lab.experiment_function(False)
+        # main()
+        # test = {'hej': 1, 'da': 1}
+        # print(list(test.keys())[0])
+        lab.experiment_function("This is an experimental function", False)
         # helpers.test_function(False)
 
     except KeyboardInterrupt:

@@ -47,7 +47,9 @@ class HuntStateManager:
             self._pokemon_name = str(pokemon_name).upper()
             self._hunt_mode = hunt_mode
             self._hunt_method = hunt_method
-            self._encounter_timeout = EncounterTimeout.LEGENDARY.value if hunt_mode == HuntMode.SOFT_RESET.value else EncounterTimeout.REGULAR.value
+            self._encounter_timeout = (EncounterTimeout.LEGENDARY.value
+                                       if hunt_mode == HuntMode.SOFT_RESET.value
+                                       else EncounterTimeout.REGULAR.value)
             # self._total_encounters = total_encounters
             # self._target_pokemon_encounters = target_pokemon_encounters
             self._is_practice = is_practice
@@ -61,10 +63,12 @@ class HuntStateManager:
             return self._hunt_mode
 
     def set_hunt_mode(self, hunt_mode, hunt_method=""):
-        with HuntStateManager._lock:
+        with (HuntStateManager._lock):
             self._hunt_mode = hunt_mode
             self._hunt_method = hunt_method
-            self._encounter_timeout = EncounterTimeout.LEGENDARY.value if hunt_mode == HuntMode.SOFT_RESET.value else EncounterTimeout.REGULAR.value
+            self._encounter_timeout = (EncounterTimeout.LEGENDARY.value
+                                       if hunt_mode == HuntMode.SOFT_RESET.value
+                                       else EncounterTimeout.REGULAR.value)
 
     def set_was_hunted_today(self, was_hunted_today=False):
         with HuntStateManager._lock:

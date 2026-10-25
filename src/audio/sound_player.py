@@ -1,5 +1,4 @@
-import pathlib
-
+from src.definitions import SRC_DIR
 import pygame
 
 
@@ -9,7 +8,7 @@ def play_sound(sound_file_name: str, volume: float = 0.3):
         sound_file_name = sound_file_name + ".mp3"
 
     # Construct the file path
-    sound_path = pathlib.Path(__file__).parent.parent / "assets/sfx" / sound_file_name
+    sound_path = SRC_DIR / "assets/sfx" / sound_file_name
 
     pygame.mixer.init()
     pygame.mixer.music.load(sound_path)

@@ -1,6 +1,8 @@
+from src.encounter_methods.Fishing.Feebas import feebas
 from src.automation.actions import fishing_hunt, soft_reset_hunt, egg_hunt, regular_hunt
 from src.core.enums import HuntMode, FishingTypes, WalkTypes
-from src.encounter_methods import fishing, regular
+from src.encounter_methods import regular
+from src.encounter_methods.Fishing import fishing
 
 ACTION_TYPES = {
     f"{HuntMode.POKERADAR.value}": {
@@ -20,7 +22,7 @@ ACTION_TYPES = {
             {
                 "number": 2,
                 "method_name": f"{FishingTypes.FEEBAS.value}",
-                "method": fishing.feebas_fishing,
+                "method": feebas.feebas_fishing,
                 "args": None
             }
         ]

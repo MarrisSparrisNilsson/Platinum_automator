@@ -1,10 +1,11 @@
-import time
 import sys
+import time
+
 import keyboard
 import pyautogui
 
-from src.core.App import app_context
 from src.automation import controls
+from src.core.App import app_context
 from src.states.Shutdown import ShutdownStateManager
 
 
@@ -18,11 +19,13 @@ def flee_encounter():
         time.sleep(0.1)
         if pyautogui.pixelMatchesColor(x, y, (41, 148, 206)):  # Blue run button
             controls.click_coord(x, y)
-            (w, h) = app_context.window_size
+            w, h = app_context.window_size
             start_time = time.time()
             duration = 0
             # While no black screen detected
-            while not pyautogui.pixelMatchesColor(int(w / 4), int(h / 2), (0, 0, 0)) and not pyautogui.pixelMatchesColor(int(w - (w / 4)), int(h / 2), (0, 0, 0)):
+            while not pyautogui.pixelMatchesColor(int(w / 4), int(h / 2), (0, 0, 0)) and not pyautogui.pixelMatchesColor(
+                int(w - (w / 4)), int(h / 2), (0, 0, 0)
+            ):
                 end_time = time.time()
                 duration = end_time - start_time
 

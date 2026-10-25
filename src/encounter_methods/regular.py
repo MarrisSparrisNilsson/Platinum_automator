@@ -1,10 +1,11 @@
-import time
-import keyboard
 import random
+import time
+
+import keyboard
 
 from src.automation import controls
-from src.states.Shutdown import ShutdownStateManager
 from src.states.Pause import PauseStateManager
+from src.states.Shutdown import ShutdownStateManager
 
 
 def walk_random(_):
@@ -40,8 +41,8 @@ def lets_try_spinning(steps):
 
 def walk_straight_down(steps=1):
     start = time.time()
-    keyboard.press('s')
+    keyboard.press("s")
     time.sleep(0.25 * steps)
-    keyboard.release('s')
+    keyboard.release("s")
     end = time.time()
     print(end - start)

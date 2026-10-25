@@ -5,9 +5,9 @@ import keyboard
 import pyautogui
 
 from src.core.App import app_context
+from src.states.Hunt import HuntStateManager
 from src.states.Pause import PauseStateManager
 from src.states.Shutdown import ShutdownStateManager
-from src.states.Hunt import HuntStateManager
 
 _DEBUG_MODE = sys.gettrace() is not None
 # When recording with OBS, use this key to switch (show/hide) code/emulator scene
@@ -15,11 +15,11 @@ _IS_RECORDING = False
 
 
 def clear_movement():
-    pyautogui.keyUp('w')
-    pyautogui.keyUp('a')
-    pyautogui.keyUp('d')
-    pyautogui.keyUp('s')
-    pyautogui.keyUp('space')
+    pyautogui.keyUp("w")
+    pyautogui.keyUp("a")
+    pyautogui.keyUp("d")
+    pyautogui.keyUp("s")
+    pyautogui.keyUp("space")
 
 
 def turn(key):
@@ -32,59 +32,59 @@ def turn(key):
 
 def down():
     # keyboard.press('s')
-    pyautogui.keyDown('s')
-    pyautogui.keyUp('s')
+    pyautogui.keyDown("s")
+    pyautogui.keyUp("s")
 
 
 def up():
     #     keyboard.press('w')
-    pyautogui.keyDown('w')
-    pyautogui.keyUp('w')
+    pyautogui.keyDown("w")
+    pyautogui.keyUp("w")
 
 
 def left():
     #     keyboard.press('a')
-    pyautogui.keyDown('a')
-    pyautogui.keyUp('a')
+    pyautogui.keyDown("a")
+    pyautogui.keyUp("a")
 
 
 def right():
     #     keyboard.press('d')
-    pyautogui.keyDown('d')
-    pyautogui.keyUp('d')
+    pyautogui.keyDown("d")
+    pyautogui.keyUp("d")
 
 
 def y_button():
     # print("Y")
-    pyautogui.keyDown('b')
-    pyautogui.keyUp('b')
+    pyautogui.keyDown("b")
+    pyautogui.keyUp("b")
 
 
 def x_button():
     # keyboard.press('x')
     # print("X")
-    pyautogui.keyDown('x')
-    pyautogui.keyUp('x')
+    pyautogui.keyDown("x")
+    pyautogui.keyUp("x")
 
 
 def a_button():
     # print("A")
-    pyautogui.keyDown('e')
-    pyautogui.keyUp('e')
+    pyautogui.keyDown("e")
+    pyautogui.keyUp("e")
 
 
 def b_button():
     #     print("A")
-    pyautogui.keyDown('space')
-    pyautogui.keyUp('space')
+    pyautogui.keyDown("space")
+    pyautogui.keyUp("space")
 
 
 def activate_run():
-    pyautogui.keyDown('space')
+    pyautogui.keyDown("space")
 
 
 def deactivate_run():
-    pyautogui.keyUp('space')
+    pyautogui.keyUp("space")
 
 
 def console_focus():
@@ -108,8 +108,8 @@ def switch_tab():
     pyautogui.hotkey("alt", "tab")
 
     if _IS_RECORDING:
-        pyautogui.keyDown('ScrollLock')
-        pyautogui.keyUp('ScrollLock')
+        pyautogui.keyDown("ScrollLock")
+        pyautogui.keyUp("ScrollLock")
 
 
 def run_btn_coords():
@@ -118,7 +118,7 @@ def run_btn_coords():
     BTN_X = 0.75 if HORIZONTAL else 0.5
     BTN_Y = 0.88 if HORIZONTAL else 0.95
 
-    (window_width, window_height) = app_context.window_size
+    window_width, window_height = app_context.window_size
     x = int(window_width * BTN_X)
     y = int(window_height * BTN_Y)
     return x, y
@@ -137,7 +137,7 @@ def move(direction, steps=1):
         if ShutdownStateManager.get_instance().check_shutdown_state():
             return
 
-    move_dirs = ['a', 'w', 'd', 's']
+    move_dirs = ["a", "w", "d", "s"]
     if direction is int:
         key = move_dirs[direction]
     else:

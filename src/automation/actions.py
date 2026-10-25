@@ -1,13 +1,12 @@
 import keyboard
 
 from src.automation import controls, in_game_menu_controls
-
-from src.encounter_methods import soft_reset, egg, flee
-from src.states.Shutdown import ShutdownStateManager
-from src.states.Pause import PauseStateManager
-from src.states.Hunt import HuntStateManager
-from src.core.enums import InGameMenuSlots
 from src.core.App import app_context
+from src.core.enums import InGameMenuSlots
+from src.encounter_methods import egg, flee, soft_reset
+from src.states.Hunt import HuntStateManager
+from src.states.Pause import PauseStateManager
+from src.states.Shutdown import ShutdownStateManager
 from src.vision import encounter_detector
 
 
@@ -60,6 +59,9 @@ def regular_hunt(search_encounter_func, search_args):
 
 
 def watch_exit():
+    """
+    Await the escape button being pressed to signal a shutdown request.
+    """
     # shutdown_state = ShutdownStateManager.get_instance()
     shutdown_event = app_context.shutdown_event
     keyboard.wait("esc")

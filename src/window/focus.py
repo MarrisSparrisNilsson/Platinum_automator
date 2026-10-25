@@ -6,6 +6,7 @@ import pygetwindow as pywindow
 
 from src.automation import controls
 from src.core.App import app_context
+from src.definitions import SRC_DIR
 
 
 def set_window_focus():
@@ -26,8 +27,9 @@ def set_window_focus():
 
 
 def find_pause_and_resume():
+    pause_btn_asset_path = SRC_DIR / "assets/images/paused.png"
     try:
-        res = pyautogui.locateCenterOnScreen("../images/paused.png", region=(0, 0, 210, 100), confidence=0.9)
+        res = pyautogui.locateCenterOnScreen(str(pause_btn_asset_path), region=(0, 0, 210, 100), confidence=0.9)
         # if res is None:
         #     print("The game is up and running!")
         # else:

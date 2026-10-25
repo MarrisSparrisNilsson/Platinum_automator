@@ -63,7 +63,15 @@ def select_menu_option() -> thread.Thread:
                         is_practice = hunt['is_practice']
                     except KeyError:
                         is_practice = False
-                    HuntStateManager.get_instance().set_hunt_state(hunt_id, pokemon_name, hunt_mode, hunt_method, total_encounters, target_pokemon_encounters, is_practice)
+                    HuntStateManager.get_instance().set_hunt_state(
+                        hunt_id,
+                        pokemon_name,
+                        hunt_mode,
+                        hunt_method,
+                        total_encounters,
+                        target_pokemon_encounters,
+                        is_practice
+                    )
 
                     return load_action(hunt_mode, hunt_method)
                 case 3 | 4:
@@ -292,7 +300,7 @@ def print_all_hunts(hunt: Hunt = None, formatted: bool = True):
 
 
 def db_obj_print(hunts: list[Hunt], formatted=True):
-    for h in hunts:
+    for h in list(reversed(hunts)):
         if formatted:
             for k, v in to_dict(h).items():
                 formatted_key_name = str(k).replace("_", " ").title()
@@ -333,3 +341,12 @@ def load_action(hunt_mode, hunt_method) -> thread.Thread:
 
     HuntStateManager.get_instance().set_hunt_mode(hunt_mode, method_name)
     return thread.Thread(target=action, args=[method, args], daemon=False)
+
+
+def print_map(grid):
+    """
+    Prints the grid map in the console
+    :param grid: Grid map
+    """
+    for row in grid:
+        print(" ".join(str(v) for v in row))

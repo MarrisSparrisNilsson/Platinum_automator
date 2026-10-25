@@ -1,16 +1,17 @@
 import time
+
 import keyboard
 import pyautogui
 
-from src.vision.game_ui_detector import has_background_changed, dialog_is_open
-from src.core.Game import game_context
-from src.core.App import app_context
 from src.automation import controls
+from src.core.App import app_context
+from src.core.Game import game_context
 from src.states.Shutdown import ShutdownStateManager
+from src.vision.game_ui_detector import dialog_is_open, has_background_changed
 
 
 def hatch_egg():
-    (w, h) = app_context.window_size
+    w, h = app_context.window_size
     x = int(w * 1 / 8)
     y = int(h * 1 / 3)
     pixel = pyautogui.pixel(x, y)
@@ -20,7 +21,7 @@ def hatch_egg():
     False is DOWN
     """
     previous_direction = True
-    keyboard.press('w')
+    keyboard.press("w")
     while True:
         if ShutdownStateManager.get_instance().check_shutdown_state():
             return
@@ -40,8 +41,8 @@ def hatch_egg():
         print("Where we at?")
         pyautogui.moveTo(x, y)
         if dialog_is_open():  # Egg hatching
-            keyboard.release('w')
-            keyboard.release('s')
+            keyboard.release("w")
+            keyboard.release("s")
             print("Egg is hatching!")
             controls.a_button()
             time.sleep(2)
@@ -55,17 +56,17 @@ def hatch_egg():
             if previous_direction:  # Then, go down
                 print("Going down")
                 # previous_direction = False
-                keyboard.release('w')
-                keyboard.press('s')
+                keyboard.release("w")
+                keyboard.press("s")
             else:  # Then, go up
                 print("Going up")
                 #                 previous_direction = True
-                keyboard.release('s')
-                keyboard.press('w')
+                keyboard.release("s")
+                keyboard.press("w")
 
 
 def is_two_pokemon_inserted():
-    (w, h) = app_context.window_size
+    w, h = app_context.window_size
     pokemon_coord1 = (int(w * 0.6108374384236454), int(h * 0.7206840390879479))
     pokemon_coord2 = (int(w * 0.8171544479860909), int(h * 0.7320846905537459))
 
@@ -84,7 +85,7 @@ def is_two_pokemon_inserted():
 
 # In Solaceon town we bike up and down and while refreshing the Poketch to see when an egg has appeared
 def get_egg():
-    (w, h) = app_context.window_size
+    w, h = app_context.window_size
     x = w * 1 / 8
     y = h * 1 / 3
     pixel = pyautogui.pixel(x, y)
@@ -109,7 +110,7 @@ def get_egg():
                 duration = end_time - start_time
         # =====================
 
-        # Refresh Pokétch
+        # Refresh Poketch
         controls.click_coord(w * 3 / 4, h / 2)
         # if automation.dialog_is_open():
 
@@ -117,11 +118,11 @@ def get_egg():
             pixel = pyautogui.pixel(x, y)
             previous_direction = not previous_direction
             if previous_direction:  # Then, go down
-                keyboard.release('w')
-                keyboard.press('s')
+                keyboard.release("w")
+                keyboard.press("s")
             else:  # Then, go up
-                keyboard.release('s')
-                keyboard.press('w')
+                keyboard.release("s")
+                keyboard.press("w")
 
 
 # x, y = controls.run_btn_coords()
@@ -137,7 +138,8 @@ def get_egg():
 #         start_time = time.time()
 #         duration = 0
 #         # While no black screen detected
-#         while not pyautogui.pixelMatchesColor(int(w / 4), int(h / 2), (0, 0, 0)) and not pyautogui.pixelMatchesColor(int(w - (w / 4)), int(h / 2), (0, 0, 0)):
+#         while (not pyautogui.pixelMatchesColor(int(w / 4), int(h / 2), (0, 0, 0))
+#                and not pyautogui.pixelMatchesColor(int(w - (w / 4)), int(h / 2), (0, 0, 0))):
 #             end_time = time.time()
 #             duration = end_time - start_time
 #
