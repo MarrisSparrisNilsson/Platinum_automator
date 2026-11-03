@@ -36,7 +36,7 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Unit test / coverage reports
+# Unit tests / coverage reports
 htmlcov/
 .tox/
 .nox/
@@ -239,6 +239,7 @@ fabric.properties
 
 
 ### Experiment folder
-*/images/test
-*/images/local
+src/assets/images/test
+src/assets/images/local
 data
+src/sandbox/

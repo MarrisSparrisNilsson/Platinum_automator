@@ -1,9 +1,6 @@
-from sqlalchemy.orm import declarative_base
-from sqlalchemy import Column
-from sqlalchemy import String
-from sqlalchemy import Integer
-from sqlalchemy import Boolean
-from sqlalchemy import Date
+from sqlalchemy import Boolean, Column, Date, Integer, String
+from sqlalchemy.orm import Mapped, declarative_base, mapped_column
+from sqlalchemy.types import JSON
 
 Base = declarative_base()
 
@@ -31,5 +28,7 @@ class Feebas(Base):
 
     found_at = Column(Integer, nullable=False, default=0)
     latest_tile = Column(Integer, nullable=False, default=0)
+    furthest_tile_reached_today = Column(Integer, nullable=False, default=0)
     found_date = Column(String)
     current_date = Column(String, nullable=False)
+    non_cleared_tiles: Mapped[list[list[int]]] = mapped_column(JSON, default=list)

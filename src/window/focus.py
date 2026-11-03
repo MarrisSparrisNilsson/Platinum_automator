@@ -1,0 +1,39 @@
+import threading as thread
+import time
+
+import pyautogui
+import pygetwindow as pywindow
+
+from src.automation import controls
+from src.core.App import app_context
+from src.definitions import SRC_DIR
+
+
+def set_window_focus():
+    with thread.Lock():
+        window = app_context.get_window()
+
+        # print(f"{window}\n")
+        try:
+            window.activate()
+        except pywindow.PyGetWindowException:
+            controls.switch_tab()
+            print("Something went wrong when trying to activate the window")
+            window.minimize()
+            window.maximize()
+            window.restore()
+
+
+def find_pause_and_resume():
+    pause_btn_asset_path = SRC_DIR / "assets/images/paused.png"
+    try:
+        res = pyautogui.locateCenterOnScreen(str(pause_btn_asset_path), region=(0, 0, 210, 100), confidence=0.9)
+        # if res is None:
+        #     print("The game is up and running!")
+        # else:
+        pyautogui.click(res)
+    except OSError:
+        print("Incorrect image source.")
+    except pyautogui.ImageNotFoundException:
+        # print("The game is up and running!\n")
+        pass

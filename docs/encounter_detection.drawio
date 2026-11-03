@@ -1,0 +1,259 @@
+<mxfile host="65bd71144e">
+    <diagram id="pN9p2Vqx_pd_rBbJgZHH" name="Page-1">
+        <mxGraphModel dx="1018" dy="1510" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1400" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="TunnuS4QatiP4f6u351Z-5" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-6" style="edgeStyle=none;html=1;" target="TunnuS4QatiP4f6u351Z-4" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="___encounter_detection_thread___" vertex="1">
+                    <mxGeometry height="40" width="220" x="1290" y="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-9" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-4" style="edgeStyle=none;html=1;" target="TunnuS4QatiP4f6u351Z-8" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-4" parent="1" style="whiteSpace=wrap;html=1;fillColor=#f9f7ed;strokeColor=#36393d;" value="&lt;span&gt;&lt;b style=&quot;color: rgb(255, 0, 0);&quot;&gt;Pause:&lt;/b&gt;&lt;span style=&quot;color: light-dark(rgb(255, 0, 0), rgb(255, 144, 144));&quot;&gt; ___encounter_detection_thread___&lt;/span&gt;&lt;/span&gt;&lt;div&gt;&lt;span&gt;&lt;b style=&quot;&quot;&gt;&lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;Resume:&amp;nbsp;&lt;/span&gt;&lt;/b&gt;&lt;span style=&quot;color: light-dark(rgb(0, 153, 0), rgb(50, 181, 50));&quot;&gt;___search_encounter_thread___&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;" vertex="1">
+                    <mxGeometry height="60" width="260" x="1270" y="250" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-7" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-54" style="edgeStyle=none;html=1;" target="TunnuS4QatiP4f6u351Z-6" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="1400" y="170" as="sourcePoint"/>
+                        <mxPoint x="1400" y="260" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-6" parent="1" style="whiteSpace=wrap;html=1;" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;(p1, p2)&lt;/span&gt;&lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt; = get_encounter_pixels&lt;/span&gt;()" vertex="1">
+                    <mxGeometry height="30" width="200" x="1300" y="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-11" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-8" style="edgeStyle=none;html=1;" target="TunnuS4QatiP4f6u351Z-10" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-70" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-8" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#009900;strokeWidth=4;" target="TunnuS4QatiP4f6u351Z-21">
+                    <mxGeometry relative="1" x="0.0625" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-75" connectable="0" parent="TunnuS4QatiP4f6u351Z-70" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=fontFamily,fontSize,fontStyle,textOpacity,labelBorderColor,labelBorderWidth,labelBackgroundColor,defaultLabelBackgroundColor,labelPadding;fontColor=#009900;textShadow=1;" value="&lt;b&gt;&lt;font style=&quot;font-size: 18px;&quot;&gt;&lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;CREATE THRE&lt;/span&gt;&lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;AD&lt;/span&gt;&lt;/font&gt;&lt;/b&gt;" vertex="1">
+                    <mxGeometry relative="1" x="0.0333" y="-3" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-8" parent="1" style="whiteSpace=wrap;html=1;" value="search_encounter_thread.&lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;start&lt;/span&gt;()" vertex="1">
+                    <mxGeometry height="20" width="180" x="1310" y="330" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-13" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-10" style="edgeStyle=none;html=1;" target="TunnuS4QatiP4f6u351Z-12" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-10" parent="1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;fillColor=#cce5ff;strokeColor=#36393d;" value="&lt;b&gt;while:&lt;/b&gt;&amp;nbsp;&lt;span style=&quot;text-decoration-line: inherit; background-color: transparent;&quot;&gt;&lt;b style=&quot;&quot;&gt;&lt;span style=&quot;color: rgb(255, 0, 0);&quot;&gt;n&lt;/span&gt;&lt;span style=&quot;color: rgb(255, 0, 0);&quot;&gt;o&lt;/span&gt;&lt;span style=&quot;color: rgb(255, 0, 0);&quot;&gt;t&lt;/span&gt;&lt;/b&gt;&lt;/span&gt;&lt;span style=&quot;color: rgb(63, 63, 63); text-decoration-line: inherit; background-color: transparent;&quot;&gt; shiny_is_found&lt;/span&gt;" vertex="1">
+                    <mxGeometry height="60" width="140" x="1330" y="370" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-15" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-12" style="edgeStyle=none;html=1;" target="TunnuS4QatiP4f6u351Z-14" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-12" parent="1" style="whiteSpace=wrap;html=1;" value="is_encounter = &lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;encounter_started&lt;/span&gt;(&lt;span style=&quot;color: rgb(255, 128, 0);&quot;&gt;p1&lt;/span&gt;, &lt;span style=&quot;color: rgb(255, 128, 0);&quot;&gt;p2&lt;/span&gt;)" vertex="1">
+                    <mxGeometry height="40" width="240" x="1280" y="460" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-17" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-14" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="TunnuS4QatiP4f6u351Z-10">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1540" y="555"/>
+                            <mxPoint x="1540" y="400"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-18" connectable="0" parent="TunnuS4QatiP4f6u351Z-17" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=1;" value="False" vertex="1">
+                    <mxGeometry relative="1" x="-0.7269" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-20" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-14" style="edgeStyle=none;html=1;" target="TunnuS4QatiP4f6u351Z-19" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-14" parent="1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;fillColor=#ffcccc;strokeColor=#36393d;" value="is_encounter" vertex="1">
+                    <mxGeometry height="50" width="100" x="1350" y="530" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-25" edge="1" parent="1" style="edgeStyle=none;html=1;strokeWidth=3;strokeColor=#FF0000;">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="1400" y="590" as="sourcePoint"/>
+                        <mxPoint x="1039.6399999999999" y="590" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-26" connectable="0" parent="TunnuS4QatiP4f6u351Z-25" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=fontFamily,fontSize,fontStyle,textOpacity,labelBorderColor,labelBorderWidth,labelBackgroundColor,defaultLabelBackgroundColor,labelPadding;fontColor=#FF8000;textShadow=1;" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;&lt;b&gt;&lt;span style=&quot;color: rgb(255, 0, 0);&quot;&gt;P&lt;/span&gt;&lt;span style=&quot;color: rgb(255, 0, 0);&quot;&gt;ause:&lt;br&gt;__&lt;/span&gt;&lt;/b&gt;&lt;span style=&quot;color: rgb(255, 0, 0);&quot;&gt;search_encoutner__&lt;/span&gt;&lt;/font&gt;" vertex="1">
+                    <mxGeometry relative="1" x="-0.2201" as="geometry">
+                        <mxPoint x="-79" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-32" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-19" style="edgeStyle=none;html=1;" target="TunnuS4QatiP4f6u351Z-31" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-19" parent="1" style="whiteSpace=wrap;html=1;fontColor=#000000;" value="&lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;clear_movement&lt;/span&gt;()&lt;div&gt;time_out = &lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;get_encounter_timeout&lt;/span&gt;()&lt;/div&gt;&lt;div&gt;time.&lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;sleep&lt;/span&gt;(&lt;span style=&quot;color: rgb(255, 128, 0);&quot;&gt;time_out&lt;/span&gt;)&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;scrollbar-color: rgba(121, 121, 121, 0.4) rgb(39, 40, 34); color: rgb(0, 0, 0);&quot;&gt;pokemon_name = &lt;/span&gt;&lt;span style=&quot;scrollbar-color: rgba(121, 121, 121, 0.4) rgb(39, 40, 34); color: rgb(0, 153, 0);&quot;&gt;get_hunted_pokemon_name&lt;/span&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;()&lt;/span&gt;&lt;/div&gt;&lt;div&gt;target_found = &lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;was_target_pokemon_found&lt;/span&gt;(&lt;span style=&quot;color: rgb(255, 128, 0);&quot;&gt;pokemon_name&lt;/span&gt;)&lt;/div&gt;" vertex="1">
+                    <mxGeometry height="80" width="340" x="1230" y="620" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-22" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-21" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;strokeWidth=2;">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="1038.95" y="1250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-21" parent="1" style="whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;" value="___search_encounter_thread___" vertex="1">
+                    <mxGeometry height="40" width="200" x="940" y="370" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-28" edge="1" parent="1" style="edgeStyle=none;html=1;strokeWidth=3;strokeColor=#009900;">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="1040" y="440" as="sourcePoint"/>
+                        <mxPoint x="1400" y="440" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-29" connectable="0" parent="TunnuS4QatiP4f6u351Z-28" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=fontFamily,fontSize,fontStyle,textOpacity,labelBorderColor,labelBorderWidth,labelBackgroundColor,defaultLabelBackgroundColor,labelPadding;strokeColor=#009900;fontColor=#009900;textShadow=1;" value="&lt;b style=&quot;color: rgb(0, 153, 0);&quot;&gt;Unlock:&lt;/b&gt; &lt;br&gt;___encounter_detection_thread___" vertex="1">
+                    <mxGeometry relative="1" x="0.0333" y="-1" as="geometry">
+                        <mxPoint x="-46" y="-1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-34" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-31" style="edgeStyle=none;html=1;" target="TunnuS4QatiP4f6u351Z-33" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-35" connectable="0" parent="TunnuS4QatiP4f6u351Z-34" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=1;" value="True" vertex="1">
+                    <mxGeometry relative="1" x="-0.1928" y="-2" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-38" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-31" style="edgeStyle=none;html=1;" target="TunnuS4QatiP4f6u351Z-37" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-31" parent="1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;fillColor=#f8cecc;strokeColor=#b85450;" value="target_found and &lt;span style=&quot;color: rgb(255, 0, 0);&quot;&gt;not &lt;/span&gt;shiny_is_found" vertex="1">
+                    <mxGeometry height="100" width="140" x="1330" y="730" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-39" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-33" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="TunnuS4QatiP4f6u351Z-37">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1180" y="850"/>
+                            <mxPoint x="1400" y="850"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-33" parent="1" style="whiteSpace=wrap;html=1;" value="&lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;play_sound&lt;/span&gt;()&lt;div&gt;&lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;set_target_pokemon_found&lt;/span&gt;()&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;hunt_id = &lt;/span&gt;&lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;get_hunted_id&lt;/span&gt;()&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;increment_target_encounters&lt;/span&gt;(&lt;span style=&quot;color: rgb(255, 128, 0);&quot;&gt;hunt_id&lt;/span&gt;)&lt;/div&gt;" vertex="1">
+                    <mxGeometry height="80" width="220" x="1070" y="740" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-41" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-37" style="edgeStyle=none;html=1;" target="TunnuS4QatiP4f6u351Z-40" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-37" parent="1" style="whiteSpace=wrap;html=1;" value="shiny_is_found = &lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;find_sparkles&lt;/span&gt;()" vertex="1">
+                    <mxGeometry height="20" width="200" x="1300" y="870" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-45" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-40" style="edgeStyle=none;html=1;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" target="TunnuS4QatiP4f6u351Z-44" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-46" connectable="0" parent="TunnuS4QatiP4f6u351Z-45" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=1;" value="True" vertex="1">
+                    <mxGeometry relative="1" x="0.4009" y="1" as="geometry">
+                        <mxPoint x="-33" y="1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-40" parent="1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;fillColor=#f8cecc;strokeColor=#b85450;" value="shiny_is_found" vertex="1">
+                    <mxGeometry height="40" width="120" x="1340" y="910" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-48" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-44" style="edgeStyle=none;html=1;" target="TunnuS4QatiP4f6u351Z-47" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-44" parent="1" style="whiteSpace=wrap;html=1;" value="&lt;div&gt;&lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;Display congratulations message&lt;/span&gt;&lt;/div&gt;&lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;play_sound&lt;/span&gt;()" vertex="1">
+                    <mxGeometry height="80" width="100" x="1550" y="870" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-50" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-47" style="edgeStyle=none;html=1;" target="TunnuS4QatiP4f6u351Z-49" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-47" parent="1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;fillColor=#f8cecc;strokeColor=#b85450;" value="target_found" vertex="1">
+                    <mxGeometry height="30" width="120" x="1540" y="970" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-59" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-49" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="TunnuS4QatiP4f6u351Z-58" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="1600" y="1100" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-49" parent="1" style="whiteSpace=wrap;html=1;" value="&lt;div&gt;&lt;span style=&quot;scrollbar-color: rgba(121, 121, 121, 0.4) rgb(39, 40, 34); color: rgb(0, 153, 0);&quot;&gt;play_sound&lt;/span&gt;&lt;span style=&quot;scrollbar-color: rgba(121, 121, 121, 0.4) rgb(39, 40, 34); color: rgb(0, 0, 0);&quot;&gt;()&lt;/span&gt;&lt;/div&gt;&lt;span style=&quot;scrollbar-color: rgba(121, 121, 121, 0.4) rgb(39, 40, 34); color: rgb(0, 153, 0);&quot;&gt;finish_hunt&lt;/span&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;(&lt;/span&gt;&lt;span style=&quot;scrollbar-color: rgba(121, 121, 121, 0.4) rgb(39, 40, 34); color: rgb(255, 128, 0);&quot;&gt;hunt_id&lt;/span&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;)&lt;/span&gt;" vertex="1">
+                    <mxGeometry height="60" width="120" x="1540" y="1020" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-53" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-40" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="TunnuS4QatiP4f6u351Z-52" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points"/>
+                        <mxPoint x="1460" y="930" as="sourcePoint"/>
+                        <mxPoint x="1470" y="400" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-65" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-52" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="TunnuS4QatiP4f6u351Z-10">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1520" y="1030"/>
+                            <mxPoint x="1520" y="810"/>
+                            <mxPoint x="1600" y="810"/>
+                            <mxPoint x="1600" y="400"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-52" parent="1" style="whiteSpace=wrap;html=1;" value="&lt;span style=&quot;color: rgb(255, 128, 0);&quot;&gt;end_encounter_func&lt;/span&gt;()" vertex="1">
+                    <mxGeometry height="40" width="140" x="1330" y="1010" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-55" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-1" style="edgeStyle=none;html=1;" target="TunnuS4QatiP4f6u351Z-54" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="1400" y="110" as="sourcePoint"/>
+                        <mxPoint x="1400" y="200" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-54" parent="1" style="whiteSpace=wrap;html=1;" value="&lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;encounter_detection&lt;/span&gt;(&lt;span style=&quot;background-color: transparent; color: rgb(255, 128, 0);&quot;&gt;search_encounter_func&lt;/span&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;,&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: rgb(255, 128, 0);&quot;&gt;end_encounter_func&lt;/span&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;,&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: rgb(255, 128, 0);&quot;&gt;search_args&lt;/span&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;=None)&lt;/span&gt;&lt;/div&gt;" vertex="1">
+                    <mxGeometry height="50" width="380" x="1210" y="130" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-61" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-58" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="TunnuS4QatiP4f6u351Z-60" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="1600" y="1150" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-62" connectable="0" parent="TunnuS4QatiP4f6u351Z-61" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=1;" value="True" vertex="1">
+                    <mxGeometry relative="1" x="-0.2911" y="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-63" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-66" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="TunnuS4QatiP4f6u351Z-52">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-58" parent="1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;fillColor=#f8cecc;strokeColor=#b85450;" value="&lt;span style=&quot;background-color: transparent; text-decoration-line: inherit; color: rgb(255, 0, 0);&quot;&gt;not&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: rgb(63, 63, 63); text-decoration-line: inherit;&quot;&gt; flee_from_shiny&lt;/span&gt;" vertex="1">
+                    <mxGeometry height="50" width="140" x="1530" y="1105" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-60" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="END" vertex="1">
+                    <mxGeometry height="40" width="100" x="1550" y="1190" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-67" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-58" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="TunnuS4QatiP4f6u351Z-66" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="1530" y="1125" as="sourcePoint"/>
+                        <mxPoint x="1400" y="1040" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-66" parent="1" style="whiteSpace=wrap;html=1;" value="shiny_is_found = False" vertex="1">
+                    <mxGeometry height="30" width="140" x="1330" y="1115" as="geometry"/>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-68" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-52" style="edgeStyle=none;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=3;strokeColor=#009900;">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="1330" y="1030" as="sourcePoint"/>
+                        <mxPoint x="1040" y="1030" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-69" connectable="0" parent="TunnuS4QatiP4f6u351Z-68" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=fontFamily,fontSize,fontStyle,textOpacity,labelBorderColor,labelBorderWidth,labelBackgroundColor,defaultLabelBackgroundColor,labelPadding;strokeColor=#009900;fontColor=#009900;textShadow=1;" value="&lt;b style=&quot;color: rgb(0, 153, 0);&quot;&gt;Unlock:&lt;br&gt;&lt;/b&gt;___search_encounter_thread___" vertex="1">
+                    <mxGeometry relative="1" x="-0.1793" y="-1" as="geometry">
+                        <mxPoint x="-21" y="1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-71" edge="1" parent="1" source="TunnuS4QatiP4f6u351Z-60" style="edgeStyle=none;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;strokeColor=#FF0000;strokeWidth=4;" value="">
+                    <mxGeometry relative="1" width="100" as="geometry">
+                        <Array as="points"/>
+                        <mxPoint x="1240" y="1200" as="sourcePoint"/>
+                        <mxPoint x="1040" y="1210" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-72" connectable="0" parent="TunnuS4QatiP4f6u351Z-71" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=fontFamily,fontSize,fontStyle,textOpacity,labelBorderColor,labelBorderWidth,labelBackgroundColor,defaultLabelBackgroundColor,labelPadding;strokeColor=#CCFFCC;fontColor=#FF0000;" value="" vertex="1">
+                    <mxGeometry relative="1" x="0.0019" y="-4" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TunnuS4QatiP4f6u351Z-74" connectable="0" parent="TunnuS4QatiP4f6u351Z-71" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=fontFamily,fontSize,fontStyle,textOpacity,labelBorderWidth,labelBackgroundColor,defaultLabelBackgroundColor,labelPadding;fontColor=#FF0000;labelBorderColor=none;textShadow=1;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&lt;span style=&quot;color: rgb(255, 0, 0);&quot;&gt;KILL&lt;/span&gt;&lt;span style=&quot;color: rgb(255, 0, 0);&quot;&gt; THREAD&lt;/span&gt;&lt;/b&gt;&lt;/font&gt;" vertex="1">
+                    <mxGeometry relative="1" x="-0.0046" y="-4" as="geometry">
+                        <mxPoint x="4" y="4" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
