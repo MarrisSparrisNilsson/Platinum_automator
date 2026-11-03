@@ -6,13 +6,18 @@
 		"autoflush",
 		"automator",
 		"DESMUME",
+		"emojize",
 		"feebas",
 		"POKEDEX",
 		"POKERADAR",
 		"poketch",
 		"pyautogui",
 		"pygetwindow",
+		"pytest",
 		"pywindow",
 		"sessionmaker"
-	]
+	],
+	"python.testing.pytestEnabled": true,
+	"python.testing.unittestEnabled": false,
+	"python.testing.pytestArgs": ["-s", "src/tests"]
 }

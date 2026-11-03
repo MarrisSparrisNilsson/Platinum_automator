@@ -4,7 +4,6 @@ import time
 from src.core.App import app_context
 from src.states.Shutdown import ShutdownStateManager
 
-
 # from src.UI import actions
 
 
@@ -23,8 +22,8 @@ def _worker_isolated(shutdown_event):
 
 
 def _worker_shared():
-    # shutdown_event = ShutdownStateManager.get_instance().get_state()
-    shutdown_event = app_context.shutdown_event
+    shutdown_event = ShutdownStateManager.get_instance().get_state()
+    # shutdown_event = app_context.shutdown_event
     print("id", id(shutdown_event))
     while not shutdown_event.is_set():
         time.sleep(0.01)
@@ -46,10 +45,7 @@ def _worker_shared():
 def test_shutdown_thread_isolated():
     shutdown_event = thread.Event()
 
-    shutdown_thread = thread.Thread(
-        target=_worker_isolated,
-        args=(shutdown_event,)
-    )
+    shutdown_thread = thread.Thread(target=_worker_isolated, args=(shutdown_event,))
 
     print("")
 
