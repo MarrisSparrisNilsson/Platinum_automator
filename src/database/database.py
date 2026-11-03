@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -16,11 +18,15 @@ SessionLocal = sessionmaker(bind=_engine, autoflush=False, autocommit=False)
 
 # From using your db init code:
 def initialize_db():
+    if not isinstance(_db_file_path, Path) or _db_name == "":
+        raise ValueError("No save location provided for _db_file_path.")
+
     if not _db_file_path.exists():
         print("No existing DB. Initializing a new one.")
         _db_file_path.touch()
 
     Base.metadata.create_all(_engine)
+    return _engine
 
 
 def print_db_path():
