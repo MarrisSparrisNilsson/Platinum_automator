@@ -65,4 +65,5 @@ class FeebasHuntConfig(Enum):
     START = auto()
     CURRENT_POS = auto()
     START_TO_POS = auto()
+    START_TO_FURTHEST = auto()
     POS_TO_NEW = auto()

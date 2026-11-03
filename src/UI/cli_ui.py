@@ -4,16 +4,16 @@ import threading as thread
 from sqlalchemy import inspect
 
 import src.automation.action_registry
+from src.automation import actions
 from src.automation.action_registry import ACTION_TYPES
+from src.core.enums import HuntMode
 from src.database.database import SessionLocal
 from src.database.models import Hunt
 from src.database.repositories import PokemonHuntRepository as hunt_db
 from src.database.repositories.FeebasRepository import get_feebas_state
 from src.database.repositories.PokemonHuntRepository import get_latest_hunt
-from src.automation import actions
-from src.core.enums import HuntMode
-from src.utils.helpers import get_date
 from src.states.Hunt import HuntStateManager
+from src.utils.helpers import get_date
 
 
 def select_menu_option() -> thread.Thread:
@@ -30,7 +30,7 @@ def select_menu_option() -> thread.Thread:
                     # file_manager.display_hunt(to_dict(hunt))
                     print_all_hunts(hunt)
                     ans = input("Do you want to continue this hunt? (y/n): ")
-                    if ans == 'y' or ans == 'yes':
+                    if ans == "y" or ans == "yes":
                         hunt_id = hunt.id
                         pokemon_name = hunt.pokemon_name
                         hunt_mode = hunt.hunt_mode
@@ -53,14 +53,14 @@ def select_menu_option() -> thread.Thread:
                     if hunt is None:
                         continue
 
-                    hunt_id = hunt['id']
-                    pokemon_name = hunt['pokemon_name']
-                    hunt_mode = hunt['hunt_mode']
-                    hunt_method = hunt['hunt_method']
-                    total_encounters = hunt['total_encounters']
-                    target_pokemon_encounters = hunt['target_pokemon_encounters']
+                    hunt_id = hunt["id"]
+                    pokemon_name = hunt["pokemon_name"]
+                    hunt_mode = hunt["hunt_mode"]
+                    hunt_method = hunt["hunt_method"]
+                    total_encounters = hunt["total_encounters"]
+                    target_pokemon_encounters = hunt["target_pokemon_encounters"]
                     try:
-                        is_practice = hunt['is_practice']
+                        is_practice = hunt["is_practice"]
                     except KeyError:
                         is_practice = False
                     HuntStateManager.get_instance().set_hunt_state(
@@ -70,7 +70,7 @@ def select_menu_option() -> thread.Thread:
                         hunt_method,
                         total_encounters,
                         target_pokemon_encounters,
-                        is_practice
+                        is_practice,
                     )
 
                     return load_action(hunt_mode, hunt_method)
@@ -90,7 +90,7 @@ def select_menu_option() -> thread.Thread:
                         hunt_mode=hunt_mode,
                         hunt_method=hunt_method,
                         start_date=get_date(),
-                        is_practice=is_practice
+                        is_practice=is_practice,
                     )
                     hunt_db.create_hunt(hunt)
 
@@ -141,14 +141,10 @@ def display_actions_menu():
         f"{HuntMode.SAFARI_ZONE.value} hunt",
         f"{HuntMode.SOFT_RESET.value} hunt",
         f"{HuntMode.EGG.value} hunt",
-        f"{HuntMode.REGULAR.value} hunt"
+        f"{HuntMode.REGULAR.value} hunt",
     ]
 
-    print(
-        "Please select one of the following automation options:\n"
-        "\nShiny hunting method:"
-        "\n======================="
-    )
+    print("Please select one of the following automation options:\n" "\nShiny hunting method:" "\n=======================")
 
     for i in range(len(action_list)):
         print(f"{i + 1}: {action_list[i]}")
@@ -157,8 +153,7 @@ def display_actions_menu():
     # "\n\nOther automations:"
     # "\n======================="
     # "\n8: "
-    print("======================="
-          "\n0: Quit")
+    print("=======================" "\n0: Quit")
 
 
 def select_action() -> thread.Thread | None:
@@ -168,6 +163,8 @@ def select_action() -> thread.Thread | None:
 
             option = int(input("Enter your option (0-8): "))
 
+            action, method, args = None
+
             match option:
                 case 0:
                     print("Program exited.")
@@ -175,67 +172,68 @@ def select_action() -> thread.Thread | None:
                 case 1:
                     # print(f"Beginning {HuntMode.POKERADAR.value} hunt!")
                     print(f"{HuntMode.POKERADAR.value} hunt coming soon.")
-                    return None
                 case 2:
+                    action = actions.fishing_hunt
                     method, args, method_name = select_search_func(HuntMode.FISHING.value)
                     HuntStateManager.get_instance().set_hunt_mode(HuntMode.FISHING.value, method_name)
-
-                    return thread.Thread(target=actions.fishing_hunt, args=[method, args], daemon=True)
                 case 3:
                     # print(f"Beginning {HuntMode.FOSSIL.value} hunt!")
                     print(f"{HuntMode.FOSSIL.value} hunt coming soon.")
-                    return None
                 case 4:
                     # print(f"Beginning {HuntMode.SAFARI_ZONE.value} hunt!")
                     print(f"{HuntMode.SAFARI_ZONE.value} hunt coming soon.")
-                    return None
                 case 5:
+                    action = actions.soft_reset_hunt
                     # print(f"{HuntMode.SOFT_RESET.value} hunt coming soon.")
                     HuntStateManager.get_instance().set_hunt_mode(HuntMode.SOFT_RESET.value)
-                    return thread.Thread(target=actions.soft_reset_hunt, daemon=True)
                 case 6:
+                    action = actions.egg_hunt
                     # print(f"Beginning {HuntMode.EGG.value} hunt!")
                     # print(f"{HuntMode.EGG.value} hunt coming soon.")
                     HuntStateManager.get_instance().set_hunt_mode(HuntMode.EGG.value)
-                    return thread.Thread(target=actions.egg_hunt, daemon=True)
                     # return None
                 case 7:
+                    action = actions.regular_hunt
                     method, args, method_name = select_search_func(HuntMode.REGULAR.value)
                     HuntStateManager.get_instance().set_hunt_mode(HuntMode.REGULAR.value, method_name)
 
-                    return thread.Thread(target=actions.regular_hunt, args=[method, args], daemon=True)
-
                 case _:
-                    print("This option is not available, try again")
+                    print("This option is not available, try again.")
+
+            if action is not None:
+                return thread.Thread(
+                    target=action,
+                    name="___action_thread___",
+                    args=[method, args],
+                    daemon=True,
+                )
+
         except EOFError:
             print("End of file.")
         except ValueError:
             print("This hunt mode have no other search method.")
 
 
-def select_search_func(hunt_mode):
+def select_search_func(hunt_mode) -> tuple[str, any, str]:
+    methods = ACTION_TYPES[hunt_mode]["methods"]
     while True:
         try:
-            num = 0
             print("Please select any of the search methods:")
-            methods = src.automation.action_registry.ACTION_TYPES[hunt_mode]['methods']
-            for method in methods:
-                num += 1
-                print(f"{method['number']}: {method['method_name']}")
+            for num, method in enumerate(methods, start=1):
+                print(f"{num}:", method["method_name"])
 
-            ans = int(input(f"Select an option (1-{num}): "))
+            ans = int(input(f"Select an option (1-{len(methods)}): "))
 
-            method = methods[ans - 1]['method']
-            args = methods[ans - 1]['args']
-            method_name = methods[ans - 1]['method_name']
+            if ans > 0:
+                method = methods[ans - 1]["method"]
+                args = methods[ans - 1]["args"]
+                method_name = methods[ans - 1]["method_name"]
 
-            if method is None:
-                print("This method is currently unavailable, try again.\n")
-            else:
-                return method, args, method_name
-        except IndexError:
-            print("Invalid option.\n")
-        except ValueError:
+                if method is None:
+                    print("This method is currently unavailable, try again.\n")
+                else:
+                    return method, args, method_name
+        except (IndexError, ValueError):
             print("Invalid option.\n")
 
 
@@ -246,7 +244,7 @@ def print_start_menu():
         "Start new hunt",
         "Practice hunt",
         "Show hunt history",
-        "Quit"
+        "Quit",
     ]
 
     print("\nMenu:")
@@ -255,6 +253,7 @@ def print_start_menu():
 
 
 # ============================== DATABASE ===============================
+
 
 def display_current_hunts():
     hunts: list[Hunt] = hunt_db.get_all_hunts()
@@ -273,8 +272,10 @@ def display_current_hunts():
         if not entry.finished:
             hunt_id_list.append({f"{i}": entry.id})
 
-            print(f"{i:<6} {entry.pokemon_name:12} {entry.start_date:20}"
-                  f" {entry.hunt_mode:14} {entry.total_encounters:<14} {entry.target_pokemon_encounters:<17}")
+            print(
+                f"{i:<6} {entry.pokemon_name:12} {entry.start_date:20}"
+                f" {entry.hunt_mode:14} {entry.total_encounters:<14} {entry.target_pokemon_encounters:<17}"
+            )
             i += 1
     return hunt_id_list
 
@@ -316,22 +317,19 @@ def print_feebas_state():
 
 
 def to_dict(obj) -> dict:
-    return {
-        c.key: getattr(obj, c.key)
-        for c in inspect(obj).mapper.column_attrs
-    }
+    return {c.key: getattr(obj, c.key) for c in inspect(obj).mapper.column_attrs}
 
 
 # ============================== DATABASE ===============================
 def load_action(hunt_mode, hunt_method) -> thread.Thread:
-    action = ACTION_TYPES[hunt_mode]['action']
+    action = ACTION_TYPES[hunt_mode]["action"]
     method = None
     args = None
     method_name = ""
 
-    if ACTION_TYPES[hunt_mode]['method_required']:
-        for method_obj in ACTION_TYPES[hunt_mode]['methods']:
-            if method_obj['method_name'] == hunt_method:
+    if ACTION_TYPES[hunt_mode]["method_required"]:
+        for method_obj in ACTION_TYPES[hunt_mode]["methods"]:
+            if method_obj["method_name"] == hunt_method:
                 method = method_obj["method"]
                 args = method_obj["args"]
                 method_name = method_obj["method_name"]
@@ -340,7 +338,12 @@ def load_action(hunt_mode, hunt_method) -> thread.Thread:
             method, args, method_name = select_search_func(hunt_mode)
 
     HuntStateManager.get_instance().set_hunt_mode(hunt_mode, method_name)
-    return thread.Thread(target=action, args=[method, args], daemon=False)
+    return thread.Thread(
+        target=action,
+        name="___action_thread___",
+        args=[method, args],
+        daemon=False,
+    )
 
 
 def print_map(grid):

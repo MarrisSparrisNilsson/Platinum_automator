@@ -43,7 +43,6 @@ Parity Constraint
 
 import json
 import random
-import sys
 from collections import deque
 from pathlib import Path
 
@@ -426,7 +425,7 @@ def find_feebas_path(max_seeds=500):
     else:
         if start_pos_coord not in set(starts):
             print(f"Error: {start_pos_coord} is not a type-3 shore tile.")
-            sys.exit(1)
+            exit(1)
         targets = [start_pos_coord]
         stop_first = True
 
@@ -471,4 +470,4 @@ def find_feebas_path(max_seeds=500):
 
     print(f"Done. {len(solutions)} solution(s) found.")
     if not solutions:
-        sys.exit(1)
+        exit(1)

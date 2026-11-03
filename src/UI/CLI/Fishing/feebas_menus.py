@@ -5,7 +5,7 @@ from src.core.enums import FeebasHuntConfig
 from src.utils.helpers import shutdown
 
 
-def feebas_hunt_configuration(fish_at_pos: int, tot_tiles: int) -> tuple[bool, int]:
+def feebas_hunt_configuration(fish_at_pos: int, tot_tiles: int, furthest_reached: int = 0) -> tuple[bool, int]:
     """
     Prints the hunt configuration options and returns hunt configurations based on user input.
 
@@ -13,31 +13,51 @@ def feebas_hunt_configuration(fish_at_pos: int, tot_tiles: int) -> tuple[bool, i
     :param tot_tiles: Total fish-able tiles in the pond
     :return: Walk_to_pos (bool), fish_at_pos (int)
     """
-    while True:
+    walk_to_pos = False
+    new_fish_at_pos = 0
+    pos_to_newPos = False
 
-        selected = feebas_hunt_configuration_menu(fish_at_pos, tot_tiles)
+    selected = feebas_hunt_configuration_menu(fish_at_pos, tot_tiles, furthest_reached)
 
-        if selected is None:
+    match selected:
+        case "quit":
             shutdown()
+            exit()
 
-        match selected:
-            case FeebasHuntConfig.START:
-                return False, 0
+        case FeebasHuntConfig.START:
+            walk_to_pos = False
+            new_fish_at_pos = 0
 
-            case FeebasHuntConfig.CURRENT_POS:
-                return False, fish_at_pos
+        case FeebasHuntConfig.CURRENT_POS:
+            walk_to_pos = False
+            new_fish_at_pos = fish_at_pos
 
-            case FeebasHuntConfig.START_TO_POS:
-                return True, fish_at_pos
+        case FeebasHuntConfig.START_TO_POS:
+            walk_to_pos = True
+            new_fish_at_pos = fish_at_pos
 
-            case FeebasHuntConfig.POS_TO_NEW:
+        case FeebasHuntConfig.START_TO_FURTHEST:
+            walk_to_pos = True
+            new_fish_at_pos = furthest_reached
 
-                new_pos = get_new_position(fish_at_pos, tot_tiles)
-                if new_pos is not None:
-                    return True, new_pos
+        case FeebasHuntConfig.POS_TO_NEW:
+            new_pos = get_new_position(fish_at_pos, tot_tiles)
+            if new_pos is not None:
+                walk_to_pos = True
+                new_fish_at_pos = new_pos
+                pos_to_newPos = True
+
+    # 1. Start walking/fishing from current tile position,
+    # 2. or use current tile position as walking start point to new location.
+    if (fish_at_pos == new_fish_at_pos and not walk_to_pos) or (walk_to_pos and pos_to_newPos):
+        start_pos = fish_at_pos
+    else:
+        start_pos = 0
+
+    return walk_to_pos, start_pos, new_fish_at_pos
 
 
-def feebas_hunt_configuration_menu(fish_at_pos: int, tot_tiles: int) -> FeebasHuntConfig | None:
+def feebas_hunt_configuration_menu(fish_at_pos: int, tot_tiles: int, furthest_reached: int = 0) -> FeebasHuntConfig | None:
     next_pos = fish_at_pos + 1
     last_pos = tot_tiles - 1
 
@@ -52,9 +72,18 @@ def feebas_hunt_configuration_menu(fish_at_pos: int, tot_tiles: int) -> FeebasHu
                 Choice(title=f"Go from 0 to fish at {fish_at_pos}", value=FeebasHuntConfig.START_TO_POS),
             ]
         )
+    if furthest_reached > 0:
+        choices.append(
+            Choice(
+                title=f"Go from 0 to fish at furthest position reached today: {furthest_reached}",
+                value=FeebasHuntConfig.START_TO_FURTHEST,
+            )
+        )
 
     if fish_at_pos < tot_tiles - 1:
         choices.append(Choice(title=f"Go from {fish_at_pos} to fish at <New_Pos> ({destination})", value=FeebasHuntConfig.POS_TO_NEW))
+
+    choices.append(Choice(title="Quit", value="quit"))
 
     return questionary.select(f"Hunt Configuration\nCurrent tile: {fish_at_pos}", choices=choices).ask()
 
