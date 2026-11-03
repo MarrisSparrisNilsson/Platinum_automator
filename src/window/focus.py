@@ -23,8 +23,6 @@ def set_window_focus():
             window.maximize()
             window.restore()
 
-        time.sleep(1)
-
 
 def find_pause_and_resume():
     pause_btn_asset_path = SRC_DIR / "assets/images/paused.png"

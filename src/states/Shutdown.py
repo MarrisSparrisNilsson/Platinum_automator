@@ -3,28 +3,25 @@ import threading
 
 class ShutdownStateManager:
     _instance = None
-    _state: threading.Event = None
-    _lock = threading.Lock()
+    _instance_lock = threading.Lock()
 
-    @staticmethod
-    def get_instance():
-        if ShutdownStateManager._instance is None:
-            with ShutdownStateManager._lock:
-                if ShutdownStateManager._instance is None:
-                    ShutdownStateManager._instance = ShutdownStateManager()
-        return ShutdownStateManager._instance
+    def __init__(self):
+        # Events are created once and shared across threads.
+        self._state: threading.Event = threading.Event()
 
-    def set_state(self, value):
-        with ShutdownStateManager._lock:
-            self._state = value
+    @classmethod
+    def get_instance(cls):
+        with cls._instance_lock:
+            if cls._instance is None:
+                cls._instance = cls()
+
+            return cls._instance
 
     def get_state(self):
-        with ShutdownStateManager._lock:
-            return self._state
+        """Get shutdown event state"""
+        return self._state
 
-    def check_shutdown_state(self):
+    def is_shutting_down(self):
+        """Return True if shutdown event is initiated, else False."""
         shutdown_event = self.get_state()
-        if shutdown_event is not None:
-            return True
-        else:
-            return False
+        return shutdown_event.is_set()

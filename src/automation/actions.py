@@ -1,3 +1,5 @@
+from threading import current_thread
+
 import keyboard
 
 from src.automation import controls, in_game_menu_controls
@@ -49,7 +51,7 @@ def soft_reset_hunt(_a, _b):
     print(f"Beginning {hunt_mode} hunt!")
     if not HuntStateManager.get_instance().get_was_hunted_today():
         in_game_menu_controls.execute_inGame_menu_action(InGameMenuSlots.SAVE)
-    if ShutdownStateManager.get_instance().check_shutdown_state():
+    if ShutdownStateManager.get_instance().is_shutting_down():
         return
     encounter_detector.encounter_detection(search_encounter_func=soft_reset.static_encounter, end_encounter_func=flee.soft_reset)
 
@@ -62,17 +64,18 @@ def watch_exit():
     """
     Await the escape button being pressed to signal a shutdown request.
     """
-    # shutdown_state = ShutdownStateManager.get_instance()
-    shutdown_event = app_context.shutdown_event
+    shutdown_manager = ShutdownStateManager.get_instance()
+    shutdown_event = shutdown_manager.get_state()
+
     keyboard.wait("esc")
     print("\nEscape was pressed!🚨")
-    shutdown_event.set()  # Set the internal flag to True (Send Shutdown signal)
-    # shutdown_state.set_state(shutdown_event)  # Updating states
+    shutdown_event.set()  # Send Shutdown signal
 
-    pause_main_event = PauseStateManager.get_instance().get_main_pause_state()
-    if pause_main_event is not None:
-        pause_main_event.set()  # Signal main pause event to get out of wait states
-        PauseStateManager.get_instance().set_main_state(pause_main_event)
+    pause_manager = PauseStateManager.get_instance()
 
-    # HuntStateManager.get_instance().save_hunt()
+    # Clear all event locks to finish execution
+    pause_manager.get_search_encounter_pause_state().set()  # Signal search encounter pause event to get out of wait states.
+    pause_manager.get_encounter_pause_state().set()  # Signal encounter detection pause event to get out of wait states.
+
     controls.clear_movement()
+    print(f"Thread: {current_thread().name} is shutting down...")

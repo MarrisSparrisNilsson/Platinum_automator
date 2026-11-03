@@ -12,9 +12,9 @@ def walk_random(_):
     last_dir = 10  # Starts as a value with no direction representation
 
     while True:
-        PauseStateManager.get_instance().check_pause_state("Walking is paused.", "Walking now continues:")
+        PauseStateManager.get_instance().check_search_encounter_breakpoint("Walking is paused.", "Walking now continues:")
 
-        if ShutdownStateManager.get_instance().check_shutdown_state():
+        if ShutdownStateManager.get_instance().is_shutting_down():
             return
 
         random_dir = random.randint(0, 3)
@@ -32,8 +32,8 @@ def lets_try_spinning(steps):
 
     while True:
         for direction_int in range(4):
-            PauseStateManager.get_instance().check_pause_state("Spinning is paused.", "Spinning now continues:")
-            if ShutdownStateManager.get_instance().check_shutdown_state():
+            PauseStateManager.get_instance().check_search_encounter_breakpoint("Spinning is paused.", "Spinning now continues:")
+            if ShutdownStateManager.get_instance().is_shutting_down():
                 return
 
             controls.move(direction_int, steps)

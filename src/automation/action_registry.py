@@ -1,8 +1,8 @@
-from src.encounter_methods.Fishing.Feebas import feebas
-from src.automation.actions import fishing_hunt, soft_reset_hunt, egg_hunt, regular_hunt
-from src.core.enums import HuntMode, FishingTypes, WalkTypes
+from src.automation.actions import egg_hunt, fishing_hunt, regular_hunt, soft_reset_hunt
+from src.core.enums import FishingTypes, HuntMode, WalkTypes
 from src.encounter_methods import regular
 from src.encounter_methods.Fishing import fishing
+from src.encounter_methods.Fishing.Feebas import feebas
 
 ACTION_TYPES = {
     f"{HuntMode.POKERADAR.value}": {
@@ -14,18 +14,16 @@ ACTION_TYPES = {
         "method_required": True,
         "methods": [
             {
-                "number": 1,
                 "method_name": f"{FishingTypes.REGULAR.value}",
                 "method": fishing.fishing,
-                "args": True  # Continue infinitely
+                "args": -1,  # Continue infinitely
             },
             {
-                "number": 2,
                 "method_name": f"{FishingTypes.FEEBAS.value}",
                 "method": feebas.feebas_fishing,
-                "args": None
-            }
-        ]
+                "args": 2,  # Fish 2 times per tile
+            },
+        ],
     },
     f"{HuntMode.FOSSIL.value}": {
         "action": None,
@@ -48,17 +46,15 @@ ACTION_TYPES = {
         "method_required": True,
         "methods": [
             {
-                "number": 1,
                 "method_name": f"{WalkTypes.RANDOM.value}",
                 "method": regular.walk_random,
-                "args": None
+                "args": None,
             },
             {
-                "number": 2,
                 "method_name": f"{WalkTypes.CIRCLES.value}",
                 "method": regular.lets_try_spinning,
-                "args": 1
-            }
-        ]
-    }
+                "args": 1,
+            },
+        ],
+    },
 }

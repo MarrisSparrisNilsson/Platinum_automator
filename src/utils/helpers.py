@@ -164,31 +164,17 @@ def get_date(time_format="%Y-%m-%d") -> str:
     return current_datetime.strftime(time_format)
 
 
-def read_tiles(resource_path):
-    try:
-        # Open the file
-        with open(resource_path, "r") as f:
-            file = json.load(f)
-            tiles = file["path"]
-            return tiles
-    except json.decoder.JSONDecodeError:
-        print(f"Something went wrong with the resource file: {resource_path}")
-        exit(-1)
-
-
 def shutdown(shutdown_message="Shutting down"):
     # TODO: REFACTOR INTO NEW IMPLEMENTATION WITH APP_CONTEXT STATES
-    pause_main_state = PauseStateManager.get_instance()
-    pause_main_event = threading.Event()
+    pause_manager = PauseStateManager.get_instance()
+    encounter_pause_event = pause_manager.get_encounter_pause_state()
 
-    shutdown_state = ShutdownStateManager.get_instance()
-    shutdown_event = threading.Event()
+    shutdown_manager = ShutdownStateManager.get_instance()
+    shutdown_event = shutdown_manager.get_state()
 
-    pause_main_event.set()  # Get out of lock
-    shutdown_event.clear()  # Reset the internal flag to false (Shutting down)
+    shutdown_event.set()  # Shutting down
+    # time.sleep(0.2)  # Wait for encounter_pause_state print
+    encounter_pause_event.set()  # Get out of encounter detection lock
 
-    pause_main_state.set_main_state(pause_main_event)
-    shutdown_state.set_state(shutdown_event)
-
-    print(shutdown_message)
+    print(shutdown_message, "\n")
     raise SystemExit(0)

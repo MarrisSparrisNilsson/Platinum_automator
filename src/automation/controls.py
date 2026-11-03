@@ -1,17 +1,29 @@
 import sys
 import time
+from functools import wraps
 
 import keyboard
 import pyautogui
 
 from src.core.App import app_context
+from src.definitions import DEBUG_MODE
 from src.states.Hunt import HuntStateManager
 from src.states.Pause import PauseStateManager
 from src.states.Shutdown import ShutdownStateManager
+from src.window import focus
 
-_DEBUG_MODE = sys.gettrace() is not None
 # When recording with OBS, use this key to switch (show/hide) code/emulator scene
 _IS_RECORDING = False
+
+
+def require_desmume_focus(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        focus.set_window_focus()
+        # print("Window focus")
+        return func(*args, **kwargs)
+
+    return wrapper
 
 
 def clear_movement():
@@ -22,6 +34,7 @@ def clear_movement():
     pyautogui.keyUp("space")
 
 
+@require_desmume_focus
 def turn(key):
     # pyautogui.keyDown(key)
     # pyautogui.keyUp(key)
@@ -87,17 +100,22 @@ def deactivate_run():
     pyautogui.keyUp("space")
 
 
-def console_focus():
-    pyautogui.hotkey("alt", "4")
+def console_focus(pycharm=True):
+    if pycharm:
+        pyautogui.hotkey("alt", "4")
+    else:
+        pyautogui.hotkey("ctrl", "ö")
 
 
+@require_desmume_focus
 def surf():
-    for i in range(7):
+    for _ in range(7):
         time.sleep(0.5)
         a_button()
         # print("A")
 
 
+@require_desmume_focus
 def in_game_click():
     pyautogui.mouseDown()
     time.sleep(0.1)
@@ -124,17 +142,19 @@ def run_btn_coords():
     return x, y
 
 
+@require_desmume_focus
 def click_coord(x, y):
     pyautogui.moveTo(x, y)
     time.sleep(0.1)
     in_game_click()
 
 
+@require_desmume_focus
 def move(direction, steps=1):
-    switch_tab_DEBUG()
-    PauseStateManager.get_instance().check_pause_state()  # Ensure moving has the green light without any pause messages
+    # switch_tab_DEBUG()
+    PauseStateManager.get_instance().check_search_encounter_breakpoint()  # Ensure moving has the green light without any pause messages
     if steps == 0:  # Don't bother with turn movements
-        if ShutdownStateManager.get_instance().check_shutdown_state():
+        if ShutdownStateManager.get_instance().is_shutting_down():
             return
 
     move_dirs = ["a", "w", "d", "s"]
@@ -158,19 +178,20 @@ def move(direction, steps=1):
         time.sleep(0.1 * steps)  # Walk time
 
     keyboard.release(key)
+    # TODO: Update with new Game_context class
     HuntStateManager.get_instance().set_facing_direction(key)
     # if steps == 0:
     #     time.sleep(0.5)
     # else:
-    time.sleep(0.2)  # Don't touch
+    time.sleep(0.1)  # Don't touch
     # time.sleep(0.5)  # Don't touch
     # end = time.time()
     # print(f"Step active for: {end - start}s")
-    switch_tab_DEBUG()
+    # switch_tab_DEBUG()
 
 
 def switch_tab_DEBUG():
-    if _DEBUG_MODE:
+    if DEBUG_MODE:
         print("Debug mode tab switch!")
         switch_tab()
         time.sleep(1)

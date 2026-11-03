@@ -1,4 +1,3 @@
-import sys
 import time
 
 import keyboard
@@ -13,7 +12,7 @@ def flee_encounter():
     x, y = controls.run_btn_coords()
 
     while True:
-        if ShutdownStateManager.get_instance().check_shutdown_state():
+        if ShutdownStateManager.get_instance().is_shutting_down():
             return
 
         time.sleep(0.1)
@@ -22,18 +21,21 @@ def flee_encounter():
             w, h = app_context.window_size
             start_time = time.time()
             duration = 0
-            # While no black screen detected
+            flee_time = 3.2 + 2.8  # 6 seconds
+            # Loop until black screen is detected on both screens or break after 6 seconds (in case of some error).
+            # Usually flee_time is around 3.20 seconds, but we give it a buffer of 2.8 seconds to be safe.
             while not pyautogui.pixelMatchesColor(int(w / 4), int(h / 2), (0, 0, 0)) and not pyautogui.pixelMatchesColor(
                 int(w - (w / 4)), int(h / 2), (0, 0, 0)
             ):
                 end_time = time.time()
                 duration = end_time - start_time
 
-                if duration > 6:
+                if duration > flee_time:
                     break
-            if duration > 6:
+
+            if duration > flee_time:
                 print("Error: Unable to escape for some reason...")
-                sys.exit(0)
+                exit(0)
             else:
                 print("Encounter ended.")
                 time.sleep(1.2)

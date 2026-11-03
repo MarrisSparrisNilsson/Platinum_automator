@@ -5,27 +5,21 @@ import time
 
 import pygetwindow as pywindow
 
+from src.states.Shutdown import ShutdownStateManager
+
 
 class ApplicationContext:
     def __init__(self):
-        self.shutdown_event = threading.Event()
         self.hunt_event = threading.Event()
-        self.encounter_detection_event = threading.Event()
 
-        self.window = None
+        self.window: pywindow.Win32Window = None
         self.window_size = (0, 0)
         self.window_position = (0, 0)
 
         self._lock = threading.Lock()
 
-    def is_shutdown(self):
-        return self.shutdown_event.is_set()
-
     def is_hunt_paused(self):
         return self.hunt_event.is_set()
-
-    def is_encounter_detection_paused(self):
-        return self.encounter_detection_event.is_set()
 
     def get_window(self):
         return self.window
@@ -43,9 +37,10 @@ class ApplicationContext:
 
             if "DESMUME" in title or "PAUSED" in title:
                 try:
-                    window = pywindow.getWindowsWithTitle(window.title)[0]
+                    window: pywindow.Win32Window = pywindow.getWindowsWithTitle(window.title)[0]
                     with self._lock:
                         self.window = window
+                        self.window_id = window._hWnd
                         self.window_size = (window.width, window.height)
                         self.window_position = (self.window.left, self.window.top)
                     return
@@ -56,9 +51,27 @@ class ApplicationContext:
         raise RuntimeError("DeSmuME window was not detected.")
 
     def monitor_window(self):
+        """
+        Thread method for checking window properties and if focus is lost, then update and notify APP_CONTEXT when changes happen.
+        """
+
         last_size = self.window_size
         last_position = self.window_position
-        while not self.shutdown_event.is_set():
+        desmume_title = self.window.title
+
+        window: pywindow.Win32Window = pywindow.getWindowsWithTitle(desmume_title)[0]
+        # window.activate()
+        window.moveTo(-6, 0)
+
+        while not ShutdownStateManager.get_instance().is_shutting_down():
+
+            window_title = pywindow.getActiveWindowTitle()
+
+            # Desmume Window lost focus
+            if window_title != desmume_title:
+                print("Lost desmume focus")
+                # pause_manager = PauseStateManager.get_instance()
+                # Pause all I/O actions across program execution
 
             if self.window:
 
@@ -78,6 +91,8 @@ class ApplicationContext:
                     last_position = current_position
 
             time.sleep(0.25)
+
+        return self.window
 
 
 app_context = ApplicationContext()

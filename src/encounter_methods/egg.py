@@ -23,7 +23,7 @@ def hatch_egg():
     previous_direction = True
     keyboard.press("w")
     while True:
-        if ShutdownStateManager.get_instance().check_shutdown_state():
+        if ShutdownStateManager.get_instance().is_shutting_down():
             return
 
         # === Scout timer ===
@@ -31,7 +31,7 @@ def hatch_egg():
             start_time = time.time()
             duration = 0
             while duration < 1:
-                if ShutdownStateManager.get_instance().check_shutdown_state():
+                if ShutdownStateManager.get_instance().is_shutting_down():
                     return
                 pixel = pyautogui.pixel(x, y)
                 end_time = time.time()
@@ -96,7 +96,7 @@ def get_egg():
     """
     previous_direction = True
     while True:
-        if ShutdownStateManager.get_instance().check_shutdown_state():
+        if ShutdownStateManager.get_instance().is_shutting_down():
             return
 
         # === Scout timer ===
@@ -104,7 +104,7 @@ def get_egg():
             start_time = time.time()
             duration = 0
             while duration < 2:
-                if ShutdownStateManager.get_instance().check_shutdown_state():
+                if ShutdownStateManager.get_instance().is_shutting_down():
                     return
                 end_time = time.time()
                 duration = end_time - start_time
@@ -147,7 +147,7 @@ def get_egg():
 #                 break
 #         if duration > 6:
 #             print("Error: Unable to escape for some reason...")
-#             sys.exit(0)
+#             exit(0)
 #         else:
 #             print("Encounter ended.")
 #             time.sleep(1.2)

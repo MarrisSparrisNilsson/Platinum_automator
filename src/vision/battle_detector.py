@@ -55,7 +55,7 @@ def was_target_pokemon_found(pokemon_name: str):
     largest_match_count = 0
     for i in range(len(reading_configs)):
         matching_chars = 0
-        reading = pytesseract.image_to_string(pokemon_name_img_path, config=reading_configs[i])
+        reading = pytesseract.image_to_string(str(pokemon_name_img_path), config=reading_configs[i])
         if reading == pokemon_name:
             return True
         # print(reading)
@@ -120,10 +120,10 @@ def find_sparkles():
     shiny_p = [shiny_p1, shiny_p2, shiny_p3, shiny_p4, shiny_p5]
 
     duration = 0
-    print("Searching for sparkles...🔎")
+    print("\nSearching for sparkles...🔎")
     start_time = time.time()
     while duration < 2.2:  # Sparkles duration
-        if ShutdownStateManager.get_instance().check_shutdown_state():
+        if ShutdownStateManager.get_instance().is_shutting_down():
             return
 
         for i in range(len(shiny_p)):
@@ -135,5 +135,5 @@ def find_sparkles():
         duration = end_time - start_time
         # print(duration)
 
-    print("No shiny this time...☹️")
+    print("No shiny this time...☹️\n")
     return False

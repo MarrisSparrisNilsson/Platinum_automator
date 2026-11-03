@@ -10,11 +10,10 @@ from src.states.Shutdown import ShutdownStateManager
 
 
 def static_encounter(_):
-    pause_main_state = PauseStateManager.get_instance()
-    pause_main_event = threading.Event()
+    pause_manager = PauseStateManager.get_instance()
+    encounter_pause_event = pause_manager.get_encounter_pause_state()
     while True:
-        pause_main_event.clear()  # Pauses encounter automation
-        pause_main_state.set_main_state(pause_main_event)
+        encounter_pause_event.clear()  # Pauses encounter detection
 
         soft_reset()
 
@@ -23,9 +22,9 @@ def static_encounter(_):
 
         # Press "a" during startup
         print("Started waiting")
-        while duration < 15:  # Time until encounter automation starts
+        while duration < 15:  # Time until encounter detection starts
 
-            if ShutdownStateManager.get_instance().check_shutdown_state():
+            if ShutdownStateManager.get_instance().is_shutting_down():
                 return
 
             time.sleep(0.3)
@@ -34,15 +33,17 @@ def static_encounter(_):
             duration = end_time - start_time
 
         print("Finished waiting", duration)
-        pause_main_event.set()  # Resumes encounter automation
-        pause_main_state.set_main_state(pause_main_event)
+        encounter_pause_event.set()  # Resumes encounter detection
 
         # Press "a" until encounter starts
         while True:
-            if PauseStateManager.get_instance().check_pause_state("Button presses is paused.", "\nButton presses now continues."):
+            if PauseStateManager.get_instance().check_search_encounter_breakpoint(
+                "Button presses is paused.",
+                "\nButton presses now continues.",
+            ):
                 break
 
-            if ShutdownStateManager.get_instance().check_shutdown_state():
+            if ShutdownStateManager.get_instance().is_shutting_down():
                 return
 
             time.sleep(0.5)

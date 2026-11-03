@@ -35,12 +35,13 @@ utility_item_list = {
 }
 
 
-def execute_inGame_menu_action(menu_num: InGameMenuSlots, utility_item: UtilityItems = UtilityItems.NULL, register: bool = True):
+@controls.require_desmume_focus
+def execute_inGame_menu_action(menu_num: InGameMenuSlots, utility_item: list[UtilityItems] = None, register: bool = True):
     controls.x_button()
 
     find_menu_action(menu_num)
 
-    if ShutdownStateManager.get_instance().check_shutdown_state():
+    if ShutdownStateManager.get_instance().is_shutting_down():
         return
 
     controls.a_button()
@@ -49,13 +50,15 @@ def execute_inGame_menu_action(menu_num: InGameMenuSlots, utility_item: UtilityI
     match menu_num:
         case InGameMenuSlots.BAG:
             if utility_item is not UtilityItems.NULL:
-                utility_slot_value: int = utility_item_list[f"{utility_item.value}"]
-                search_bag_item(utility_slot_value, utility_item.value.lower())
+                for item in utility_item:
+                    utility_slot_value: int = utility_item_list[f"{item.value}"]
+                    search_bag_item(utility_slot_value, item.value.lower())
 
-                if utility_item is UtilityItems.MAX_REPEL:
-                    activate_repel()
-                elif utility_slot_value == BagSlots.KEY_ITEMS:
-                    register_key_item(register)
+                    if item is UtilityItems.MAX_REPEL:
+                        activate_repel()
+                    elif utility_slot_value == BagSlots.KEY_ITEMS:
+                        register_key_item(register)
+                    time.sleep(0.5)
         case InGameMenuSlots.SAVE:
             save_in_game()
         case _:
@@ -66,6 +69,7 @@ def execute_inGame_menu_action(menu_num: InGameMenuSlots, utility_item: UtilityI
         time.sleep(0.5)
 
 
+@controls.require_desmume_focus
 def register_key_item(register: bool = True):
     if register:
         w, h = app_context.window_size
@@ -82,6 +86,7 @@ def register_key_item(register: bool = True):
         controls.a_button()
 
 
+@controls.require_desmume_focus
 def find_menu_action(menu_num: InGameMenuSlots):
     # Menu start x: W * 0.3082474226804124
     # Menu start y: H * 0.10163551401869159
@@ -94,7 +99,7 @@ def find_menu_action(menu_num: InGameMenuSlots):
 
     # Pixel in the middle of the orange rectangle (on the height axis) of the top most menu.
     menu_p = (
-        int(window_width * 0.3077319587628866),
+        int(window_width * 0.3092783505628866),
         int(window_height * (0.18574766355140188 + (menu_num.value * (0.24065420560747663 - 0.12967289719626168)))),
     )
 
@@ -106,7 +111,7 @@ def find_menu_action(menu_num: InGameMenuSlots):
     # Find menu action
     while True:
         time.sleep(0.1)
-        if ShutdownStateManager.get_instance().check_shutdown_state():
+        if ShutdownStateManager.get_instance().is_shutting_down():
             return
 
         if pyautogui.pixelMatchesColor(menu_p[0], menu_p[1], (255, 107, 16)):
@@ -120,12 +125,13 @@ def find_menu_action(menu_num: InGameMenuSlots):
                 controls.down()
 
 
+@controls.require_desmume_focus
 def save_in_game():
     window_width, window_height = app_context.window_size
     save_box_p = (int(window_width * 0.12061855670103093), int(window_height * 0.32710280373831774))
     start_save_box = pyautogui.pixel(save_box_p[0], save_box_p[1])
     while True:
-        if ShutdownStateManager.get_instance().check_shutdown_state():
+        if ShutdownStateManager.get_instance().is_shutting_down():
             return True
 
         controls.a_button()
@@ -136,6 +142,7 @@ def save_in_game():
             return True
 
 
+@controls.require_desmume_focus
 def search_bag_item(utility_item_slot: int, utility_name: str):
     # pyautogui.screenshot("../images/test_max_repel.png", region=(10, 690, 110, 120))
 
@@ -148,7 +155,7 @@ def search_bag_item(utility_item_slot: int, utility_name: str):
     pyautogui.moveTo(x, y)
 
     while True:
-        if ShutdownStateManager.get_instance().get_state():
+        if ShutdownStateManager.get_instance().is_shutting_down():
             return
 
         if pyautogui.pixelMatchesColor(x, y, (255, 0, 0)):
@@ -164,7 +171,7 @@ def search_bag_item(utility_item_slot: int, utility_name: str):
     direction_changed = False
     while True:
         try:
-            time.sleep(0.1)
+            # time.sleep(0.05)
             # FIXME: INVESTIGATE IF WORD RECOGNITION IS A BETTER SUITE FOR THIS FUNCTION
             # FIXME: Image region should be dynamic to window screen resolution
             utility_item_location = SRC_DIR / f"assets/images/utility_items/{utility_name}.png"
@@ -174,7 +181,7 @@ def search_bag_item(utility_item_slot: int, utility_name: str):
                 return
 
         except pyautogui.ImageNotFoundException:
-            if ShutdownStateManager.get_instance().get_state():
+            if ShutdownStateManager.get_instance().is_shutting_down():
                 return
 
             start_p = pyautogui.pixel(x1, y1)
@@ -192,14 +199,19 @@ def search_bag_item(utility_item_slot: int, utility_name: str):
                 direction_changed = True
 
 
+@controls.require_desmume_focus
 def activate_repel():
-    for i in range(3):
-        if ShutdownStateManager.get_instance().get_state():
+    for _ in range(3):
+        if ShutdownStateManager.get_instance().is_shutting_down():
             return
         time.sleep(0.2)
         controls.a_button()
 
+    time.sleep(1)
+    controls.b_button()
 
+
+@controls.require_desmume_focus
 def use_registered_key_item():
     game_context.set_dialog_pixels()
     controls.b_button()  # Get out of potential dialog block
@@ -207,4 +219,5 @@ def use_registered_key_item():
     time.sleep(0.5)
 
     # If dialog is shown immediately after using the item, assume it's not used in an appropriate location
-    return False if dialog_is_open() else True
+    if dialog_is_open():
+        raise EnvironmentError()

@@ -1,8 +1,13 @@
+import os
+
 from src.definitions import SRC_DIR
+
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
+
 import pygame
 
 
-def play_sound(sound_file_name: str, volume: float = 0.3):
+def play_sound(sound_file_name: str, volume: float = 0.1):
     # sound_file_name = "Level_up.mp3"
     if not sound_file_name.endswith(".mp3"):
         sound_file_name = sound_file_name + ".mp3"
