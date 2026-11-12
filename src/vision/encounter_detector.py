@@ -1,4 +1,3 @@
-import math
 import threading as thread
 
 # import cv2
@@ -9,100 +8,72 @@ import pyautogui
 from src.audio.sound_player import play_sound
 from src.automation import controls
 from src.core.App import app_context
+from src.core.Game import normalize_pixel_coords
 from src.database.repositories import PokemonHuntRepository as hunt_db
 from src.states.Hunt import HuntStateManager
 from src.states.Pause import PauseStateManager
 from src.states.Shutdown import ShutdownStateManager
 from src.vision.battle_detector import find_sparkles, was_target_pokemon_found
+from src.window.game_object_region_definitions import UI_ELEMENT_PIXELS
 
 
-def is_exclamation_mark(x, y):
+def is_exclamation_mark(x, y) -> bool:
     # TODO: Improve this function to capture/recognize the actual image of exclamation mark popup. Pixels could be inconsistent.
     # Match against red exclamation mark color
-    return True if pyautogui.pixelMatchesColor(x, y, (255, 66, 0)) else False
+    return pyautogui.pixelMatchesColor(x, y, (255, 66, 0))
 
 
 def find_exclamation_mark() -> bool:
-    window_width, window_height = app_context.window_size
-
-    exc_p_middle_up = (int(window_width * 0.25), int(window_height * 0.40887850477757010))
-    exc_p_left = (int(window_width * 0.2396907216) + 1, int(window_height * 0.40771028037383180))
-    # exc_p_surf_left = (int(window_width * 0.2381443298969072), int(window_height * 0.40186915887850466))
-    exc_p_middle_down = (int(window_width * 0.25), int(window_height * 0.42757009345794394))
-    exc_p_right = (int(window_width * 0.2603092784), int(window_height * 0.40537383177570090))
-
-    exc_points = [
-        exc_p_middle_up,
-        exc_p_left,
-        exc_p_middle_down,
-        exc_p_right,
-    ]
+    exc_points = {
+        "w": normalize_pixel_coords(*UI_ELEMENT_PIXELS["excl_middle_up"]),
+        "a": normalize_pixel_coords(*UI_ELEMENT_PIXELS["excl_left"]),
+        "s": normalize_pixel_coords(*UI_ELEMENT_PIXELS["excl_middle_down"]),
+        "d": normalize_pixel_coords(*UI_ELEMENT_PIXELS["excl_right"]),
+    }
 
     direction = HuntStateManager.get_instance().get_facing_direction()
 
-    x = 0
-    y = 0
     try:
-        move_dirs = ["w", "a", "s", "d"]
-        i = move_dirs.index(direction)
-        x, y = exc_points[i]
+        x, y = exc_points[direction]
         pyautogui.moveTo(x, y)
     except ValueError:
-        pass
+        direction = ""
 
-    # Pixels matching the red exclamation mark
-    exclamation_mark_found = False
     # Search in all the fishing directions if not specified
-    if direction is None:
-        for p in range(len(exc_points)):
-            x, y = exc_points[p]
-            exclamation_mark_found = is_exclamation_mark(x, y)
-            if exclamation_mark_found:
-                break
+    if direction == "":
+        for p in exc_points.values():
+            x, y = p
+            if is_exclamation_mark(x, y):
+                return True
+        return False
     else:
-        exclamation_mark_found = is_exclamation_mark(x, y)
-
-    return exclamation_mark_found
+        return is_exclamation_mark(x, y)
 
 
-def get_encounter_pixels():
+def get_encounter_pixels() -> tuple[tuple[int, int], tuple[int, int]]:
     window_width, window_height = app_context.window_size
 
-    w_rounder = window_width % 100
-    w_hundred = math.floor(window_width / 100)
+    pixel_one = (
+        int(window_width * 0.25),
+        int(window_height * 0.50),
+    )
 
-    h_rounder = window_height % 100
-    h_hundred = math.floor(window_height / 100)
-
-    if w_rounder < 50:
-        width = w_hundred * 100
-    else:
-        width = (w_hundred + 1) * 100
-
-    if h_rounder < 50:
-        height = h_hundred * 100
-    else:
-        height = (h_hundred + 1) * 100
-
-    # print(f"ROUNDED_W: {width}, ROUNDED_H: {height}")
-    w1 = int(width / 4)
-    w2 = int(width - (width / 4))
-    h = int(height / 2)
-    pixel_one = (w1, h)
-    pixel_two = (w2, h)
+    pixel_two = (
+        int(window_width * 0.75),
+        int(window_height * 0.50),
+    )
 
     return pixel_one, pixel_two
 
 
-def encounter_started(pixel_coord_one, pixel_coord_two):
-    pixel_one_is_black = pyautogui.pixelMatchesColor(pixel_coord_one[0], pixel_coord_one[1], (0, 0, 0))
-    pixel_two_is_black = pyautogui.pixelMatchesColor(pixel_coord_two[0], pixel_coord_two[1], (0, 0, 0))
+def has_encounter_started(pixel_one: tuple[int, int], pixel_two: tuple[int, int]):
+    pixel_one_is_black = pyautogui.pixelMatchesColor(*pixel_one, (0, 0, 0))
+    pixel_two_is_black = pyautogui.pixelMatchesColor(*pixel_two, (0, 0, 0))
 
     time.sleep(0.1)
     if pixel_one_is_black and pixel_two_is_black:
         encounters = hunt_db.increment_encounters(HuntStateManager.get_instance().get_hunt_id())
-        # HuntStateManager.get_instance().increment_encounters()
-        # encounters = HuntStateManager.get_instance().get_total_encounters()
+
         print(f"\n\nEncounter #{encounters} started!👊💥")
         return True
     else:
@@ -135,6 +106,11 @@ def encounter_detection(
     )
     search_encounter_thread.start()
 
+    hunt_manager = HuntStateManager.get_instance()
+    pokemon_name = hunt_manager.get_hunted_pokemon_name()
+    hunt_id = hunt_manager.get_hunt_id()
+    timeout = hunt_manager.get_encounter_timeout()
+
     shiny_is_found = False
 
     while not shiny_is_found:
@@ -143,15 +119,11 @@ def encounter_detection(
         if ShutdownStateManager.get_instance().is_shutting_down():
             return
 
-        is_encounter = encounter_started(p1, p2)
-        if is_encounter:
+        if has_encounter_started(p1, p2):
             pause_search_encounter_event.clear()  # Pauses search_encounter_func
-
             controls.clear_movement()  # Stops movement / button presses
 
-            timeout = HuntStateManager.get_instance().get_encounter_timeout()
             # print("\nWaiting:", timeout, "seconds.")
-
             time.sleep(timeout)  # Time of encounter intro
 
             if ShutdownStateManager.get_instance().is_shutting_down():
@@ -161,26 +133,25 @@ def encounter_detection(
             NOTE: Using Tesseract (OCR) to read encountered pokemon name and verify with HuntStateManager._pokemon_name
                     if true then increment current hunted pokemon encounters by one.
             """
-            hunt_manager = HuntStateManager.get_instance()
-            pokemon_name = hunt_manager.get_hunted_pokemon_name()
 
             target_found = was_target_pokemon_found(pokemon_name)
             if target_found and not shiny_is_found:
                 play_sound("Level-up.mp3")
                 hunt_manager.set_target_pokemon_found()
-                target_encounters = hunt_db.increment_target_encounters(hunt_manager.get_hunt_id())
+                target_encounters = hunt_db.increment_target_encounters(hunt_id)
                 print(f"{pokemon_name} #{target_encounters}!")
 
-            # Save after each encounter
-            # HuntStateManager.get_instance().save_hunt()
             shiny_is_found = find_sparkles()
+
+            if ShutdownStateManager.get_instance().is_shutting_down():
+                return
 
             if shiny_is_found:
                 print(f"Congratulations! You found a shiny{f' {pokemon_name}' if target_found else ''}!✨")
-                play_sound("shiny-pokemon.mp3")
+                play_sound("shiny-pokemon.mp3", volume=0.5)
                 if target_found:
-                    play_sound("Congratulations.mp3")
-                    hunt_db.finish_hunt(hunt_manager.get_hunt_id())
+                    play_sound("Congratulations.mp3", volume=1, block=True)
+                    hunt_db.finish_hunt(hunt_id)
                 time.sleep(1)
 
                 # --- Shiny tests (Commented/False by default) ---

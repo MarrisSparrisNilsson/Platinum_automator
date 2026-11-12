@@ -1,8 +1,10 @@
 import threading
 
 import pyautogui
+import pygetwindow
 
 from src.core.App import app_context
+from src.window.game_object_region_definitions import UI_ELEMENT_PIXELS
 
 
 class GameContext:
@@ -17,14 +19,13 @@ class GameContext:
 
     def set_dialog_pixels(self):
         with self.lock:
-            window_width, window_height = app_context.window_size
-            dialog_p1 = (int(window_width * 0.032474226804123714), int(window_height * 0.802570093457944))
-            dialog_p2 = (int(window_width * 0.4747422680412371), int(window_height * 0.9217289719626168))
+            normalized_dialog_1 = normalize_pixel_coords(*UI_ELEMENT_PIXELS["dialog_1"])
+            normalized_dialog_2 = normalize_pixel_coords(*UI_ELEMENT_PIXELS["dialog_2"])
 
-            start_p = pyautogui.pixel(dialog_p2[0], dialog_p2[1])
+            start_p = pyautogui.pixel(normalized_dialog_2[0], normalized_dialog_2[1])
             self.start_pixel = start_p
-            self.dialog_point1 = dialog_p1
-            self.dialog_point2 = dialog_p2
+            self.dialog_point1 = normalized_dialog_1
+            self.dialog_point2 = normalized_dialog_2
 
     def get_dialog_pixels(self):
         with self.lock:
@@ -36,3 +37,56 @@ class GameContext:
 
 
 game_context = GameContext()
+
+
+# Get the pixels
+def normalize_pixel_coords(x: int, y: int):
+    """
+    Normalizes the pixel coordinates based on the current window size and position.
+    """
+    window: pygetwindow.Win32Window = app_context.get_window()
+    w, h = window.size
+    x_offset, y_offset = window.topleft
+
+    standard_width = 1940
+    standard_height = 856
+    static_height = 80
+    window_x_border = 7
+    # y_coord = int(((y + y_offset) / 856) * h)
+    reference_game_height = standard_height - static_height
+    current_game_height = h - static_height
+
+    x_coord = int(((x + x_offset + window_x_border) / standard_width) * w)
+    y_coord = int(((y + y_offset - static_height) / reference_game_height) * current_game_height) + static_height
+
+    return x_coord, y_coord
+
+
+def normalize_region(region: tuple[int, int, int, int]) -> tuple[int, int, int, int]:
+    """
+    Normalizes the region coordinates based on the current window size and position,
+    then checks if the utility item is present in that region.
+    """
+    window: pygetwindow.Win32Window = app_context.get_window()
+
+    w, h = window.size
+    x_offset, y_offset = window.topleft
+
+    left, top, width, height = region
+
+    static_height = 80
+    standard_width = 1940
+    standard_height = 856
+    window_x_border = 7
+
+    reference_game_height = standard_height - static_height
+    current_game_height = h - static_height
+
+    region: tuple[int, int, int, int] = (
+        int(x_offset + left + window_x_border),
+        int(y_offset + static_height + ((top - static_height) / reference_game_height) * current_game_height),
+        int((width / standard_width) * w),
+        int((height / reference_game_height) * current_game_height),
+    )
+
+    return region
