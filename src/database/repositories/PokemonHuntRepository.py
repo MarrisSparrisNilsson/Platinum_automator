@@ -12,9 +12,14 @@ def get_all_hunts() -> list[Hunt]:
         return session.query(Hunt).all()
 
 
+def get_all_hunts_by_finish_status(is_finished=False) -> list[Hunt]:
+    with SessionLocal() as session:
+        return session.query(Hunt).filter_by(finished=is_finished).all()
+
+
 def get_latest_hunt() -> Hunt:
     with SessionLocal() as session:
-        return session.query(Hunt).order_by(Hunt.last_time_hunted_date.desc()).first()
+        return session.query(Hunt).order_by(Hunt.last_time_hunted_date.desc()).filter(not Hunt.finished).first()
 
 
 def get_hunt_by_id(hunt_id):
@@ -29,6 +34,21 @@ def create_hunt(hunt: Hunt):
 
 
 def update_encounters(hunt_id, total_encounters, target_encounters, last_hunted_date):
+    with SessionLocal() as session:
+        hunt = session.query(Hunt).filter(Hunt.id == hunt_id).first()
+        if hunt is None:
+            return False
+
+        hunt.total_encounters = total_encounters
+        hunt.target_pokemon_encounters = target_encounters
+        hunt.last_time_hunted_date = last_hunted_date
+
+        session.commit()
+
+        return True
+
+
+def update_hunt_info(hunt_id, total_encounters, target_encounters, last_hunted_date):
     with SessionLocal() as session:
         hunt = session.query(Hunt).filter(Hunt.id == hunt_id).first()
         if hunt is None:
@@ -73,7 +93,7 @@ def finish_hunt(hunt_id):
             return False
 
         hunt.finished = True
-        hunt.end_date = get_date("YYYY-MM-DD HH:MM")
+        hunt.end_date = get_date("%Y-%m-%d %H:%M")
         session.commit()
 
         return True

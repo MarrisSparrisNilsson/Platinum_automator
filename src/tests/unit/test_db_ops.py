@@ -14,7 +14,7 @@ def init_db():
 
 
 def test_print_hunts(init_db):
-    print(hunt_db.get_all_hunts())
+    print(hunt_db.get_all_hunts_by_finish_status())
 
 
 def test_increment_encounters(init_db):
