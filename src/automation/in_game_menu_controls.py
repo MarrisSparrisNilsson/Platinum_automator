@@ -8,21 +8,13 @@ from src.core.Game import game_context, normalize_pixel_coords, normalize_region
 from src.definitions import SRC_DIR
 from src.states.Pause import PauseStateManager
 from src.states.Shutdown import ShutdownStateManager
-from src.utils.helpers import is_target_string_found
 from src.vision.game_ui_detector import (
     dialog_is_open,
     has_background_changed,
     is_same_object_showing,
+    is_target_string_found,
 )
 from src.window.game_object_region_definitions import UI_ELEMENT_PIXELS, UI_ELEMENTS
-
-# in_game_menu_pixels = {
-#     {
-#         "name": "Bag slot rectangle clear red",
-#         "coordinate":
-#     }
-#
-# }
 
 utility_item_list = {
     f"{UtilityItems.NULL.value}": -1,

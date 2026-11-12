@@ -5,8 +5,7 @@ import pyautogui
 from src.core.Game import normalize_pixel_coords, normalize_region
 from src.definitions import SRC_DIR
 from src.states.Shutdown import ShutdownStateManager
-from src.utils.helpers import is_target_string_found
-from src.vision.game_ui_detector import has_background_changed
+from src.vision.game_ui_detector import has_background_changed, is_target_string_found
 from src.window.game_object_region_definitions import UI_ELEMENT_PIXELS, UI_ELEMENTS
 
 

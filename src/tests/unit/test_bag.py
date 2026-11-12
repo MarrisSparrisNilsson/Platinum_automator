@@ -1,7 +1,7 @@
 import pytest
 
 from src.definitions import SRC_DIR
-from src.utils.helpers import is_target_string_found
+from src.vision.game_ui_detector import is_target_string_found
 
 
 def test_is_target_string_found():
