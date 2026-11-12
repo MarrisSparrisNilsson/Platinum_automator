@@ -1,35 +1,14 @@
 import json
 import os
-import threading
 import time
 from datetime import datetime
 
 import keyboard
-import pyautogui
+import questionary
 
 from src.automation import controls
-from src.core.App import app_context
-from src.core.Game import game_context
 from src.states.Pause import PauseStateManager
 from src.states.Shutdown import ShutdownStateManager
-
-
-def test_get_screen_pixels():
-    controls.switch_tab()
-    time.sleep(1)
-    game_context.set_dialog_pixels()
-    start_p, dialog_p1, dialog_p2 = game_context.get_dialog_pixels()
-    # controls.switch_tab()
-    time.sleep(2)
-    print(start_p)
-    time.sleep(2)
-    capture_pixel_info(dialog_p2[0], dialog_p2[1])
-
-
-def pin_point_location_on_screen(x, y):
-    controls.switch_tab()
-    print(x, y)
-    pyautogui.moveTo(x, y)
 
 
 def test_operation(perform_func, operation_string="N/A", end_message="N/A", args=None, run_once=True):
@@ -55,36 +34,10 @@ def test_operation(perform_func, operation_string="N/A", end_message="N/A", args
         # ==========================================================
 
         controls.switch_tab()
-        res = input("Press Enter to repeat or -1 to quit: ")
-        print(res)
-        if res == "-1" or run_once:
+        do_repeat = questionary.confirm("You want to repeat?", default=False).ask()
+        if not do_repeat or run_once:
             print(end_message)
             break
-
-
-def capture_pixel_info(x: int = 0, y: int = 0):
-    new_x = x
-    new_y = y
-    if new_x and new_y:
-        pixel = pyautogui.pixel(new_x, new_y)
-    else:
-        mouse = pyautogui.position()
-        print(mouse)
-        new_x = int(mouse.x)
-        new_y = int(mouse.y)
-        pixel = pyautogui.pixel(new_x, new_y)
-
-    app_context.set_window_state()
-
-    window_width, window_width = app_context.window_size
-
-    print(f"Pixel RGB: {pixel}")
-    pyautogui.moveTo(new_x, new_y)
-
-    percent_w = new_x / window_width
-    print(f"W: {percent_w}")
-    percent_h = new_y / window_width
-    print(f"H: {percent_h}")
 
 
 def get_habitat():
@@ -154,7 +107,7 @@ def record_steps(file_name):
 
 def get_date(time_format="%Y-%m-%d") -> str:
     """
-    :param time_format: Format the datetime as "YYYY-MM-DD HH:MM" or "%Y-%m-%d %H:%M"
+    :param time_format: Format the datetime as "YYYY-MM-DD HH:MM" using "%Y-%m-%d %H:%M"
     :return: Current local date string based on format
     """
     # Get the current datetime

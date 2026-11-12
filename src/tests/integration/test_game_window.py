@@ -17,7 +17,6 @@ from src.automation.actions import watch_exit
 from src.core.App import app_context
 from src.core.Game import normalize_pixel_coords, normalize_region
 from src.states.Shutdown import ShutdownStateManager
-from src.utils.helpers import capture_pixel_info
 from src.vision.encounter_detector import get_encounter_pixels
 from src.window.focus import set_window_focus
 from src.window.game_object_region_definitions import UI_ELEMENT_PIXELS, UI_ELEMENTS
@@ -74,6 +73,37 @@ def test_monitor_window_move(window_state_init):
     controls.switch_tab()
 
     assert (start_left_pos != window.left) or (start_top_pos != window.top)
+
+
+def capture_pixel_info(x: int = 0, y: int = 0):
+    if x > 0 and y > 0:
+        pixel = pyautogui.pixel(x, y)
+    else:
+        mouse = pyautogui.position()
+        print(mouse)
+        x = int(mouse.x)
+        y = int(mouse.y)
+        pixel = pyautogui.pixel(x, y)
+
+    window: Win32Window = app_context.get_window()
+
+    w, h = window.size
+    print(x, y)
+
+    print(f"Pixel RGB: {pixel}")
+    pyautogui.moveTo(x, y)
+
+    percent_w = x / w
+    print(f"W: {percent_w}")
+    percent_h = y / h
+    print(f"H: {percent_h}")
+    print()
+
+    x_offset, y_offset = window.topleft
+    print(f"Window size: [{w} x {h}]")
+    print(f"Window position: ({x_offset},{y_offset})")
+
+    return x, y
 
 
 @pytest.mark.integration
