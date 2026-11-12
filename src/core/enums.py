@@ -1,4 +1,6 @@
-from enum import Enum, IntEnum, auto
+from enum import Enum, IntEnum, StrEnum, auto
+
+import emoji
 
 
 class EncounterTimeout(IntEnum):
@@ -6,7 +8,7 @@ class EncounterTimeout(IntEnum):
     LEGENDARY = 3
 
 
-class UtilityItems(Enum):
+class UtilityItems(StrEnum):
     NULL = "NULL"
     REPEL = "REPEL"
     SUPER_REPEL = "SUPER_REPEL"
@@ -39,7 +41,7 @@ class BagSlots(IntEnum):
     KEY_ITEMS = 7
 
 
-class HuntMode(Enum):
+class HuntMode(StrEnum):
     REGULAR = "Regular"
     POKERADAR = "Pokeradar"
     SOFT_RESET = "Soft Reset"
@@ -49,14 +51,24 @@ class HuntMode(Enum):
     EGG = "Egg"
 
 
-class WalkTypes(Enum):
+class HuntMenu(StrEnum):
+    CONTINUE = f"{emoji.emojize(':play_button: ')} Continue latest hunt"
+    RESUME = f"{emoji.emojize(':play_button: ')} Resume hunt"
+    START = f"{emoji.emojize(':bullseye:')} Start new hunt"
+    SHOW = f"{emoji.emojize(':scroll:')} Show hunt history"
+    DELETE = f"{emoji.emojize(':wastebasket: ')} Delete hunt"
+    QUIT = "Quit"
+    BACK = "Back"
+
+
+class WalkTypes(StrEnum):
     RANDOM = "Walk random"
     CIRCLES = "Walk in circles"
     UP_DOWN = "Walk up and down"
     LEFT_RIGHT = "Walk left and right"
 
 
-class FishingTypes(Enum):
+class FishingTypes(StrEnum):
     REGULAR = "Regular fishing"
     FEEBAS = "Feebas hunt"
 
