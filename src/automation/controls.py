@@ -157,8 +157,9 @@ def move(direction, steps=1):
         if ShutdownStateManager.get_instance().is_shutting_down():
             return
 
+    # Circular movements
     move_dirs = ["a", "w", "d", "s"]
-    if direction is int:
+    if type(direction) is int:
         key = move_dirs[direction]
     else:
         if direction in move_dirs:
@@ -175,7 +176,7 @@ def move(direction, steps=1):
         time.sleep(0.05)  # Turn time
     else:
         # time.sleep(0.27 * steps)  # Walk time
-        time.sleep(0.1 * steps)  # Walk time
+        time.sleep(0.08 * steps)  # Walk time
 
     keyboard.release(key)
     # TODO: Update with new Game_context class

@@ -22,6 +22,8 @@ class ApplicationContext:
         return self.hunt_event.is_set()
 
     def get_window(self):
+        window: pywindow.Win32Window = pywindow.getWindowsWithTitle(self.window.title)[0]
+        self.window = window
         return self.window
 
     def set_window_state(self):
@@ -42,7 +44,11 @@ class ApplicationContext:
                         self.window = window
                         self.window_id = window._hWnd
                         self.window_size = (window.width, window.height)
-                        self.window_position = (self.window.left, self.window.top)
+                        # if window.left < 0 or window.top < 0:
+                        #     self.window_position = (0, 0)
+                        #     window.moveTo(-7, 0)
+                        # else:
+                        self.window_position = window.topleft
                     return
 
                 except IndexError:
@@ -59,9 +65,9 @@ class ApplicationContext:
         last_position = self.window_position
         desmume_title = self.window.title
 
-        window: pywindow.Win32Window = pywindow.getWindowsWithTitle(desmume_title)[0]
+        window: pywindow.Win32Window = self.get_window()
         # window.activate()
-        window.moveTo(-6, 0)
+        window.moveTo(-7, 0)
 
         while not ShutdownStateManager.get_instance().is_shutting_down():
 

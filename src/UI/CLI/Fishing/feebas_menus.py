@@ -1,7 +1,7 @@
 import questionary
 from questionary import Choice
 
-from src.core.enums import FeebasHuntConfig
+from src.core.enums import FeebasHuntConfig, HuntMenu, UtilityItems
 from src.utils.helpers import shutdown
 
 
@@ -20,7 +20,7 @@ def feebas_hunt_configuration(fish_at_pos: int, tot_tiles: int, furthest_reached
     selected = feebas_hunt_configuration_menu(fish_at_pos, tot_tiles, furthest_reached)
 
     match selected:
-        case "quit":
+        case HuntMenu.QUIT:
             shutdown()
             exit()
 
@@ -83,7 +83,7 @@ def feebas_hunt_configuration_menu(fish_at_pos: int, tot_tiles: int, furthest_re
     if fish_at_pos < tot_tiles - 1:
         choices.append(Choice(title=f"Go from {fish_at_pos} to fish at <New_Pos> ({destination})", value=FeebasHuntConfig.POS_TO_NEW))
 
-    choices.append(Choice(title="Quit", value="quit"))
+    choices.append(Choice(title=HuntMenu.QUIT.value, value=HuntMenu.QUIT))
 
     return questionary.select(f"Hunt Configuration\nCurrent tile: {fish_at_pos}", choices=choices).ask()
 
@@ -145,3 +145,14 @@ def select_start_shore_pos(start_positions: dict):
     start_pos_coord = (0, start_pos) if selected_side == "top" else (start_pos, 0)
     print("Selected position:", start_pos_coord)
     return start_pos_coord
+
+
+def select_rod():
+    rod = questionary.select(
+        "Select which fishing rod to use:",
+        choices=[
+            Choice(title=str(UtilityItems.GOOD_ROD.value).replace("_", " "), value=UtilityItems.GOOD_ROD),
+            Choice(title=str(UtilityItems.SUPER_ROD.value).replace("_", " "), value=UtilityItems.SUPER_ROD),
+        ],
+    ).ask()
+    return rod

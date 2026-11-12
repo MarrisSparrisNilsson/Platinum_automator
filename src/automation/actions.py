@@ -47,9 +47,10 @@ def egg_hunt(_a, _b):
 
 
 def soft_reset_hunt(_a, _b):
-    hunt_mode = HuntStateManager.get_instance().get_hunt_mode()
-    print(f"Beginning {hunt_mode} hunt!")
-    if not HuntStateManager.get_instance().get_was_hunted_today():
+    hunt_manager = HuntStateManager.get_instance()
+    # hunt_mode = hunt_manager.get_hunt_mode()
+    # print(f"Beginning {hunt_mode} hunt!")
+    if not hunt_manager.get_was_hunted_today():
         in_game_menu_controls.execute_inGame_menu_action(InGameMenuSlots.SAVE)
     if ShutdownStateManager.get_instance().is_shutting_down():
         return

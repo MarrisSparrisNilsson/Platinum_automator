@@ -15,7 +15,8 @@
 		"pygetwindow",
 		"pytest",
 		"pywindow",
-		"sessionmaker"
+		"sessionmaker",
+		"Tesseract"
 	],
 	"python.testing.pytestEnabled": true,
 	"python.testing.unittestEnabled": false,

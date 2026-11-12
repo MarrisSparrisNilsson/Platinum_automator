@@ -19,6 +19,7 @@ from src.states.Pause import PauseStateManager
 from src.states.Shutdown import ShutdownStateManager
 from src.UI.CLI.Fishing.feebas_menus import (
     feebas_hunt_configuration,
+    select_rod,
     select_start_shore_pos,
 )
 from src.utils.helpers import get_date, shutdown
@@ -78,9 +79,11 @@ def feebas_fishing(encounters=2):
 
         fish_at_pos = feebas_info["latest_tile"]
 
-    controls.switch_tab()
     print("Non-cleared tile ranges:", tile_ranges)
     print(f"Cleared percentage: {get_cleared_percentage(tile_ranges, len(tiles)):.2f}%")
+
+    controls.switch_tab()
+    rod = select_rod()
     walk_to_pos, start_pos, new_fish_at_pos = feebas_hunt_configuration(
         fish_at_pos,
         len(tiles),
@@ -99,7 +102,7 @@ def feebas_fishing(encounters=2):
         InGameMenuSlots.BAG,
         [
             UtilityItems.MAX_REPEL,
-            UtilityItems.GOOD_ROD,
+            rod,
         ],
     )
 
@@ -144,7 +147,7 @@ def feebas_fishing(encounters=2):
             time.sleep(3)
 
             non_cleared_tile_ranges(tile_ranges, tile)
-            feebas_state.increment_tile_count_tracking(tile, tile_ranges)
+            feebas_state.increment_tile_count_tracking(tile + 1, tile_ranges)
 
             # Don't touch
             PauseStateManager.get_instance().check_search_encounter_breakpoint(

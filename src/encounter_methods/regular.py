@@ -30,6 +30,9 @@ def walk_random(_):
 def lets_try_spinning(steps):
     print("Character is spinning")
 
+    # Resume encounter detection
+    PauseStateManager().get_instance().get_encounter_pause_state().set()
+
     while True:
         for direction_int in range(4):
             PauseStateManager.get_instance().check_search_encounter_breakpoint("Spinning is paused.", "Spinning now continues:")

@@ -3,9 +3,13 @@ import json
 import numpy as np
 
 from src.automation import controls
+from src.automation.in_game_menu_controls import (
+    check_repel_status,
+    execute_inGame_menu_action,
+)
+from src.core.enums import InGameMenuSlots, UtilityItems
 from src.definitions import SRC_DIR
 from src.states.Pause import PauseStateManager
-from src.vision.game_ui_detector import check_repel_status
 
 # from pathlib import Path
 
@@ -87,6 +91,7 @@ def make_feebas_fishing_movement(tiles: list, tile: int, walk_to_pos: bool):
 
     # If a new repel was activated, and we should continue fishing instead of walking
     if check_repel_status() and not walk_to_pos:
+        execute_inGame_menu_action(InGameMenuSlots.BAG, [UtilityItems.MAX_REPEL])
         # Resumes encounter detection
         PauseStateManager.get_instance().get_encounter_pause_state().set()
 

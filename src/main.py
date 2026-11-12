@@ -2,6 +2,8 @@
 import threading as thread
 import time
 
+import questionary
+
 # Local modules
 from src.automation import actions, controls
 from src.core.App import app_context
@@ -9,7 +11,7 @@ from src.database.database import initialize_db
 from src.definitions import DEBUG_MODE, is_PyCharm
 from src.sandbox import lab
 from src.states.Shutdown import ShutdownStateManager
-from src.UI.cli_ui import select_menu_option
+from src.UI.CLI.cli_ui import select_menu_option
 from src.window.focus import find_pause_and_resume, set_window_focus
 
 
@@ -34,7 +36,12 @@ def main():
             return
 
         shutdown_thread = thread.Thread(target=actions.watch_exit, name="___watch_exit_thread___", daemon=True)
-        input("Press ENTER to start!")
+
+        # input("Press ENTER to start!")
+        is_continue = questionary.confirm("Start selected hunt?", auto_enter=False).ask()
+        if not is_continue:
+            continue
+
         try:
             shutdown_thread.start()
             set_window_focus()
